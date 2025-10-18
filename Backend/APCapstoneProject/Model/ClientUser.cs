@@ -1,0 +1,57 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Reflection.Metadata;
+using System.Security.Principal;
+
+namespace APCapstoneProject.Model
+{
+    public class ClientUser: User
+    {
+ 
+        //nav property
+        public List<Beneficiary>? Beneficiaries { get; set; } = new List<Beneficiary>();
+        //nav property
+        public List<Employee>? Employees { get; set; } = new List<Employee>();
+
+
+
+
+        [Required(ErrorMessage = "Date of Birth is Required!")]
+        [DataType(DataType.Date)]
+        public DateTime DateOfBirth { get; set; }
+
+
+
+
+
+        [Required(ErrorMessage = "Address is Required!")]
+        public string Address { get; set; }
+
+
+        //important : review later
+        public bool KycVierified { get; set; } = false;
+
+
+
+
+
+        //nav property
+        public virtual ICollection<Document>? Documents { get; set; } = new List<Document>();
+
+
+        //nav property
+        public int? AccountId { get; set; }
+        public virtual Account? Account { get; set; }
+
+
+        //nav property
+        public int? BankUserId { get; set; }
+        public virtual BankUser? BankUser { get; set; }
+
+
+    }
+
+
+
+
+}

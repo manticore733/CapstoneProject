@@ -1,0 +1,6 @@
+@APCapstoneProject_HostAddress = http://localhost:5022
+
+GET {{APCapstoneProject_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
