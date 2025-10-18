@@ -7,6 +7,10 @@ namespace APCapstoneProject.Model
 {
     public class ClientUser: User
     {
+
+        // testing commit by pranav
+
+
  
         //nav property
         public List<Beneficiary>? Beneficiaries { get; set; } = new List<Beneficiary>();
