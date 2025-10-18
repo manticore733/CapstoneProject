@@ -20,9 +20,9 @@ namespace APCapstoneProject.Model
 
 
 
-        [Required(ErrorMessage = "Date of Birth is Required!")]
+        [Required(ErrorMessage = "Establishment Date is Required!")]
         [DataType(DataType.Date)]
-        public DateTime DateOfBirth { get; set; }
+        public DateTime EstablishmentDate { get; set; }
 
 
 
@@ -31,13 +31,7 @@ namespace APCapstoneProject.Model
         [Required(ErrorMessage = "Address is Required!")]
         public string Address { get; set; }
 
-
-        //important : review later
-        public bool KycVierified { get; set; } = false;
-
-
-
-
+        public bool IsVerified { get; set; } = false;
 
         //nav property
         public virtual ICollection<Document>? Documents { get; set; } = new List<Document>();
@@ -51,6 +45,10 @@ namespace APCapstoneProject.Model
         //nav property
         public int? BankUserId { get; set; }
         public virtual BankUser? BankUser { get; set; }
+
+        public bool IsActive { get; set; } = true;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
 
 
     }
