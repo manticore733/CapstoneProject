@@ -5,6 +5,7 @@ namespace APCapstoneProject.Model
 {
     public class User
     {
+        //testing commits
 
         
         [Required(ErrorMessage = "User Full Name is Required!")]
