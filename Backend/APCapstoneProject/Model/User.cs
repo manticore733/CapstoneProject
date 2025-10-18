@@ -55,24 +55,9 @@ namespace APCapstoneProject.Model
 
 
 
-        [Required(ErrorMessage = "User Joining Date is Required!")]
-        public DateTime UserJoiningDate { get; set; } = DateTime.Now.Date;
-
-
-
-        public bool isActive { get; set; } = true;
-
-
-        //optional : review later
-        public DateTime LastLogin { get; set; }
-
-
-
-     
-
-
-
-
+        public bool IsActive { get; set; } = true;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? UpdatedAt { get; set; }
 
     }
 }
