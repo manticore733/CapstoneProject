@@ -7,10 +7,6 @@ namespace APCapstoneProject.Model
 {
     public class ClientUser: User
     {
-
-        // testing commit by pranav
-
-
  
         //nav property
         public List<Beneficiary>? Beneficiaries { get; set; } = new List<Beneficiary>();
@@ -31,14 +27,17 @@ namespace APCapstoneProject.Model
         [Required(ErrorMessage = "Address is Required!")]
         public string Address { get; set; }
 
-        public bool IsVerified { get; set; } = false;
+        //will be verified by BankUser
+        //nav property
+        [Required(ErrorMessage = "Verification Status is Required!")]
+        public int StatusId { get; set; }
+        public virtual Status? VerificationStatus { get; set; }
 
         //nav property
         public virtual ICollection<Document>? Documents { get; set; } = new List<Document>();
 
 
         //nav property
-        public int? AccountId { get; set; }
         public virtual Account? Account { get; set; }
 
 
@@ -46,14 +45,5 @@ namespace APCapstoneProject.Model
         public int? BankUserId { get; set; }
         public virtual BankUser? BankUser { get; set; }
 
-        public bool IsActive { get; set; } = true;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
-
-
     }
-
-
-
-
 }
