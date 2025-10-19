@@ -6,8 +6,9 @@ namespace APCapstoneProject.Model
     {
         public int BeneficiaryId { get; set; }
 
-        [Required(ErrorMessage = "clientId is Required!")]
-        public int ClientId { get; set; }
+        [Required(ErrorMessage = "Client Id is Required!")]
+        public int ClientUserId { get; set; }
+        public virtual ClientUser? ClientUser { get; set; }
 
 
         [Required(ErrorMessage = "Beneficiary name is Required!")]
@@ -24,8 +25,6 @@ namespace APCapstoneProject.Model
 
         [Required(ErrorMessage = "IFSC Code is Required!")]
         public string IFSC { get; set; }
-
-        public bool IsVerified { get; set; } = false;
 
 
         public bool IsActive { get; set; } = true;

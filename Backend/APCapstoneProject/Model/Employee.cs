@@ -35,7 +35,7 @@ namespace APCapstoneProject.Model
         [Required(ErrorMessage = "Salary amount is required.")]
         [Range(0, double.MaxValue, ErrorMessage = "Salary must be a positive number.")]
         [DataType(DataType.Currency)]
-        public int Salary { get; set; }
+        public decimal Salary { get; set; }
 
 
         [DataType(DataType.Date)]
@@ -44,9 +44,6 @@ namespace APCapstoneProject.Model
         [DataType(DataType.Date)]
         public DateTime? DateOfLeaving { get; set; }
 
-
-
-        public virtual ICollection<SalaryDisbursementList>? SalaryDisbursementList { get; set; }
 
 
         public bool IsActive { get; set; } = true;
