@@ -5,10 +5,6 @@ namespace APCapstoneProject.Model
 {
     public class User
     {
-        //testing commits
-
-        
-        [Required(ErrorMessage = "User Full Name is Required!")]
         public int UserId { get; set; }
 
 
@@ -49,8 +45,8 @@ namespace APCapstoneProject.Model
 
 
 
-        //nav property
-        public int BankId { get; set; }
+        //nav property (for BankUser, else nullable)
+        public int? BankId { get; set; }
         public virtual Bank? Bank { get; set; }
 
 
