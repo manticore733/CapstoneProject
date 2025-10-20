@@ -1,4 +1,7 @@
 
+using APCapstoneProject.Data;
+using Microsoft.EntityFrameworkCore;
+
 namespace APCapstoneProject
 {
     public class Program
@@ -8,6 +11,10 @@ namespace APCapstoneProject
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddDbContext<BankingAppDbContext>(options =>
+            {
+                options.UseSqlServer(builder.Configuration.GetConnectionString("myconn"));
+            });
 
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

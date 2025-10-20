@@ -1,4 +1,5 @@
 ﻿using APCapstoneProject.Model;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -13,6 +14,8 @@ namespace APCapstoneProject.Model
 
         public bool AllEmployees { get; set; } = true;
 
+        [DataType(DataType.Currency)]
+        [Precision(18, 2)]
         public decimal TotalAmount { get; set; }
 
         [DataType(DataType.DateTime)]

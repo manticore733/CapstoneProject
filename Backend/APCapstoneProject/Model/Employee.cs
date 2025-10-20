@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace APCapstoneProject.Model
@@ -35,6 +36,7 @@ namespace APCapstoneProject.Model
         [Required(ErrorMessage = "Salary amount is required.")]
         [Range(0, double.MaxValue, ErrorMessage = "Salary must be a positive number.")]
         [DataType(DataType.Currency)]
+        [Precision(18, 2)]
         public decimal Salary { get; set; }
 
 
