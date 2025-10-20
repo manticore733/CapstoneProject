@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace APCapstoneProject.Model
@@ -23,6 +24,7 @@ namespace APCapstoneProject.Model
         public string Remark { get; set; }
 
         [DataType(DataType.Currency)]
+        [Precision(18, 2)]
         public decimal Amount { get; set; }
 
 

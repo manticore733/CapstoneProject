@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.EntityFrameworkCore;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace APCapstoneProject.Model
@@ -25,6 +26,7 @@ namespace APCapstoneProject.Model
 
         [Required(ErrorMessage = "Balance in Required!")]
         [DataType(DataType.Currency)]
+        [Precision(18, 2)]
         public decimal Balance { get; set; } = 0;
 
 
