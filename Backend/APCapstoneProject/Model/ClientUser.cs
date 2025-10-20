@@ -1,7 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using System.Reflection.Metadata;
-using System.Security.Principal;
 
 namespace APCapstoneProject.Model
 {
@@ -38,7 +35,7 @@ namespace APCapstoneProject.Model
 
 
         //nav property
-        public virtual Account? Account { get; set; }
+        public virtual ICollection<Account>? Accounts { get; set; } = new List<Account>();
 
 
         //nav property

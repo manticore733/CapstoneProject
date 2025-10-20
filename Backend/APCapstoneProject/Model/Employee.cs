@@ -44,7 +44,7 @@ namespace APCapstoneProject.Model
         [DataType(DataType.Date)]
         public DateTime? DateOfLeaving { get; set; }
 
-
+        public virtual ICollection<SalaryDisbursementDetail>? SalaryPayments { get; set; }
 
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -13,14 +13,12 @@ namespace APCapstoneProject.Model
 
         public bool AllEmployees { get; set; } = true;
 
+        public decimal TotalAmount { get; set; }
+
         [DataType(DataType.DateTime)]
         public DateTime DisbursementDate { get; set; } = DateTime.UtcNow;
 
 
-        // for review
         public virtual ICollection<SalaryDisbursementDetail>? Details { get; set; } = new List<SalaryDisbursementDetail>();
     }
 }
-
-
-public virtual ICollection<Employee>? Employees { get; set; } = new List<Employee>();

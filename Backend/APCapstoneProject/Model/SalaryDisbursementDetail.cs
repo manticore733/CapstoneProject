@@ -20,6 +20,8 @@ namespace APCapstoneProject.Model
 
         public bool? Success { get; set; } = null;
 
+        public string Remark { get; set; }
+
         [DataType(DataType.Currency)]
         public decimal Amount { get; set; }
 
