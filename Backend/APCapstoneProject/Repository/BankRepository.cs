@@ -51,7 +51,7 @@ namespace APCapstoneProject.Repository
             var bank = await _context.Banks.FindAsync(id);
             if (bank != null)
             {
-                bank.IsActive = false; // Soft delete
+                bank.IsActive = false;
                 bank.UpdatedAt = DateTime.UtcNow;
                 await _context.SaveChangesAsync();
             }
