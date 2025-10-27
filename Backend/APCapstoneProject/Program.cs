@@ -37,6 +37,10 @@ namespace APCapstoneProject
             builder.Services.AddScoped<IBankService, BankService>();
 
 
+            builder.Services.AddScoped<IBankRepository, BankRepository>();
+            builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IUserService, UserService>();
+
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();

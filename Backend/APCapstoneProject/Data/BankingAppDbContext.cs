@@ -53,6 +53,41 @@ namespace APCapstoneProject.Data
             {
                 relationship.DeleteBehavior = DeleteBehavior.Restrict;
             }
+
+
+            // --- YOUR NEW UserRole CONFIGURATION ---
+            modelBuilder.Entity<UserRole>(entity =>
+            {
+                // This tells EF to NEVER try to auto-generate a value for UserRoleId
+                entity.Property(ur => ur.UserRoleId).ValueGeneratedNever();
+
+                // This is your seed data
+                entity.HasData(
+                    new UserRole { UserRoleId = 0, Role = Role.SUPER_ADMIN },
+                    new UserRole { UserRoleId = 1, Role = Role.BANK_USER },
+                    new UserRole { UserRoleId = 2, Role = Role.CLIENT_USER }
+                );
+            });
+
+            // --- YOUR EXISTING Status CONFIGURATION ---
+            modelBuilder.Entity<Status>(entity =>
+            {
+                // This tells EF to NEVER try to auto-generate a value for StatusId
+                entity.Property(s => s.StatusId).ValueGeneratedNever();
+
+                // This is your seed data
+                entity.HasData(
+                    new Status { StatusId = 0, StatusEnum = StatusEnum.PENDING },
+                    new Status { StatusId = 1, StatusEnum = StatusEnum.APPROVED },
+                    new Status { StatusId = 2, StatusEnum = StatusEnum.REJECTED }
+                );
+            });
+
+
+
+
+
+
         }
 
 

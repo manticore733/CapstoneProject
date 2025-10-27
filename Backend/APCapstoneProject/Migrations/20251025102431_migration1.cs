@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace APCapstoneProject.Migrations
 {
     /// <inheritdoc />
@@ -59,8 +61,7 @@ namespace APCapstoneProject.Migrations
                 name: "Statuses",
                 columns: table => new
                 {
-                    StatusId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    StatusId = table.Column<int>(type: "int", nullable: false),
                     StatusEnum = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -85,8 +86,7 @@ namespace APCapstoneProject.Migrations
                 name: "UserRoles",
                 columns: table => new
                 {
-                    UserRoleId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserRoleId = table.Column<int>(type: "int", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -365,6 +365,26 @@ namespace APCapstoneProject.Migrations
                         principalTable: "Transactions",
                         principalColumn: "TransactionId",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.InsertData(
+                table: "Statuses",
+                columns: new[] { "StatusId", "StatusEnum" },
+                values: new object[,]
+                {
+                    { 0, 0 },
+                    { 1, 1 },
+                    { 2, 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "UserRoles",
+                columns: new[] { "UserRoleId", "Role" },
+                values: new object[,]
+                {
+                    { 0, 0 },
+                    { 1, 1 },
+                    { 2, 2 }
                 });
 
             migrationBuilder.CreateIndex(
