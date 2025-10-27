@@ -5,43 +5,25 @@ namespace APCapstoneProject.Service
 {
     public interface IUserService
     {
-        //Task<IEnumerable<UserReadDto>> GetAllAsync();
-        //Task<UserReadDto?> GetByIdAsync(int id);
-        //Task<UserReadDto> CreateAsync(UserCreateDto userCreateDto);
-        //Task<bool> UpdateAsync(int id, UserUpdateDto userUpdateDto);
-        //Task<bool> SoftDeleteAsync(int id);
+        // --- COMMON USER OPERATIONS ---
 
-
-
-
-
-
-        // General Admin methods
         Task<IEnumerable<UserReadDto>> GetAllAsync();
         Task<UserReadDto?> GetByIdAsync(int id);
-        Task<UserReadDto> CreateAsync(UserCreateDto userCreateDto); // For Super Admin -> Super Admin
-        Task<bool> UpdateAsync(int id, UserUpdateDto userUpdateDto);
+        Task<UserReadDto> CreateAsync(UserCreateDto userCreateDto);
+        Task<UserReadDto?> UpdateAsync(int id, UserUpdateDto userUpdateDto);
         Task<bool> SoftDeleteAsync(int id);
 
-        // --- ADD THESE NEW METHODS ---
+        // --- BANK USER MANAGEMENT ---
 
-        // Bank User Specific
-        Task<UserReadDto> CreateBankUserAsync(CreateBankUserDto bankUserDto);
-        Task<bool> UpdateBankUserAsync(int id, UpdateBankUserDto updateDto);
+        Task<UserReadDto> CreateBankUserAsync(CreateBankUserDto dto);
+        Task<UserReadDto?> UpdateBankUserAsync(int id, UpdateBankUserDto dto);
 
-        // Client User Specific
-        Task<UserReadDto> CreateClientUserAsync(CreateClientUserDto clientUserDto, int creatorBankUserId);
+        // --- CLIENT USER MANAGEMENT ---
+
+        Task<UserReadDto> CreateClientUserAsync(CreateClientUserDto dto, int creatorBankUserId);
         Task<IEnumerable<UserReadDto>> GetClientsForBankUserAsync(int bankUserId);
         Task<UserReadDto?> GetClientForBankUserAsync(int clientId, int bankUserId);
-        Task<bool> UpdateClientUserAsync(int id, UpdateClientUserDto updateDto, int bankUserId);
-
-
-
-
-
-
-
-
-
+        Task<UserReadDto?> UpdateClientUserAsync(int clientId, UpdateClientUserDto dto, int bankUserId);
+        Task<bool> DeleteClientUserAsync(int clientId, int bankUserId);
     }
 }

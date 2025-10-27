@@ -43,11 +43,11 @@ namespace APCapstoneProject.Service
             if (existing == null)
                 throw new KeyNotFoundException("Beneficiary not found!");
 
+            // use automapper
             existing.BeneficiaryName = updatedBeneficiary.BeneficiaryName;
             existing.AccountNumber = updatedBeneficiary.AccountNumber;
             existing.BankName = updatedBeneficiary.BankName;
             existing.IFSC = updatedBeneficiary.IFSC;
-            existing.UpdatedAt = DateTime.UtcNow;
 
             await _beneficiaryRepository.UpdateAsync(existing);
         }

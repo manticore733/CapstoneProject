@@ -29,6 +29,8 @@ namespace APCapstoneProject.Repository
 
         public async Task<Employee> AddAsync(Employee employee)
         {
+            employee.CreatedAt = DateTime.UtcNow;
+            employee.UpdatedAt = DateTime.UtcNow;
             _context.Employees.Add(employee);
             await _context.SaveChangesAsync();
             return employee;

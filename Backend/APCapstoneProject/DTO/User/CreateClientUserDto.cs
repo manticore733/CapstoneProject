@@ -19,5 +19,9 @@ namespace APCapstoneProject.DTO.User
         public string UserPhone { get; set; }
         [Required]
         public string Address { get; set; }
+
+        [Required]
+        [DataType(DataType.Date)]
+        public DateTime EstablishmentDate { get; set; }
     }
 }

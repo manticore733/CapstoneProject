@@ -31,14 +31,17 @@ namespace APCapstoneProject.Repository
 
         public async Task AddAsync(User user)
         {
-            // Only adds to the context, does NOT save.
+            user.CreatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTime.UtcNow;
             await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
         }
 
-        public void Update(User user)
+        public async Task UpdateAsync(User user)
         {
-            // Only marks the entity for update, does NOT save.
+            user.UpdatedAt = DateTime.UtcNow;
             _context.Users.Update(user);
+            await _context.SaveChangesAsync();
         }
 
         public async Task<bool> SoftDeleteAsync(int id)
@@ -52,10 +55,10 @@ namespace APCapstoneProject.Repository
             return true;
         }
 
-        public async Task<bool> SaveChangesAsync()
-        {
-            return (await _context.SaveChangesAsync() > 0);
-        }
+        //public async Task<bool> SaveChangesAsync()
+        //{
+        //    return (await _context.SaveChangesAsync() > 0);
+        //}
 
 
         // --- NEW METHODS ADDED BELOW ---

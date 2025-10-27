@@ -38,7 +38,6 @@ namespace APCapstoneProject.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBankUser(int id, UpdateBankUserDto updateDto)
         {
-            if (id != updateDto.UserId) return BadRequest("Mismatched ID");
             var success = await _userService.UpdateBankUserAsync(id, updateDto);
             if (!success) return NotFound();
             return NoContent();

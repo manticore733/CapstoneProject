@@ -1,16 +1,15 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace APCapstoneProject.DTO.Bank
 {
     public class BankUpdateDto
     {
-        [Required(ErrorMessage = "Bank name is required!")]
-        public string BankName { get; set; } = string.Empty;
+        public string? BankName { get; set; }
+        public string? IFSC { get; set; }
 
-        [Required(ErrorMessage = "Bank IFSC is required!")]
-        public string IFSC { get; set; } = string.Empty;
-
-        [DataType(DataType.Date)]
-        public DateTime EstablishmentDate { get; set; }
+        //when sending null, it sets to 00:00 as default when it should remain unchanged. review needed.
+        //[DataType(DataType.Date)]
+        //public DateTime? EstablishmentDate { get; set; }
     }
 }

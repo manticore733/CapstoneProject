@@ -41,7 +41,6 @@ namespace APCapstoneProject.Service
                 throw new KeyNotFoundException("Bank not found!");
 
             _mapper.Map(updatedBank, existingBank);
-            existingBank.UpdatedAt = DateTime.UtcNow;
 
             await _bankRepository.UpdateAsync(existingBank);
         }

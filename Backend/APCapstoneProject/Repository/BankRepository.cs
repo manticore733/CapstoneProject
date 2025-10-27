@@ -34,6 +34,8 @@ namespace APCapstoneProject.Repository
 
         public async Task<Bank> AddAsync(Bank bank)
         {
+            bank.CreatedAt = DateTime.UtcNow;
+            bank.UpdatedAt = DateTime.UtcNow;
             _context.Banks.Add(bank);
             await _context.SaveChangesAsync();
             return bank;

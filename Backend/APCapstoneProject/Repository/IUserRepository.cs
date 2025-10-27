@@ -7,13 +7,12 @@ namespace APCapstoneProject.Repository
         Task<User?> GetByIdAsync(int id);
         Task<IEnumerable<User>> GetAllAsync();
         Task AddAsync(User user);
-        void Update(User user);
+        Task UpdateAsync(User user);
         Task<bool> SoftDeleteAsync(int id);
-        Task<bool> SaveChangesAsync();
+        //Task<bool> SaveChangesAsync();
 
 
 
-        // --- ADD THESE NEW METHODS ---
         Task<IEnumerable<User>> GetClientsByBankUserIdAsync(int bankUserId);
         Task<ClientUser?> GetClientByBankUserIdAsync(int clientId, int bankUserId);
 

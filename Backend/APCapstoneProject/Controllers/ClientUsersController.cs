@@ -24,7 +24,7 @@ namespace APCapstoneProject.Controllers
         {
             try
             {
-                // When we add auth, we'll get 'bankUserId' from the token instead.
+                // When we add auth, get 'bankUserId' from the token instead.
                 var newUser = await _userService.CreateClientUserAsync(createDto, bankUserId);
                 return CreatedAtAction(nameof(UserController.GetUser), "User", new { id = newUser.UserId }, newUser);
             }
@@ -64,13 +64,23 @@ namespace APCapstoneProject.Controllers
             return Ok(client);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteClientUser(int id)
+        // --- FOR TESTING ---
+        // Ensure that a BankUser can delete only their own clients
+        [HttpDelete("{id}/ownedby/{bankUserId}")]
+        public async Task<IActionResult> DeleteClientUser(int id, int bankUserId)
         {
-            // The generic soft delete is fine for any user
-            var success = await _userService.SoftDeleteAsync(id);
-            if (!success) return NotFound();
-            return NoContent();
+            try
+            {
+                var success = await _userService.DeleteClientUserAsync(id, bankUserId);
+                if (!success)
+                    return NotFound("Client not found or does not belong to this Bank User.");
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
     }
 }
