@@ -1,55 +1,79 @@
-﻿using APCapstoneProject.Model;
+﻿using APCapstoneProject.DTO.Employee;
+using APCapstoneProject.Model;
 using APCapstoneProject.Repository;
+using AutoMapper;
 
 namespace APCapstoneProject.Service
 {
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _repository;
+        private readonly IMapper _mapper; // <-- ADD THIS
 
-        public EmployeeService(IEmployeeRepository repository)
+        public EmployeeService(IEmployeeRepository repository, IMapper mapper) // <-- ADD MAPPER
         {
             _repository = repository;
+            _mapper = mapper; // <-- ADD THIS
         }
 
-        public async Task<IEnumerable<Employee>> GetAllAsync()
+        public async Task<IEnumerable<EmployeeReadDto>> GetEmployeesByClientIdAsync(int clientUserId)
         {
-            return await _repository.GetAllAsync();
+            var employees = await _repository.GetByClientIdAsync(clientUserId);
+            return _mapper.Map<IEnumerable<EmployeeReadDto>>(employees);
         }
 
-        public async Task<Employee?> GetByIdAsync(int id)
+        public async Task<EmployeeReadDto?> GetEmployeeByIdAsync(int id, int clientUserId)
         {
-            return await _repository.GetByIdAsync(id);
+            var employee = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
+            if (employee == null) return null;
+            return _mapper.Map<EmployeeReadDto>(employee);
         }
 
-        public async Task<Employee> CreateAsync(Employee employee)
+        public async Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId)
         {
+            // Business Rule: Check for duplicate email or account number for this client
+            var existing = await _repository.GetByClientIdAsync(clientUserId);
+            if (existing.Any(e => e.Email == employeeDto.Email))
+                throw new Exception("Employee with this email already exists for this client!");
+
+            var employee = _mapper.Map<Employee>(employeeDto);
+
+            // Set properties not in the DTO
+            employee.ClientUserId = clientUserId;
             employee.CreatedAt = DateTime.UtcNow;
-            return await _repository.AddAsync(employee);
+            employee.IsActive = true;
+
+            await _repository.AddAsync(employee);
+            await _repository.SaveChangesAsync();
+
+            return _mapper.Map<EmployeeReadDto>(employee);
         }
 
-        public async Task<Employee?> UpdateAsync(int id, Employee employee)
+        public async Task<bool> UpdateEmployeeAsync(int id, UpdateEmployeeDto employeeDto, int clientUserId)
         {
-            var existing = await _repository.GetByIdAsync(id);
-            if (existing == null) return null;
+            // Get the employee *and* check ownership
+            var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
+            if (existing == null)
+            {
+                return false; // Not found or doesn't belong to this user
+            }
 
+            // Map the DTO onto the existing model
+            _mapper.Map(employeeDto, existing);
 
-            //use automapper
-            existing.EmployeeName = employee.EmployeeName;
-            existing.Email = employee.Email;
-            existing.AccountNumber = employee.AccountNumber;
-            existing.BankName = employee.BankName;
-            existing.IFSC = employee.IFSC;
-            existing.Salary = employee.Salary;
-            existing.DateOfJoining = employee.DateOfJoining;
-            existing.DateOfLeaving = employee.DateOfLeaving;
-            existing.ClientUserId = employee.ClientUserId;
-
-            return await _repository.UpdateAsync(existing);
+            _repository.Update(existing);
+            return await _repository.SaveChangesAsync();
         }
 
-        public async Task<bool> SoftDeleteAsync(int id)
+        public async Task<bool> DeleteEmployeeAsync(int id, int clientUserId)
         {
+            // Check ownership before deleting
+            var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
+            if (existing == null)
+            {
+                return false; // Not found or doesn't belong to this user
+            }
+
             return await _repository.SoftDeleteAsync(id);
         }
     }

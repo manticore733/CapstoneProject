@@ -1,7 +1,6 @@
 ﻿using APCapstoneProject.Data;
 using APCapstoneProject.Model;
 using Microsoft.EntityFrameworkCore;
-using System;
 
 namespace APCapstoneProject.Repository
 {
@@ -14,11 +13,19 @@ namespace APCapstoneProject.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<Employee>> GetAllAsync()
+        public async Task<IEnumerable<Employee>> GetByClientIdAsync(int clientUserId)
         {
             return await _context.Employees
-                .Where(e => e.IsActive)
+                .Where(e => e.ClientUserId == clientUserId && e.IsActive)
                 .ToListAsync();
+        }
+
+        public async Task<Employee?> GetByIdAndClientIdAsync(int id, int clientUserId)
+        {
+            return await _context.Employees
+                .FirstOrDefaultAsync(e => e.EmployeeId == id &&
+                                          e.ClientUserId == clientUserId &&
+                                          e.IsActive);
         }
 
         public async Task<Employee?> GetByIdAsync(int id)
@@ -27,21 +34,17 @@ namespace APCapstoneProject.Repository
                 .FirstOrDefaultAsync(e => e.EmployeeId == id && e.IsActive);
         }
 
-        public async Task<Employee> AddAsync(Employee employee)
+        public async Task AddAsync(Employee employee)
         {
-            employee.CreatedAt = DateTime.UtcNow;
-            employee.UpdatedAt = DateTime.UtcNow;
-            _context.Employees.Add(employee);
-            await _context.SaveChangesAsync();
-            return employee;
+            await _context.Employees.AddAsync(employee);
+            // Removed SaveChangesAsync()
         }
 
-        public async Task<Employee> UpdateAsync(Employee employee)
+        public void Update(Employee employee)
         {
-            _context.Employees.Update(employee);
             employee.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
-            return employee;
+            _context.Employees.Update(employee);
+            // Removed SaveChangesAsync()
         }
 
         public async Task<bool> SoftDeleteAsync(int id)
@@ -51,8 +54,14 @@ namespace APCapstoneProject.Repository
 
             employee.IsActive = false;
             employee.UpdatedAt = DateTime.UtcNow;
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // SoftDelete is a complete operation
             return true;
+        }
+
+        // --- ADD THIS METHOD ---
+        public async Task<bool> SaveChangesAsync()
+        {
+            return (await _context.SaveChangesAsync() > 0);
         }
     }
 }

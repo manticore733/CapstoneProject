@@ -1,55 +1,67 @@
-﻿using APCapstoneProject.Model;
+﻿using APCapstoneProject.DTO.Employee;
 using APCapstoneProject.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APCapstoneProject.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/employees")] // Changed route to plural
     [ApiController]
-    public class EmployeeController : ControllerBase
+    public class EmployeesController : ControllerBase // Renamed controller
     {
         private readonly IEmployeeService _service;
 
-        public EmployeeController(IEmployeeService service)
+        public EmployeesController(IEmployeeService service)
         {
             _service = service;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpGet("myemployees/{clientUserId}")]
+        public async Task<IActionResult> GetMyEmployees(int clientUserId)
         {
-            return Ok(await _service.GetAllAsync());
+            var employees = await _service.GetEmployeesByClientIdAsync(clientUserId);
+            return Ok(employees);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpGet("{id}/ownedby/{clientUserId}")]
+        public async Task<IActionResult> GetMyEmployee(int id, int clientUserId)
         {
-            var employee = await _service.GetByIdAsync(id);
+            var employee = await _service.GetEmployeeByIdAsync(id, clientUserId);
             if (employee == null) return NotFound();
             return Ok(employee);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create(Employee employee)
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpPost("createdby/{clientUserId}")]
+        public async Task<IActionResult> Create(int clientUserId, [FromBody] CreateEmployeeDto employeeDto)
         {
-            var created = await _service.CreateAsync(employee);
-            return CreatedAtAction(nameof(GetById), new { id = created.EmployeeId }, created);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var created = await _service.CreateEmployeeAsync(employeeDto, clientUserId);
+
+            return CreatedAtAction(nameof(GetMyEmployee), new { id = created.EmployeeId, clientUserId = clientUserId }, created);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, Employee employee)
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpPut("{id}/ownedby/{clientUserId}")]
+        public async Task<IActionResult> Update(int id, int clientUserId, [FromBody] UpdateEmployeeDto employeeDto)
         {
-            var updated = await _service.UpdateAsync(id, employee);
-            if (updated == null) return NotFound();
-            return Ok(updated);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            var success = await _service.UpdateEmployeeAsync(id, employeeDto, clientUserId);
+
+            if (!success) return NotFound("Employee not found or you do not have permission.");
+            return NoContent();
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> SoftDelete(int id)
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpDelete("{id}/ownedby/{clientUserId}")]
+        public async Task<IActionResult> Delete(int id, int clientUserId)
         {
-            var result = await _service.SoftDeleteAsync(id);
-            if (!result) return NotFound();
+            var success = await _service.DeleteEmployeeAsync(id, clientUserId);
+
+            if (!success) return NotFound("Employee not found or you do not have permission.");
             return NoContent();
         }
     }

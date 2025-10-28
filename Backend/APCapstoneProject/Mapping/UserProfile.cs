@@ -1,4 +1,5 @@
 ﻿using APCapstoneProject.DTO.Beneficiary;
+using APCapstoneProject.DTO.Employee;
 using APCapstoneProject.DTO.User;
 using APCapstoneProject.Model;
 using AutoMapper;
@@ -34,6 +35,17 @@ namespace APCapstoneProject.Mapping
             CreateMap<CreateBeneficiaryDto, Beneficiary>();
             CreateMap<UpdateBeneficiaryDto, Beneficiary>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+
+
+            // --- ADD THESE EMPLOYEE MAPS ---
+            CreateMap<Employee, EmployeeReadDto>();
+            CreateMap<CreateEmployeeDto, Employee>();
+            CreateMap<UpdateEmployeeDto, Employee>();
+
+
+
 
 
 
