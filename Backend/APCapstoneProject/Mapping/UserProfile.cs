@@ -42,7 +42,20 @@ namespace APCapstoneProject.Mapping
             // --- ADD THESE EMPLOYEE MAPS ---
             CreateMap<Employee, EmployeeReadDto>();
             CreateMap<CreateEmployeeDto, Employee>();
-            CreateMap<UpdateEmployeeDto, Employee>();
+            CreateMap<UpdateEmployeeDto, Employee>()
+                 .ForAllMembers(opts =>
+                     opts.Condition((src, dest, srcMember, destMember, context) =>
+                     {
+                         // ignore nulls
+                         if (srcMember == null)
+                             return false;
+
+                         // special handling for salary — ignore if 0
+                         if (srcMember is decimal salary && salary == 0)
+                             return false;
+
+                         return true;
+                     }));
 
 
 

@@ -44,7 +44,7 @@ namespace APCapstoneProject.Service
             employee.IsActive = true;
 
             await _repository.AddAsync(employee);
-            await _repository.SaveChangesAsync();
+
 
             return _mapper.Map<EmployeeReadDto>(employee);
         }
@@ -62,7 +62,8 @@ namespace APCapstoneProject.Service
             _mapper.Map(employeeDto, existing);
 
             _repository.Update(existing);
-            return await _repository.SaveChangesAsync();
+            return true;
+
         }
 
         public async Task<bool> DeleteEmployeeAsync(int id, int clientUserId)
@@ -74,7 +75,7 @@ namespace APCapstoneProject.Service
                 return false; // Not found or doesn't belong to this user
             }
 
-            return await _repository.SoftDeleteAsync(id);
+            return await _repository.DeleteAsync(id);
         }
     }
 }

@@ -14,8 +14,8 @@ namespace APCapstoneProject.Repository
 
         // Changed: Consistent with our new pattern
         Task AddAsync(Employee employee);
-        void Update(Employee employee); // Changed from Task<Employee>
-        Task<bool> SoftDeleteAsync(int id);
-        Task<bool> SaveChangesAsync(); // <-- ADD THIS
+        Task Update(Employee employee); // Changed from Task<Employee>
+        Task<bool> DeleteAsync(int id);
+        
     }
 }

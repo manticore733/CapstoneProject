@@ -37,17 +37,19 @@ namespace APCapstoneProject.Repository
         public async Task AddAsync(Employee employee)
         {
             await _context.Employees.AddAsync(employee);
-            // Removed SaveChangesAsync()
+            await _context.SaveChangesAsync();
+   
         }
 
-        public void Update(Employee employee)
+        public async Task Update(Employee employee)
         {
             employee.UpdatedAt = DateTime.UtcNow;
             _context.Employees.Update(employee);
-            // Removed SaveChangesAsync()
+            await _context.SaveChangesAsync();
+      
         }
 
-        public async Task<bool> SoftDeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var employee = await _context.Employees.FindAsync(id);
             if (employee == null) return false;
@@ -58,10 +60,6 @@ namespace APCapstoneProject.Repository
             return true;
         }
 
-        // --- ADD THIS METHOD ---
-        public async Task<bool> SaveChangesAsync()
-        {
-            return (await _context.SaveChangesAsync() > 0);
-        }
+      
     }
 }

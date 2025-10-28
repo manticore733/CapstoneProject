@@ -4,22 +4,20 @@ namespace APCapstoneProject.DTO.Employee
 {
     public class UpdateEmployeeDto
     {
-        [Required]
-        public string EmployeeName { get; set; }
-        [Required]
-        [EmailAddress]
-        public string Email { get; set; }
-        [Required]
-        public string AccountNumber { get; set; }
-        [Required]
-        public string BankName { get; set; }
-        [Required]
-        public string IFSC { get; set; }
-        [Required]
-        [Range(0.01, double.MaxValue)]
-        public decimal Salary { get; set; }
-        [Required]
-        public DateTime DateOfJoining { get; set; }
-        public DateTime? DateOfLeaving { get; set; }
+
+        public string? EmployeeName { get; set; }
+
+        public string? Email { get; set; }
+
+        public string? AccountNumber { get; set; }
+
+        public string? BankName { get; set; }
+
+        public string? IFSC { get; set; }
+
+        public decimal? Salary { get; set; }
+        public DateTime? DateOfJoining { get; set; }
+
+       
     }
 }
