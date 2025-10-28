@@ -16,6 +16,7 @@ namespace APCapstoneProject.Repository
         public async Task<IEnumerable<Employee>> GetByClientIdAsync(int clientUserId)
         {
             return await _context.Employees
+                .Include(b => b.ClientUser)
                 .Where(e => e.ClientUserId == clientUserId && e.IsActive)
                 .ToListAsync();
         }
