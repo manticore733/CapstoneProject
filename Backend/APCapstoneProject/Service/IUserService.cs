@@ -11,7 +11,7 @@ namespace APCapstoneProject.Service
         Task<UserReadDto?> GetByIdAsync(int id);
         Task<UserReadDto> CreateAsync(UserCreateDto userCreateDto);
         Task<UserReadDto?> UpdateAsync(int id, UserUpdateDto userUpdateDto);
-        Task<bool> SoftDeleteAsync(int id);
+        Task<bool> DeleteAsync(int id);
 
         // --- BANK USER MANAGEMENT ---
 

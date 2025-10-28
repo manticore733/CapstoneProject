@@ -19,23 +19,20 @@ namespace APCapstoneProject.Service
             _mapper = mapper;
         }
 
-        // --- COMMON USER OPERATIONS ---
+        // --- SUPERADMIN OPERATIONS ---
 
-        //should only be used by superAdmins
         public async Task<IEnumerable<UserReadDto>> GetAllAsync()
         {
-            var users = await _userRepo.GetAllAsync();
+            var users = await _userRepo.GetUsersAsync();
             return _mapper.Map<IEnumerable<UserReadDto>>(users);
         }
 
-        //should only be used by superAdmins
         public async Task<UserReadDto?> GetByIdAsync(int id)
         {
             var user = await _userRepo.GetByIdAsync(id);
             return user == null ? null : _mapper.Map<UserReadDto>(user);
         }
 
-        //should only be used by superAdmins
         public async Task<UserReadDto> CreateAsync(UserCreateDto userCreateDto)
         {
             if (userCreateDto.UserRoleId != (int)Role.SUPER_ADMIN)
@@ -66,9 +63,9 @@ namespace APCapstoneProject.Service
         }
 
         //should only be used by superAdmins
-        public async Task<bool> SoftDeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
-            return await _userRepo.SoftDeleteAsync(id);
+            return await _userRepo.DeleteAsync(id);
         }
 
 
@@ -149,7 +146,7 @@ namespace APCapstoneProject.Service
             var client = await _userRepo.GetClientByBankUserIdAsync(clientId, bankUserId);
             if (client == null) return false;
 
-            return await _userRepo.SoftDeleteAsync(clientId);
+            return await _userRepo.DeleteAsync(clientId);
         }
     }
 }

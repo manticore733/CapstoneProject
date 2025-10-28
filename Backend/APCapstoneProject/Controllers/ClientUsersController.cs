@@ -26,7 +26,7 @@ namespace APCapstoneProject.Controllers
             {
                 // When we add auth, get 'bankUserId' from the token instead.
                 var newUser = await _userService.CreateClientUserAsync(createDto, bankUserId);
-                return CreatedAtAction(nameof(UserController.GetUser), "User", new { id = newUser.UserId }, newUser);
+                return CreatedAtAction(nameof(UserController.GetUserById), "User", new { id = newUser.UserId }, newUser);
             }
             catch (Exception ex)
             {
@@ -39,11 +39,9 @@ namespace APCapstoneProject.Controllers
         [HttpPut("{id}/ownedby/{bankUserId}")]
         public async Task<IActionResult> UpdateClientUser(int id, int bankUserId, UpdateClientUserDto updateDto)
         {
-            if (id != updateDto.UserId) return BadRequest("Mismatched ID");
-
-            var success = await _userService.UpdateClientUserAsync(id, updateDto, bankUserId);
-            if (!success) return NotFound("Client not found or does not belong to this Bank User.");
-            return NoContent();
+            var updatedUser = await _userService.UpdateClientUserAsync(id, updateDto, bankUserId);
+            if (updatedUser==null) return NotFound("Client not found or does not belong to this Bank User.");
+            return Ok(updatedUser);
         }
 
         // --- FOR TESTING ---

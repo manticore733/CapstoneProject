@@ -14,7 +14,8 @@ namespace APCapstoneProject.Mapping
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Role.ToString()));
 
             CreateMap<UserCreateDto, User>();
-            CreateMap<UserUpdateDto, User>();
+            CreateMap<UserUpdateDto, User>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 
 
@@ -31,7 +32,8 @@ namespace APCapstoneProject.Mapping
             // ---  BENEFICIARY MAPS ---
             CreateMap<Beneficiary, BeneficiaryReadDto>();
             CreateMap<CreateBeneficiaryDto, Beneficiary>();
-            CreateMap<UpdateBeneficiaryDto, Beneficiary>();
+            CreateMap<UpdateBeneficiaryDto, Beneficiary>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 
 

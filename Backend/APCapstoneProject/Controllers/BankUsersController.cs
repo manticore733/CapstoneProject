@@ -64,7 +64,7 @@ namespace APCapstoneProject.Controllers
         public async Task<IActionResult> DeleteBankUser(int id)
         {
             // Uses the generic soft delete from the service
-            var success = await _userService.SoftDeleteAsync(id);
+            var success = await _userService.DeleteAsync(id);
             if (!success) return NotFound();
             return NoContent();
         }

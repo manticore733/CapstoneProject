@@ -13,20 +13,22 @@ namespace APCapstoneProject.Repository
             _context = context;
         }
 
-        public async Task<IEnumerable<User>> GetAllAsync()
+        //SUPER ADMIN SECTION:
+
+        public async Task<IEnumerable<User>> GetUsersAsync()
         {
             return await _context.Users
-                .Include(u => u.Role)
                 .Where(u => u.IsActive)
+                .Include(u=>u.Role)
+                .Include(u => u.Bank)
                 .ToListAsync();
         }
-
 
         public async Task<User?> GetByIdAsync(int id)
         {
             return await _context.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.UserId == id && u.IsActive);
+                .FirstOrDefaultAsync(u => u.UserId == id && u.IsActive );
         }
 
         public async Task AddAsync(User user)
@@ -37,6 +39,7 @@ namespace APCapstoneProject.Repository
             await _context.SaveChangesAsync();
         }
 
+
         public async Task UpdateAsync(User user)
         {
             user.UpdatedAt = DateTime.UtcNow;
@@ -44,7 +47,7 @@ namespace APCapstoneProject.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> SoftDeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var user = await _context.Users.FindAsync(id);
             if (user == null) return false;
@@ -54,6 +57,27 @@ namespace APCapstoneProject.Repository
             await _context.SaveChangesAsync();
             return true;
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         //public async Task<bool> SaveChangesAsync()
         //{
@@ -88,6 +112,9 @@ namespace APCapstoneProject.Repository
             // Not found, not a ClientUser, or doesn't belong to this bank user
             return null;
         }
+
+        
+
 
 
 

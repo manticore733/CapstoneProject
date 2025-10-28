@@ -17,7 +17,10 @@ namespace APCapstoneProject.Controllers
             _service = service;
         }
 
-        //should be for super admin only
+        //SUPERADMIN SECTION:
+
+
+        //does not display the specific properties of different types of users ( address for clientUser is null
         [HttpGet]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> GetAllUsers()
         {
@@ -25,7 +28,6 @@ namespace APCapstoneProject.Controllers
             return Ok(users);
         }
 
-        //should be for super admin only
         [HttpGet("{id}")]
         public async Task<ActionResult<UserReadDto>> GetUserById(int id)
         {
@@ -67,7 +69,7 @@ namespace APCapstoneProject.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
-            var success = await _service.SoftDeleteAsync(id);
+            var success = await _service.DeleteAsync(id);
             if (!success) return NotFound();
             return NoContent();
         }
