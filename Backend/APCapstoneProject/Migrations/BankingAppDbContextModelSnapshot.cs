@@ -305,10 +305,7 @@ namespace APCapstoneProject.Migrations
             modelBuilder.Entity("APCapstoneProject.Model.Status", b =>
                 {
                     b.Property<int>("StatusId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("StatusId"));
 
                     b.Property<int>("StatusEnum")
                         .HasColumnType("int");
@@ -316,6 +313,23 @@ namespace APCapstoneProject.Migrations
                     b.HasKey("StatusId");
 
                     b.ToTable("Statuses");
+
+                    b.HasData(
+                        new
+                        {
+                            StatusId = 0,
+                            StatusEnum = 0
+                        },
+                        new
+                        {
+                            StatusId = 1,
+                            StatusEnum = 1
+                        },
+                        new
+                        {
+                            StatusId = 2,
+                            StatusEnum = 2
+                        });
                 });
 
             modelBuilder.Entity("APCapstoneProject.Model.Transaction", b =>
@@ -449,10 +463,7 @@ namespace APCapstoneProject.Migrations
             modelBuilder.Entity("APCapstoneProject.Model.UserRole", b =>
                 {
                     b.Property<int>("UserRoleId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("UserRoleId"));
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -460,6 +471,23 @@ namespace APCapstoneProject.Migrations
                     b.HasKey("UserRoleId");
 
                     b.ToTable("UserRoles");
+
+                    b.HasData(
+                        new
+                        {
+                            UserRoleId = 0,
+                            Role = 0
+                        },
+                        new
+                        {
+                            UserRoleId = 1,
+                            Role = 1
+                        },
+                        new
+                        {
+                            UserRoleId = 2,
+                            Role = 2
+                        });
                 });
 
             modelBuilder.Entity("APCapstoneProject.Model.Payment", b =>

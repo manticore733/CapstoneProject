@@ -131,8 +131,11 @@ namespace APCapstoneProject.Service
                 return false; // Not found or doesn't belong to this user
             }
 
-            // Map the DTO onto the existing model
-            _mapper.Map(beneficiaryDto, existing);
+            // use automapper
+            existing.BeneficiaryName = updatedBeneficiary.BeneficiaryName;
+            existing.AccountNumber = updatedBeneficiary.AccountNumber;
+            existing.BankName = updatedBeneficiary.BankName;
+            existing.IFSC = updatedBeneficiary.IFSC;
 
             _beneficiaryRepository.Update(existing);
             return await _beneficiaryRepository.SaveChangesAsync();

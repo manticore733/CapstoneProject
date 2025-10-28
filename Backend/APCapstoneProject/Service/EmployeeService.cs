@@ -33,6 +33,8 @@ namespace APCapstoneProject.Service
             var existing = await _repository.GetByIdAsync(id);
             if (existing == null) return null;
 
+
+            //use automapper
             existing.EmployeeName = employee.EmployeeName;
             existing.Email = employee.Email;
             existing.AccountNumber = employee.AccountNumber;

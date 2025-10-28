@@ -110,7 +110,11 @@ namespace APCapstoneProject.Repository
 
         public async Task AddAsync(Beneficiary beneficiary)
         {
-            await _context.Beneficiaries.AddAsync(beneficiary);
+            beneficiary.CreatedAt = DateTime.UtcNow;
+            beneficiary.UpdatedAt = DateTime.UtcNow;
+            _context.Beneficiaries.Add(beneficiary);
+            await _context.SaveChangesAsync();
+            return beneficiary;
         }
 
         public void Update(Beneficiary beneficiary)
