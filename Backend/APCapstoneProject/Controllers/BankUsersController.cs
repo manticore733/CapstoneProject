@@ -23,7 +23,7 @@ namespace APCapstoneProject.Controllers
             {
                 var newUser = await _userService.CreateBankUserAsync(createDto);
                 // Redirects to the 'GetUser' action on 'UserController'
-                return CreatedAtAction(nameof(UserController.GetUser), "User", new { id = newUser.UserId }, newUser);
+                return CreatedAtAction(nameof(UserController.GetAllUsers), "User", new { id = newUser.UserId }, newUser);
             }
             catch (KeyNotFoundException ex)
             {
@@ -38,9 +38,9 @@ namespace APCapstoneProject.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBankUser(int id, UpdateBankUserDto updateDto)
         {
-            var success = await _userService.UpdateBankUserAsync(id, updateDto);
-            if (!success) return NotFound();
-            return NoContent();
+            var updatedUser = await _userService.UpdateBankUserAsync(id, updateDto);
+            if (updatedUser == null) return NotFound();
+            return Ok(updatedUser);
         }
 
         [HttpGet]
