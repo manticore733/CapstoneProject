@@ -31,7 +31,7 @@ namespace APCapstoneProject.Service
         }
 
         public async Task<BeneficiaryReadDto> CreateBeneficiaryAsync([FromBody] CreateBeneficiaryDto beneficiaryDto, int clientUserId)
-        {
+        {                                                                                                                                       
             // Business Rule: Account number must be unique per client
             var existing = await _beneficiaryRepository.GetByClientIdAsync(clientUserId);
             if (existing.Any(b => b.AccountNumber == beneficiaryDto.AccountNumber))
