@@ -1,4 +1,5 @@
-﻿using APCapstoneProject.DTO.User;
+﻿using APCapstoneProject.DTO.Beneficiary;
+using APCapstoneProject.DTO.User;
 using APCapstoneProject.Model;
 using AutoMapper;
 
@@ -14,6 +15,26 @@ namespace APCapstoneProject.Mapping
 
             CreateMap<UserCreateDto, User>();
             CreateMap<UserUpdateDto, User>();
+
+
+
+            // Bank User Maps
+            CreateMap<CreateBankUserDto, BankUser>();
+            CreateMap<UpdateBankUserDto, BankUser>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // Client User Maps
+            CreateMap<CreateClientUserDto, ClientUser>();
+            CreateMap<UpdateClientUserDto, ClientUser>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+            // ---  BENEFICIARY MAPS ---
+            CreateMap<Beneficiary, BeneficiaryReadDto>();
+            CreateMap<CreateBeneficiaryDto, Beneficiary>();
+            CreateMap<UpdateBeneficiaryDto, Beneficiary>();
+
+
+
         }
     }
 }
