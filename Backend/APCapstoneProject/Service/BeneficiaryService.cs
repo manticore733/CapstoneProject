@@ -2,18 +2,19 @@
 using APCapstoneProject.Model;
 using APCapstoneProject.Repository;
 using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace APCapstoneProject.Service
 {
     public class BeneficiaryService : IBeneficiaryService
     {
         private readonly IBeneficiaryRepository _beneficiaryRepository;
-        private readonly IMapper _mapper; // <-- ADD THIS
+        private readonly IMapper _mapper;
 
         public BeneficiaryService(IBeneficiaryRepository beneficiaryRepository, IMapper mapper) // <-- ADD MAPPER
         {
             _beneficiaryRepository = beneficiaryRepository;
-            _mapper = mapper; // <-- ADD THIS
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<BeneficiaryReadDto>> GetBeneficiariesByClientIdAsync(int clientUserId)
@@ -29,7 +30,7 @@ namespace APCapstoneProject.Service
             return _mapper.Map<BeneficiaryReadDto>(beneficiary);
         }
 
-        public async Task<BeneficiaryReadDto> CreateBeneficiaryAsync(CreateBeneficiaryDto beneficiaryDto, int clientUserId)
+        public async Task<BeneficiaryReadDto> CreateBeneficiaryAsync([FromBody] CreateBeneficiaryDto beneficiaryDto, int clientUserId)
         {
             // Business Rule: Account number must be unique per client
             var existing = await _beneficiaryRepository.GetByClientIdAsync(clientUserId);
@@ -40,34 +41,28 @@ namespace APCapstoneProject.Service
 
             // Set properties not in the DTO
             beneficiary.ClientUserId = clientUserId;
-            beneficiary.CreatedAt = DateTime.UtcNow;
             beneficiary.IsActive = true;
 
             await _beneficiaryRepository.AddAsync(beneficiary);
-            await _beneficiaryRepository.SaveChangesAsync();
 
             return _mapper.Map<BeneficiaryReadDto>(beneficiary);
         }
 
-        public async Task<bool> UpdateBeneficiaryAsync(int id, UpdateBeneficiaryDto beneficiaryDto, int clientUserId)
+        public async Task<BeneficiaryReadDto> UpdateBeneficiaryAsync(int id,[FromBody] UpdateBeneficiaryDto beneficiaryDto, int clientUserId)
         {
             // Get the beneficiary *and* check ownership
             var existing = await _beneficiaryRepository.GetByIdAndClientIdAsync(id, clientUserId);
             if (existing == null)
             {
-                return false; // Not found or doesn't belong to this user
+                return null; // Not found or doesn't belong to this user
             }
 
             // use automapper
             _mapper.Map(beneficiaryDto, existing);
+            await _beneficiaryRepository.UpdateAsync(existing);
 
-            //existing.BeneficiaryName = updatedBeneficiary.BeneficiaryName;
-            //existing.AccountNumber = updatedBeneficiary.AccountNumber;
-            //existing.BankName = updatedBeneficiary.BankName;
-            //existing.IFSC = updatedBeneficiary.IFSC;
-
-            _beneficiaryRepository.Update(existing);
-            return await _beneficiaryRepository.SaveChangesAsync();
+            var updated = await _beneficiaryRepository.GetByIdAndClientIdAsync(existing.BeneficiaryId, clientUserId);
+            return _mapper.Map<BeneficiaryReadDto>(updated);
         }
 
         public async Task<bool> DeleteBeneficiaryAsync(int id, int clientUserId)
@@ -79,7 +74,7 @@ namespace APCapstoneProject.Service
                 return false; // Not found or doesn't belong to this user
             }
 
-            return await _beneficiaryRepository.SoftDeleteAsync(id);
+            return await _beneficiaryRepository.DeleteAsync(id);
         }
     }
 }
