@@ -25,6 +25,7 @@ namespace APCapstoneProject.Controllers
             return Ok(users);
         }
 
+        //should be for super admin only
         [HttpGet("{id}")]
         public async Task<ActionResult<UserReadDto>> GetUserById(int id)
         {
@@ -32,9 +33,6 @@ namespace APCapstoneProject.Controllers
             if (user == null) return NotFound();
             return Ok(user);
         }
-
-
-
 
         // this endpoint can create user and superuser both
         [HttpPost("superadmin")]

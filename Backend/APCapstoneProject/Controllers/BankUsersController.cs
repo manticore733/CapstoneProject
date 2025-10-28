@@ -38,9 +38,9 @@ namespace APCapstoneProject.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateBankUser(int id, UpdateBankUserDto updateDto)
         {
-            var success = await _userService.UpdateBankUserAsync(id, updateDto);
-            if (!success) return NotFound();
-            return NoContent();
+            var updatedUser = await _userService.UpdateBankUserAsync(id, updateDto);
+            if (updatedUser == null) return NotFound();
+            return Ok(updatedUser);
         }
 
         [HttpGet]
