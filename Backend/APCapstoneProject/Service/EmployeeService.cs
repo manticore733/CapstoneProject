@@ -34,26 +34,6 @@ namespace APCapstoneProject.Service
             return _mapper.Map<EmployeeReadDto>(employee);
         }
 
-        //public async Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId)
-        //{
-        //    // Business Rule: Check for duplicate email or account number for this client
-        //    var existing = await _repository.GetByClientIdAsync(clientUserId);
-        //    if (existing.Any(e => e.Email == employeeDto.Email))
-        //        throw new Exception("Employee with this email already exists for this client!");
-
-        //    var employee = _mapper.Map<Employee>(employeeDto);
-
-        //    // Set properties not in the DTO
-        //    employee.ClientUserId = clientUserId;
-        //    employee.CreatedAt = DateTime.UtcNow;
-        //    employee.IsActive = true;
-
-        //    await _repository.AddAsync(employee);
-
-
-        //    return _mapper.Map<EmployeeReadDto>(employee);
-        //}
-
         public async Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId)
         {
             // --- 4. USE YOUR NEW REPOSITORY METHOD ---
@@ -69,9 +49,10 @@ namespace APCapstoneProject.Service
             
 
             var employee = _mapper.Map<Employee>(employeeDto);
+
             employee.ClientUserId = clientUserId;
-            employee.CreatedAt = DateTime.UtcNow;
             employee.IsActive = true;
+
             await _repository.AddAsync(employee);
             return _mapper.Map<EmployeeReadDto>(employee);
         }
@@ -81,6 +62,12 @@ namespace APCapstoneProject.Service
 
         public async Task<bool> UpdateEmployeeAsync(int id, UpdateEmployeeDto employeeDto, int clientUserId)
         {
+            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+
             // Get the employee *and* check ownership
             var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
             if (existing == null)
@@ -91,13 +78,19 @@ namespace APCapstoneProject.Service
             // Map the DTO onto the existing model
             _mapper.Map(employeeDto, existing);
 
-            _repository.Update(existing);
+            await _repository.Update(existing);
             return true;
 
         }
 
         public async Task<bool> DeleteEmployeeAsync(int id, int clientUserId)
         {
+            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+
             // Check ownership before deleting
             var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
             if (existing == null)
