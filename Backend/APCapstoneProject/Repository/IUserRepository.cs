@@ -16,6 +16,10 @@ namespace APCapstoneProject.Repository
         Task<ClientUser?> GetClientByBankUserIdAsync(int clientId, int bankUserId);
 
 
+        //new mthod
+        Task<bool> IsActiveClientUserAsync(int userId);
+
+
 
 
 

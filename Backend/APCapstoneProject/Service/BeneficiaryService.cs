@@ -9,16 +9,28 @@ namespace APCapstoneProject.Service
     public class BeneficiaryService : IBeneficiaryService
     {
         private readonly IBeneficiaryRepository _beneficiaryRepository;
+        private readonly IUserRepository _userRepository; // <-- 2. ADD THIS FIELD
         private readonly IMapper _mapper;
 
-        public BeneficiaryService(IBeneficiaryRepository beneficiaryRepository, IMapper mapper) // <-- ADD MAPPER
+        public BeneficiaryService(
+            IBeneficiaryRepository beneficiaryRepository,
+            IMapper mapper,
+            IUserRepository userRepository) // <-- 3. INJECT IT
         {
             _beneficiaryRepository = beneficiaryRepository;
             _mapper = mapper;
+            _userRepository = userRepository; // <-- 4. ASSIGN IT
         }
 
         public async Task<IEnumerable<BeneficiaryReadDto>> GetBeneficiariesByClientIdAsync(int clientUserId)
         {
+            // --- 5. ADD VALIDATION BLOCK ---
+            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+            // --- END VALIDATION ---
             var beneficiaries = await _beneficiaryRepository.GetByClientIdAsync(clientUserId);
             return _mapper.Map<IEnumerable<BeneficiaryReadDto>>(beneficiaries);
         }
@@ -31,7 +43,17 @@ namespace APCapstoneProject.Service
         }
 
         public async Task<BeneficiaryReadDto> CreateBeneficiaryAsync([FromBody] CreateBeneficiaryDto beneficiaryDto, int clientUserId)
-        {                                                                                                                                       
+        {
+            // --- 6. ADD VALIDATION BLOCK ---
+            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+            // --- END VALIDATION ---
+
+
+
             // Business Rule: Account number must be unique per client
             var existing = await _beneficiaryRepository.GetByClientIdAsync(clientUserId);
             if (existing.Any(b => b.AccountNumber == beneficiaryDto.AccountNumber))

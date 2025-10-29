@@ -113,7 +113,6 @@ namespace APCapstoneProject.Repository
             return null;
         }
 
-        
 
 
 
@@ -122,6 +121,19 @@ namespace APCapstoneProject.Repository
 
 
 
+        //-----
+        // ADD THIS NEW METHOD IMPLEMENTATION:
+        public async Task<bool> IsActiveClientUserAsync(int userId)
+        {
+            // Based on your database screenshots, you are using TPH with
+            // a 'UserRoleId' and 'IsActive' flag.
+
+            // This query is fast and efficient.
+            return await _context.Users.AnyAsync(u =>
+                u.UserId == userId &&
+                u.UserRoleId == 2 &&  // Role 2 = CLIENT_USER
+                u.IsActive == true);
+        }
 
 
 

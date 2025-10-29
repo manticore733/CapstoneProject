@@ -9,11 +9,16 @@ namespace APCapstoneProject.Service
     {
         private readonly IEmployeeRepository _repository;
         private readonly IMapper _mapper; // <-- ADD THIS
+        private readonly IUserRepository _userRepository;
 
-        public EmployeeService(IEmployeeRepository repository, IMapper mapper) // <-- ADD MAPPER
+        public EmployeeService(
+             IEmployeeRepository repository,
+             IUserRepository userRepository, // <-- 2. INJECT IT HERE
+             IMapper mapper)
         {
             _repository = repository;
-            _mapper = mapper; // <-- ADD THIS
+            _userRepository = userRepository; // <-- 3. ASSIGN IT
+            _mapper = mapper;
         }
 
         public async Task<IEnumerable<EmployeeReadDto>> GetEmployeesByClientIdAsync(int clientUserId)
@@ -29,25 +34,50 @@ namespace APCapstoneProject.Service
             return _mapper.Map<EmployeeReadDto>(employee);
         }
 
+        //public async Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId)
+        //{
+        //    // Business Rule: Check for duplicate email or account number for this client
+        //    var existing = await _repository.GetByClientIdAsync(clientUserId);
+        //    if (existing.Any(e => e.Email == employeeDto.Email))
+        //        throw new Exception("Employee with this email already exists for this client!");
+
+        //    var employee = _mapper.Map<Employee>(employeeDto);
+
+        //    // Set properties not in the DTO
+        //    employee.ClientUserId = clientUserId;
+        //    employee.CreatedAt = DateTime.UtcNow;
+        //    employee.IsActive = true;
+
+        //    await _repository.AddAsync(employee);
+
+
+        //    return _mapper.Map<EmployeeReadDto>(employee);
+        //}
+
         public async Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId)
         {
-            // Business Rule: Check for duplicate email or account number for this client
+            // --- 4. USE YOUR NEW REPOSITORY METHOD ---
+            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+            // --- END OF VALIDATION ---
+
+            // Business Rule: Check for duplicate email...
             var existing = await _repository.GetByClientIdAsync(clientUserId);
-            if (existing.Any(e => e.Email == employeeDto.Email))
-                throw new Exception("Employee with this email already exists for this client!");
+            
 
             var employee = _mapper.Map<Employee>(employeeDto);
-
-            // Set properties not in the DTO
             employee.ClientUserId = clientUserId;
             employee.CreatedAt = DateTime.UtcNow;
             employee.IsActive = true;
-
             await _repository.AddAsync(employee);
-
-
             return _mapper.Map<EmployeeReadDto>(employee);
         }
+
+
+
 
         public async Task<bool> UpdateEmployeeAsync(int id, UpdateEmployeeDto employeeDto, int clientUserId)
         {
