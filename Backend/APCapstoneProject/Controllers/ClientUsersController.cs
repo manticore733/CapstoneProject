@@ -80,5 +80,32 @@ namespace APCapstoneProject.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+
+
+
+        // Additional methods for business logic
+        //Authorize for bankuser access only
+        [HttpPut("{clientUserId}/approve/ownedby/{bankUserId}")]
+        public async Task<IActionResult> ApproveClientUser(int clientUserId, int bankUserId, [FromBody] ClientApprovalDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var result = await _userService.ApproveClientUserAsync(clientUserId, bankUserId, dto);
+                if (result == null) return NotFound("Client not found or unauthorized.");
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
+
+
+
+
     }
 }

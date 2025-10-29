@@ -24,26 +24,15 @@ namespace APCapstoneProject.Model
         public virtual Bank? Bank { get; set; }
 
 
-        [Required(ErrorMessage = "Balance in Required!")]
+        [Required(ErrorMessage = "Balance is Required!")]
         [DataType(DataType.Currency)]
         [Precision(18, 2)]
-        public decimal Balance { get; set; } = 0;
+        public decimal Balance { get; set; }
 
-
-        [Required(ErrorMessage = "Account Type is Required!")]
-        public int AccountTypeId { get; set; }
-        public virtual AccountType? AccountType { get; set; }
-
-        // onlyt exists because an account can be banned
-        //nav property
-        [Required(ErrorMessage = "Account Status is Required!")]
-        public int StatusId { get; set; }
-        public virtual Status? AccountStatus { get; set; }
-
-        public bool IsActive { get; set; } = true;
+        public bool IsActive { get; set; }
 
         [DataType(DataType.Date)]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
 
         [DataType(DataType.Date)]
         public DateTime? UpdatedAt { get; set; }

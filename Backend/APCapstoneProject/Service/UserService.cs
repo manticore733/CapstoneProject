@@ -10,12 +10,14 @@ namespace APCapstoneProject.Service
     {
         private readonly IUserRepository _userRepo;
         private readonly IBankRepository _bankRepo;
+        private readonly IAccountRepository _accountRepo;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepo, IBankRepository bankRepo, IMapper mapper)
+        public UserService(IUserRepository userRepo, IBankRepository bankRepo, IAccountRepository accRepo IMapper mapper)
         {
             _userRepo = userRepo;
             _bankRepo = bankRepo;
+            _accountRepo = accRepo;
             _mapper = mapper;
         }
 
@@ -100,6 +102,72 @@ namespace APCapstoneProject.Service
         }
 
 
+
+
+
+
+        public async Task<ClientStatusReadDto?> ApproveClientUserAsync(int clientUserId, int bankUserId, ClientApprovalDto dto)
+        {
+            // Step 1: Verify the approving BankUser
+            var bankUser = await _userRepo.GetByIdAsync(bankUserId);
+            if (bankUser == null || bankUser is not BankUser)
+                throw new UnauthorizedAccessException("Only valid Bank Users can approve clients.");
+
+            // Step 2: Fetch the client to approve
+            var client = await _userRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
+            if (client == null)
+                throw new KeyNotFoundException("Client not found or does not belong to this Bank User.");
+
+            // Step 3: Check if account already exists
+            if (await _accountRepo.ExistsForClientAsync(clientUserId))
+                throw new InvalidOperationException("This client already has an account.");
+
+            // Step 4: Update client’s verification status
+            if (dto.IsApproved)
+            {
+                client.StatusId = 1; // APPROVED
+                client.IsActive = true;
+
+                // Step 5: Auto-create account
+                var account = new Account
+                {
+                    ClientUserId = clientUserId,
+                    BankId = bankUser.BankId!.Value, // from BankUser
+                    Balance = dto.InitialBalance,
+                    AccountNumber = GenerateAccountNumber(),
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                await _accountRepo.CreateAccountAsync(account);
+            }
+            else
+            {
+                client.StatusId = 2; // REJECTED
+            }
+
+            // Step 6: Save changes
+            await _userRepo.UpdateAsync(client);
+            var updatedClient = await _userRepo.GetByIdAsync(client.UserId);
+
+            return _mapper.Map<ClientStatusReadDto>(updatedClient);
+        }
+
+
+        private string GenerateAccountNumber()
+        {
+            var random = new Random();
+            return $"BPA{random.Next(10000000, 99999999)}{Guid.NewGuid().ToString("N")[..6].ToUpper()}";
+        }
+
+
+
+
+
+
+
+
+
         // --- CLIENT USER MANAGEMENT ---
 
         public async Task<UserReadDto> CreateClientUserAsync(CreateClientUserDto dto, int creatorBankUserId)
@@ -148,5 +216,17 @@ namespace APCapstoneProject.Service
 
             return await _userRepo.DeleteAsync(clientId);
         }
+
+
+
+
+
+
+        //
+
+
+
+
+        
     }
 }

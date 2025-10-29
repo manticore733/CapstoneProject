@@ -1,6 +1,4 @@
-﻿using APCapstoneProject.DTO.Beneficiary;
-using APCapstoneProject.DTO.Employee;
-using APCapstoneProject.DTO.User;
+﻿using APCapstoneProject.DTO.User;
 using APCapstoneProject.Model;
 using AutoMapper;
 
@@ -19,48 +17,19 @@ namespace APCapstoneProject.Mapping
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
 
-
             // Bank User Maps
             CreateMap<CreateBankUserDto, BankUser>();
             CreateMap<UpdateBankUserDto, BankUser>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
 
             // Client User Maps
+            CreateMap<ClientUser, ClientStatusReadDto>()
+                // Only specify fields that AutoMapper can’t match automatically
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Role.ToString()))
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.VerificationStatus.StatusEnum.ToString()));
             CreateMap<CreateClientUserDto, ClientUser>();
             CreateMap<UpdateClientUserDto, ClientUser>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-            // ---  BENEFICIARY MAPS ---
-            CreateMap<Beneficiary, BeneficiaryReadDto>();
-            CreateMap<CreateBeneficiaryDto, Beneficiary>();
-            CreateMap<UpdateBeneficiaryDto, Beneficiary>()
-                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-
-
-
-            // --- ADD THESE EMPLOYEE MAPS ---
-            CreateMap<Employee, EmployeeReadDto>();
-            CreateMap<CreateEmployeeDto, Employee>();
-            CreateMap<UpdateEmployeeDto, Employee>()
-                 .ForAllMembers(opts =>
-                     opts.Condition((src, dest, srcMember, destMember, context) =>
-                     {
-                         // ignore nulls
-                         if (srcMember == null)
-                             return false;
-
-                         // special handling for salary — ignore if 0
-                         if (srcMember is decimal salary && salary == 0)
-                             return false;
-
-                         return true;
-                     }));
-
-
-
-
-
 
         }
     }

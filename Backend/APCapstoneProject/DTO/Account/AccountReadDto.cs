@@ -8,11 +8,8 @@
         public string ClientUserName { get; set; }
         public int BankId { get; set; }
         public string BankName { get; set; }
-        public int AccountTypeId { get; set; }
-        public string AccountType { get; set; }
-        public int StatusId { get; set; }
-        public string StatusName { get; set; }
         public decimal Balance { get; set; }
+        public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
     }

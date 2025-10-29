@@ -18,9 +18,6 @@ namespace APCapstoneProject.Model
         public DateTime EstablishmentDate { get; set; }
 
 
-
-
-
         [Required(ErrorMessage = "Address is Required!")]
         public string Address { get; set; }
 
@@ -35,7 +32,7 @@ namespace APCapstoneProject.Model
 
 
         //nav property
-        public virtual ICollection<Account>? Accounts { get; set; } = new List<Account>();
+        public virtual Account? Account { get; set; }
 
 
         //nav property

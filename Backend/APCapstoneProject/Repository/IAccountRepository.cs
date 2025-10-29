@@ -7,8 +7,9 @@ namespace APCapstoneProject.Repository
         Task<IEnumerable<Account>> GetByClientIdAsync(int clientUserId);
         Task<Account?> GetByIdAndClientIdAsync(int accountId, int clientUserId);
         Task<Account?> GetByIdAsync(int id);
-        Task AddAsync(Account account);
+        Task<Account> CreateAccountAsync(Account account);
         Task UpdateAsync(Account account);
         Task<bool> DeleteAsync(int id);
+        Task<bool> ExistsForClientAsync(int clientUserId);
     }
 }

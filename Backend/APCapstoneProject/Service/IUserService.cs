@@ -18,6 +18,9 @@ namespace APCapstoneProject.Service
         Task<UserReadDto> CreateBankUserAsync(CreateBankUserDto dto);
         Task<UserReadDto?> UpdateBankUserAsync(int id, UpdateBankUserDto dto);
 
+
+        Task<ClientStatusReadDto?> ApproveClientUserAsync(int clientUserId, int bankUserId, ClientApprovalDto dto)
+
         // --- CLIENT USER MANAGEMENT ---
 
         Task<UserReadDto> CreateClientUserAsync(CreateClientUserDto dto, int creatorBankUserId);

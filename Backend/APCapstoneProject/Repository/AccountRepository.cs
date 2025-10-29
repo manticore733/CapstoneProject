@@ -13,42 +13,56 @@ namespace APCapstoneProject.Repository
             _context = context;
         }
 
+        // 🔹 Get all accounts belonging to a specific ClientUser
         public async Task<IEnumerable<Account>> GetByClientIdAsync(int clientUserId)
         {
             return await _context.Accounts
                 .Include(a => a.Bank)
-                .Include(a => a.AccountType)
-                .Include(a => a.AccountStatus)
-                .Where(a => a.ClientUserId == clientUserId)
+                .Include(a => a.ClientUser)
+                .Include(a => a.Transactions)
+                .Where(a => a.ClientUserId == clientUserId && a.IsActive)
                 .ToListAsync();
         }
 
+        // 🔹 Get a specific account by ID and ownership check
         public async Task<Account?> GetByIdAndClientIdAsync(int accountId, int clientUserId)
         {
             return await _context.Accounts
                 .Include(a => a.Bank)
-                .Include(a => a.AccountType)
-                .Include(a => a.AccountStatus)
-                .FirstOrDefaultAsync(a => a.AccountId == accountId && a.ClientUserId == clientUserId);
+                .Include(a => a.ClientUser)
+                .Include(a => a.Transactions)
+                .FirstOrDefaultAsync(a => a.AccountId == accountId && a.ClientUserId == clientUserId && a.IsActive);
         }
 
+        // 🔹 Get account by ID, wont be of use mostly
         public async Task<Account?> GetByIdAsync(int id)
         {
             return await _context.Accounts
                 .Include(a => a.Bank)
-                .Include(a => a.AccountType)
-                .Include(a => a.AccountStatus)
-                .FirstOrDefaultAsync(a => a.AccountId == id);
+                .Include(a => a.ClientUser)
+                .Include(a => a.Transactions)
+                .FirstOrDefaultAsync(a => a.AccountId == id && a.IsActive);
         }
 
-        public async Task AddAsync(Account account)
+        // 🔹 Used in approval flow (returns created account)
+        public async Task<Account> CreateAccountAsync(Account account)
         {
             account.CreatedAt = DateTime.UtcNow;
             account.UpdatedAt = DateTime.UtcNow;
+            account.IsActive = true;
+
             await _context.Accounts.AddAsync(account);
             await _context.SaveChangesAsync();
+            return account;
         }
 
+        // 🔹 Prevent duplicate accounts for the same client
+        public async Task<bool> ExistsForClientAsync(int clientUserId)
+        {
+            return await _context.Accounts.AnyAsync(a => a.ClientUserId == clientUserId && a.IsActive);
+        }
+
+        // 🔹 Update existing account
         public async Task UpdateAsync(Account account)
         {
             account.UpdatedAt = DateTime.UtcNow;
@@ -56,16 +70,22 @@ namespace APCapstoneProject.Repository
             await _context.SaveChangesAsync();
         }
 
+        // 🔹 Soft delete (mark inactive instead of remove)
         public async Task<bool> DeleteAsync(int id)
         {
             var account = await _context.Accounts.FindAsync(id);
             if (account == null) return false;
 
-            // Instead of hard delete, mark as banned
-            account.IsActive = false; // example: 3 = BANNED (based on your Status table)
+            account.IsActive = false;
             account.UpdatedAt = DateTime.UtcNow;
             await _context.SaveChangesAsync();
             return true;
+        }
+
+        private string GenerateAccountNumber()
+        {
+            var random = new Random();
+            return $"BPA{random.Next(10000000, 99999999)}{Guid.NewGuid().ToString("N")[..6].ToUpper()}";
         }
     }
 }
