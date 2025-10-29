@@ -16,7 +16,6 @@ namespace APCapstoneProject.Data
         public DbSet<Bank> Banks { get; set; }
 
         public DbSet<Account> Accounts { get; set; }
-        public DbSet<AccountType> AccountTypes { get; set; }
 
         public DbSet<Beneficiary> Beneficiaries { get; set; }
         public DbSet<Employee> Employees { get; set; }
@@ -74,17 +73,6 @@ namespace APCapstoneProject.Data
                     new Status { StatusId = 0, StatusEnum = StatusEnum.PENDING },
                     new Status { StatusId = 1, StatusEnum = StatusEnum.APPROVED },
                     new Status { StatusId = 2, StatusEnum = StatusEnum.REJECTED }
-                );
-            });
-
-            //Account Types
-            modelBuilder.Entity<AccountType>(entity =>
-            {
-                entity.Property(a => a.AccountTypeId).ValueGeneratedNever();
-                entity.HasData(
-                    new AccountType { AccountTypeId = 0, Type = AccType.SAVINGS },
-                    new AccountType { AccountTypeId = 1, Type = AccType.CURRENT },
-                    new AccountType { AccountTypeId = 2, Type = AccType.SALARY }
                 );
             });
 

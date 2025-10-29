@@ -13,7 +13,7 @@ namespace APCapstoneProject.Service
         private readonly IAccountRepository _accountRepo;
         private readonly IMapper _mapper;
 
-        public UserService(IUserRepository userRepo, IBankRepository bankRepo, IAccountRepository accRepo IMapper mapper)
+        public UserService(IUserRepository userRepo, IBankRepository bankRepo, IAccountRepository accRepo, IMapper mapper)
         {
             _userRepo = userRepo;
             _bankRepo = bankRepo;

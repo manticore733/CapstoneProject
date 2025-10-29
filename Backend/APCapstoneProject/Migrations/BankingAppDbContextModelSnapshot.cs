@@ -34,9 +34,6 @@ namespace APCapstoneProject.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("AccountTypeId")
-                        .HasColumnType("int");
-
                     b.Property<decimal>("Balance")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
@@ -53,53 +50,17 @@ namespace APCapstoneProject.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<int>("StatusId")
-                        .HasColumnType("int");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");
 
                     b.HasKey("AccountId");
 
-                    b.HasIndex("AccountTypeId");
-
                     b.HasIndex("BankId");
 
-                    b.HasIndex("ClientUserId");
-
-                    b.HasIndex("StatusId");
+                    b.HasIndex("ClientUserId")
+                        .IsUnique();
 
                     b.ToTable("Accounts");
-                });
-
-            modelBuilder.Entity("APCapstoneProject.Model.AccountType", b =>
-                {
-                    b.Property<int>("AccountTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("AccountTypeId");
-
-                    b.ToTable("AccountTypes");
-
-                    b.HasData(
-                        new
-                        {
-                            AccountTypeId = 0,
-                            Type = 0
-                        },
-                        new
-                        {
-                            AccountTypeId = 1,
-                            Type = 1
-                        },
-                        new
-                        {
-                            AccountTypeId = 2,
-                            Type = 2
-                        });
                 });
 
             modelBuilder.Entity("APCapstoneProject.Model.Bank", b =>
@@ -614,12 +575,6 @@ namespace APCapstoneProject.Migrations
 
             modelBuilder.Entity("APCapstoneProject.Model.Account", b =>
                 {
-                    b.HasOne("APCapstoneProject.Model.AccountType", "AccountType")
-                        .WithMany()
-                        .HasForeignKey("AccountTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
                     b.HasOne("APCapstoneProject.Model.Bank", "Bank")
                         .WithMany("Accounts")
                         .HasForeignKey("BankId")
@@ -627,20 +582,10 @@ namespace APCapstoneProject.Migrations
                         .IsRequired();
 
                     b.HasOne("APCapstoneProject.Model.ClientUser", "ClientUser")
-                        .WithMany("Accounts")
-                        .HasForeignKey("ClientUserId")
+                        .WithOne("Account")
+                        .HasForeignKey("APCapstoneProject.Model.Account", "ClientUserId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("APCapstoneProject.Model.Status", "AccountStatus")
-                        .WithMany()
-                        .HasForeignKey("StatusId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("AccountStatus");
-
-                    b.Navigation("AccountType");
 
                     b.Navigation("Bank");
 
@@ -829,7 +774,7 @@ namespace APCapstoneProject.Migrations
 
             modelBuilder.Entity("APCapstoneProject.Model.ClientUser", b =>
                 {
-                    b.Navigation("Accounts");
+                    b.Navigation("Account");
 
                     b.Navigation("Beneficiaries");
 

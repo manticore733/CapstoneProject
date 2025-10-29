@@ -36,6 +36,9 @@ namespace APCapstoneProject
             builder.Services.AddScoped<IBankRepository, BankRepository>();
             builder.Services.AddScoped<IBankService, BankService>();
 
+            builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+            builder.Services.AddScoped<IAccountService, AccountService>();
+
 
             builder.Services.AddScoped<IBankRepository, BankRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();

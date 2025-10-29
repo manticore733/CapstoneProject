@@ -30,35 +30,35 @@ namespace APCapstoneProject.Service
             return account == null ? null : _mapper.Map<AccountReadDto>(account);
         }
 
-        public async Task<AccountReadDto> CreateAccountAsync(CreateAccountDto dto, int clientUserId)
-        {
-            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
-            if (!isClientUser)
-                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+        //public async Task<AccountReadDto> CreateAccountAsync(CreateAccountDto dto, int clientUserId)
+        //{
+        //    var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+        //    if (!isClientUser)
+        //        throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
 
-            // Check if user already has an account (1:1 rule)
-            var existing = await _repository.GetByClientIdAsync(clientUserId);
-            if (existing.Any())
-                throw new InvalidOperationException("ClientUser already has an account.");
+        //    // Check if user already has an account (1:1 rule)
+        //    var existing = await _repository.GetByClientIdAsync(clientUserId);
+        //    if (existing.Any())
+        //        throw new InvalidOperationException("ClientUser already has an account.");
 
-            var account = _mapper.Map<Account>(dto);
-            account.ClientUserId = clientUserId;
-            account.AccountNumber = GenerateAccountNumber();
-            account.StatusId = 1; // e.g. Active
+        //    var account = _mapper.Map<Account>(dto);
+        //    account.ClientUserId = clientUserId;
+        //    account.AccountNumber = GenerateAccountNumber();
+        //    account.StatusId = 1; // e.g. Active
 
-            await _repository.AddAsync(account);
-            return _mapper.Map<AccountReadDto>(account);
-        }
+        //    await _repository.AddAsync(account);
+        //    return _mapper.Map<AccountReadDto>(account);
+        //}
 
-        public async Task<bool> UpdateAccountAsync(int id, UpdateAccountDto dto, int clientUserId)
-        {
-            var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
-            if (existing == null) return false;
+        //public async Task<bool> UpdateAccountAsync(int id, UpdateAccountDto dto, int clientUserId)
+        //{
+        //    var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
+        //    if (existing == null) return false;
 
-            _mapper.Map(dto, existing);
-            await _repository.UpdateAsync(existing);
-            return true;
-        }
+        //    _mapper.Map(dto, existing);
+        //    await _repository.UpdateAsync(existing);
+        //    return true;
+        //}
 
         public async Task<bool> DeleteAccountAsync(int id, int clientUserId)
         {

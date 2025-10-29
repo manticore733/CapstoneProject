@@ -14,18 +14,6 @@ namespace APCapstoneProject.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AccountTypes",
-                columns: table => new
-                {
-                    AccountTypeId = table.Column<int>(type: "int", nullable: false),
-                    Type = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AccountTypes", x => x.AccountTypeId);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Banks",
                 columns: table => new
                 {
@@ -153,8 +141,7 @@ namespace APCapstoneProject.Migrations
                     ClientUserId = table.Column<int>(type: "int", nullable: false),
                     BankId = table.Column<int>(type: "int", nullable: false),
                     Balance = table.Column<decimal>(type: "decimal(18,2)", precision: 18, scale: 2, nullable: false),
-                    AccountTypeId = table.Column<int>(type: "int", nullable: false),
-                    StatusId = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
@@ -162,22 +149,10 @@ namespace APCapstoneProject.Migrations
                 {
                     table.PrimaryKey("PK_Accounts", x => x.AccountId);
                     table.ForeignKey(
-                        name: "FK_Accounts_AccountTypes_AccountTypeId",
-                        column: x => x.AccountTypeId,
-                        principalTable: "AccountTypes",
-                        principalColumn: "AccountTypeId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Accounts_Banks_BankId",
                         column: x => x.BankId,
                         principalTable: "Banks",
                         principalColumn: "BankId",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Accounts_Statuses_StatusId",
-                        column: x => x.StatusId,
-                        principalTable: "Statuses",
-                        principalColumn: "StatusId",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Accounts_Users_ClientUserId",
@@ -365,16 +340,6 @@ namespace APCapstoneProject.Migrations
                 });
 
             migrationBuilder.InsertData(
-                table: "AccountTypes",
-                columns: new[] { "AccountTypeId", "Type" },
-                values: new object[,]
-                {
-                    { 0, 0 },
-                    { 1, 1 },
-                    { 2, 2 }
-                });
-
-            migrationBuilder.InsertData(
                 table: "ProofTypes",
                 columns: new[] { "ProofTypeId", "Type" },
                 values: new object[,]
@@ -415,11 +380,6 @@ namespace APCapstoneProject.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Accounts_AccountTypeId",
-                table: "Accounts",
-                column: "AccountTypeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Accounts_BankId",
                 table: "Accounts",
                 column: "BankId");
@@ -427,12 +387,8 @@ namespace APCapstoneProject.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Accounts_ClientUserId",
                 table: "Accounts",
-                column: "ClientUserId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Accounts_StatusId",
-                table: "Accounts",
-                column: "StatusId");
+                column: "ClientUserId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Beneficiaries_ClientUserId",
@@ -541,9 +497,6 @@ namespace APCapstoneProject.Migrations
 
             migrationBuilder.DropTable(
                 name: "TransactionTypes");
-
-            migrationBuilder.DropTable(
-                name: "AccountTypes");
 
             migrationBuilder.DropTable(
                 name: "Users");
