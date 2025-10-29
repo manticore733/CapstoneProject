@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APCapstoneProject.Migrations
 {
     [DbContext(typeof(BankingAppDbContext))]
-    [Migration("20251025102431_migration1")]
-    partial class migration1
+    [Migration("20251029072836_migration2")]
+    partial class migration2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -53,6 +53,9 @@ namespace APCapstoneProject.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
@@ -75,10 +78,7 @@ namespace APCapstoneProject.Migrations
             modelBuilder.Entity("APCapstoneProject.Model.AccountType", b =>
                 {
                     b.Property<int>("AccountTypeId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AccountTypeId"));
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -86,6 +86,23 @@ namespace APCapstoneProject.Migrations
                     b.HasKey("AccountTypeId");
 
                     b.ToTable("AccountTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            AccountTypeId = 0,
+                            Type = 0
+                        },
+                        new
+                        {
+                            AccountTypeId = 1,
+                            Type = 1
+                        },
+                        new
+                        {
+                            AccountTypeId = 2,
+                            Type = 2
+                        });
                 });
 
             modelBuilder.Entity("APCapstoneProject.Model.Bank", b =>
@@ -255,10 +272,7 @@ namespace APCapstoneProject.Migrations
             modelBuilder.Entity("APCapstoneProject.Model.ProofType", b =>
                 {
                     b.Property<int>("ProofTypeId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ProofTypeId"));
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -266,6 +280,28 @@ namespace APCapstoneProject.Migrations
                     b.HasKey("ProofTypeId");
 
                     b.ToTable("ProofTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            ProofTypeId = 0,
+                            Type = 0
+                        },
+                        new
+                        {
+                            ProofTypeId = 1,
+                            Type = 1
+                        },
+                        new
+                        {
+                            ProofTypeId = 2,
+                            Type = 2
+                        },
+                        new
+                        {
+                            ProofTypeId = 3,
+                            Type = 3
+                        });
                 });
 
             modelBuilder.Entity("APCapstoneProject.Model.SalaryDisbursementDetail", b =>
@@ -389,10 +425,7 @@ namespace APCapstoneProject.Migrations
             modelBuilder.Entity("APCapstoneProject.Model.TransactionType", b =>
                 {
                     b.Property<int>("TransactionTypeId")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionTypeId"));
 
                     b.Property<int>("Type")
                         .HasColumnType("int");
@@ -400,6 +433,18 @@ namespace APCapstoneProject.Migrations
                     b.HasKey("TransactionTypeId");
 
                     b.ToTable("TransactionTypes");
+
+                    b.HasData(
+                        new
+                        {
+                            TransactionTypeId = 0,
+                            Type = 0
+                        },
+                        new
+                        {
+                            TransactionTypeId = 1,
+                            Type = 1
+                        });
                 });
 
             modelBuilder.Entity("APCapstoneProject.Model.User", b =>

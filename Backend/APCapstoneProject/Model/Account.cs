@@ -40,6 +40,7 @@ namespace APCapstoneProject.Model
         public int StatusId { get; set; }
         public virtual Status? AccountStatus { get; set; }
 
+        public bool IsActive { get; set; } = true;
 
         [DataType(DataType.Date)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

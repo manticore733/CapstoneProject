@@ -17,8 +17,7 @@ namespace APCapstoneProject.Migrations
                 name: "AccountTypes",
                 columns: table => new
                 {
-                    AccountTypeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    AccountTypeId = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -48,8 +47,7 @@ namespace APCapstoneProject.Migrations
                 name: "ProofTypes",
                 columns: table => new
                 {
-                    ProofTypeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    ProofTypeId = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -73,8 +71,7 @@ namespace APCapstoneProject.Migrations
                 name: "TransactionTypes",
                 columns: table => new
                 {
-                    TransactionTypeId = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TransactionTypeId = table.Column<int>(type: "int", nullable: false),
                     Type = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -368,6 +365,27 @@ namespace APCapstoneProject.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "AccountTypes",
+                columns: new[] { "AccountTypeId", "Type" },
+                values: new object[,]
+                {
+                    { 0, 0 },
+                    { 1, 1 },
+                    { 2, 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "ProofTypes",
+                columns: new[] { "ProofTypeId", "Type" },
+                values: new object[,]
+                {
+                    { 0, 0 },
+                    { 1, 1 },
+                    { 2, 2 },
+                    { 3, 3 }
+                });
+
+            migrationBuilder.InsertData(
                 table: "Statuses",
                 columns: new[] { "StatusId", "StatusEnum" },
                 values: new object[,]
@@ -375,6 +393,15 @@ namespace APCapstoneProject.Migrations
                     { 0, 0 },
                     { 1, 1 },
                     { 2, 2 }
+                });
+
+            migrationBuilder.InsertData(
+                table: "TransactionTypes",
+                columns: new[] { "TransactionTypeId", "Type" },
+                values: new object[,]
+                {
+                    { 0, 0 },
+                    { 1, 1 }
                 });
 
             migrationBuilder.InsertData(
