@@ -2,6 +2,7 @@
 using APCapstoneProject.Data;
 using APCapstoneProject.Repository;
 using APCapstoneProject.Service;
+using APCapstoneProject.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -43,6 +44,24 @@ namespace APCapstoneProject
             builder.Services.AddScoped<IBankRepository, BankRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IUserService, UserService>();
+
+
+            builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
+            builder.Services.AddScoped<IDocumentService, DocumentService>();
+
+
+
+
+            // --- ADD THIS LINE TO REGISTER YOUR SETTINGS ---
+            builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
+
+            //// Bind Cloudinary settings from appsettings.json
+            //builder.Services.Configure<CloudinarySettingsDTO>(
+            //    builder.Configuration.GetSection("CloudinarySettings"));
+
+
+
+
 
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
