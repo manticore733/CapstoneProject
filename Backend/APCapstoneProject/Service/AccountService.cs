@@ -65,7 +65,7 @@ namespace APCapstoneProject.Service
             var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
             if (existing == null) return false;
 
-            return await _repository.DeleteAsync(id);
+            return await _repository.SoftDeleteAsync(id);
         }
 
         private string GenerateAccountNumber()

@@ -20,7 +20,13 @@ namespace APCapstoneProject.DTO.User
         public string StatusName { get; set; }
 
         public bool IsActive { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public DateTime UpdatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
+        public DateTime? UpdatedAt { get; set; }
+
+
+
+        // --- ADD THIS LINE ---
+        public string? AccountNumber { get; set; }
+
     }
 }

@@ -15,6 +15,13 @@ namespace APCapstoneProject.Mapping
             //CreateMap<CreateAccountDto, Account>();
             //CreateMap<UpdateAccountDto, Account>()
             //    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+
+
+            //this is added new -- pranav
+            // Add this map for the simple balance DTO
+            CreateMap<Account, AccountBalanceDto>();
+
+
         }
     }
 }

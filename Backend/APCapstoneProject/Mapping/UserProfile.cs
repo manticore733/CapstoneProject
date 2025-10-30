@@ -26,7 +26,14 @@ namespace APCapstoneProject.Mapping
             CreateMap<ClientUser, ClientStatusReadDto>()
                 // Only specify fields that AutoMapper can’t match automatically
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.Role.ToString()))
-                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.VerificationStatus.StatusEnum.ToString()));
+                .ForMember(dest => dest.StatusName, opt => opt.MapFrom(src => src.VerificationStatus.StatusEnum.ToString()))
+                // --- ADD THIS LINE ---
+                .ForMember(dest => dest.AccountNumber, opt => opt.MapFrom(src => src.Account != null ? src.Account.AccountNumber : null));
+
+
+
+
+
             CreateMap<CreateClientUserDto, ClientUser>();
             CreateMap<UpdateClientUserDto, ClientUser>()
                 .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
