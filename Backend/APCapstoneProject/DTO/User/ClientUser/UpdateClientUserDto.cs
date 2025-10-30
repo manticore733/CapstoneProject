@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace APCapstoneProject.DTO.User
+namespace APCapstoneProject.DTO.User.ClientUser
 {
     public class UpdateClientUserDto
     {

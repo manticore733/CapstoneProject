@@ -11,7 +11,7 @@
         public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
-        public int TotalUsers { get; set; }
-        public int TotalAccounts { get; set; }
+        public int TotalBankUsers { get; set; }
+        public int TotalClientUserAccountsHandled { get; set; }
     }
 }

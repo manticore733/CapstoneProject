@@ -1,10 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace APCapstoneProject.DTO.User
+namespace APCapstoneProject.DTO.User.BankUser
 {
-    public class CreateClientUserDto
+    public class CreateBankUserDto
     {
-        [Required(ErrorMessage = "Company Name is required")]
+        [Required]
         public string UserFullName { get; set; }
         [Required]
         public string UserName { get; set; }
@@ -17,11 +17,10 @@ namespace APCapstoneProject.DTO.User
         [Required]
         [RegularExpression(@"^[0-9]{10}$")]
         public string UserPhone { get; set; }
-        [Required]
-        public string Address { get; set; }
 
         [Required]
-        [DataType(DataType.Date)]
-        public DateTime EstablishmentDate { get; set; }
+        public int BankId { get; set; }
+        [Required]
+        public string Branch { get; set; }
     }
 }

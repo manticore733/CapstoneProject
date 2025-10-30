@@ -10,8 +10,8 @@ namespace APCapstoneProject.Mapping
         {
             // Entity → DTO
             CreateMap<Bank, BankReadDto>()
-                .ForMember(dest => dest.TotalUsers, opt => opt.MapFrom(src => src.Users.Count))
-                .ForMember(dest => dest.TotalAccounts, opt => opt.MapFrom(src => src.Accounts.Count));
+                .ForMember(dest => dest.TotalBankUsers, opt => opt.MapFrom(src => src.Users.Count))
+                .ForMember(dest => dest.TotalClientUserAccountsHandled, opt => opt.MapFrom(src => src.Accounts.Count));
 
             // DTO → Entity (for Create)
             CreateMap<BankCreateDto, Bank>();

@@ -9,23 +9,23 @@ namespace APCapstoneProject.Service
     public class BeneficiaryService : IBeneficiaryService
     {
         private readonly IBeneficiaryRepository _beneficiaryRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IClientUserRepository _clientUserRepository;
         private readonly IMapper _mapper;
 
         public BeneficiaryService(
             IBeneficiaryRepository beneficiaryRepository,
             IMapper mapper,
-            IUserRepository userRepository) 
+            IClientUserRepository clientUserRepository) 
         {
             _beneficiaryRepository = beneficiaryRepository;
             _mapper = mapper;
-            _userRepository = userRepository;
+            _clientUserRepository = clientUserRepository;
         }
 
         public async Task<IEnumerable<BeneficiaryReadDto>> GetBeneficiariesByClientIdAsync(int clientUserId)
         {
             
-            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
             if (!isClientUser)
             {
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
@@ -45,7 +45,7 @@ namespace APCapstoneProject.Service
         public async Task<BeneficiaryReadDto> CreateBeneficiaryAsync([FromBody] CreateBeneficiaryDto beneficiaryDto, int clientUserId)
         {
             
-            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
             if (!isClientUser)
             {
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
@@ -71,7 +71,7 @@ namespace APCapstoneProject.Service
 
         public async Task<BeneficiaryReadDto> UpdateBeneficiaryAsync(int id,[FromBody] UpdateBeneficiaryDto beneficiaryDto, int clientUserId)
         {
-            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
             if (!isClientUser)
             {
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
@@ -93,7 +93,7 @@ namespace APCapstoneProject.Service
 
         public async Task<bool> DeleteBeneficiaryAsync(int id, int clientUserId)
         {
-            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
             if (!isClientUser)
             {
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");

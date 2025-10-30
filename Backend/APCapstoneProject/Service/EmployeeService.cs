@@ -8,16 +8,16 @@ namespace APCapstoneProject.Service
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _repository;
-        private readonly IMapper _mapper; // <-- ADD THIS
-        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
+        private readonly IClientUserRepository _clientUserRepository;
 
         public EmployeeService(
              IEmployeeRepository repository,
-             IUserRepository userRepository, // <-- 2. INJECT IT HERE
+             IClientUserRepository clientUserRepository,
              IMapper mapper)
         {
             _repository = repository;
-            _userRepository = userRepository; // <-- 3. ASSIGN IT
+            _clientUserRepository = clientUserRepository;
             _mapper = mapper;
         }
 
@@ -37,7 +37,7 @@ namespace APCapstoneProject.Service
         public async Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId)
         {
             // --- 4. USE YOUR NEW REPOSITORY METHOD ---
-            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
             if (!isClientUser)
             {
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
@@ -62,7 +62,7 @@ namespace APCapstoneProject.Service
 
         public async Task<bool> UpdateEmployeeAsync(int id, UpdateEmployeeDto employeeDto, int clientUserId)
         {
-            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
             if (!isClientUser)
             {
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
@@ -85,7 +85,7 @@ namespace APCapstoneProject.Service
 
         public async Task<bool> DeleteEmployeeAsync(int id, int clientUserId)
         {
-            var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
             if (!isClientUser)
             {
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");

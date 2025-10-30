@@ -4,53 +4,52 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APCapstoneProject.Repository
 {
-    //Used for internal purposes only, no use as such in the app
-    public class UserRepository : IUserRepository
+    public class BankUserRepository : IBankUserRepository
     {
         private readonly BankingAppDbContext _context;
 
-        public UserRepository(BankingAppDbContext context)
+        public BankUserRepository(BankingAppDbContext context)
         {
             _context = context;
         }
 
-        public async Task<IEnumerable<User>> GetUsersAsync()
+        public async Task<IEnumerable<BankUser>> GetBankUsersAsync()
         {
-            return await _context.Users
+            return await _context.BankUsers
                 .Where(u => u.IsActive)
-                .Include(u=>u.Role)
+                .Include(u => u.Role)
                 .Include(u => u.Bank)
-                .Include(u => (u as ClientUser).VerificationStatus)
+                .Include(u => u.Clients) // include to count clients
                 .ToListAsync();
         }
 
-        public async Task<User?> GetByIdAsync(int id)
+        public async Task<BankUser?> GetBankUserByIdAsync(int id)
         {
-            return await _context.Users
+            return await _context.BankUsers
                 .Include(u => u.Role)
-                .Include(u => (u as ClientUser).VerificationStatus)
-                .FirstOrDefaultAsync(u => u.UserId == id && u.IsActive );
+                .Include(u => u.Bank)
+                .Include(u => u.Clients)
+                .FirstOrDefaultAsync(u => u.UserId == id && u.IsActive);
         }
 
-        public async Task AddAsync(User user)
+        public async Task AddBankUserAsync(BankUser user)
         {
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
-            await _context.Users.AddAsync(user);
+            await _context.BankUsers.AddAsync(user);
             await _context.SaveChangesAsync();
         }
 
-
-        public async Task UpdateAsync(User user)
+        public async Task UpdateBankUserAsync(BankUser user)
         {
             user.UpdatedAt = DateTime.UtcNow;
-            _context.Users.Update(user);
+            _context.BankUsers.Update(user);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteBankUserAsync(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _context.BankUsers.FindAsync(id);
             if (user == null) return false;
 
             user.IsActive = false;

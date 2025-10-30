@@ -1,32 +1,23 @@
-﻿using APCapstoneProject.Model;
-
-namespace APCapstoneProject.DTO.User
+﻿namespace APCapstoneProject.DTO.User.BankUser
 {
-    public class ClientStatusReadDto
+    public class ReadBankUserDto
     {
         public int UserId { get; set; }
         public string UserFullName { get; set; }
         public string UserName { get; set; }
         public string UserEmail { get; set; }
         public string UserPhone { get; set; }
-
         public int UserRoleId { get; set; }
         public string? RoleName { get; set; }
-
         public int? BankId { get; set; }
-        public string? Address { get; set; }
-
-        public int StatusId { get; set; }
-        public string StatusName { get; set; }
+        public string? BankName { get; set; }
+        public string Branch { get; set; }
 
         public bool IsActive { get; set; }
-        public DateTime? CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; }
         public DateTime? UpdatedAt { get; set; }
 
-
-
-        // --- ADD THIS LINE ---
-        public string? AccountNumber { get; set; }
-
+        // number of client users:
+        public int ClientCount { get; set; }
     }
 }
