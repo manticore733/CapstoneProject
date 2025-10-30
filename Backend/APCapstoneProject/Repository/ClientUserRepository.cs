@@ -35,6 +35,8 @@ namespace APCapstoneProject.Repository
                 .Include(c => c.Bank)
                 .Include(c => c.VerificationStatus)
                 .Include(c => c.Account)
+                .Include(c => c.Beneficiaries)
+                .Include(c => c.Employees)
                 .FirstOrDefaultAsync(c => c.UserId == id && c.IsActive);
         }
 

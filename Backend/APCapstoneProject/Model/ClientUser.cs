@@ -32,6 +32,7 @@ namespace APCapstoneProject.Model
 
 
         //nav property
+        //Add account ID if possible
         public virtual Account? Account { get; set; }
 
 
