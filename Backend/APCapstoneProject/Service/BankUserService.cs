@@ -1,4 +1,5 @@
-﻿using APCapstoneProject.DTO.User;
+﻿using APCapstoneProject.Data;
+using APCapstoneProject.DTO.User;
 using APCapstoneProject.DTO.User.BankUser;
 using APCapstoneProject.DTO.User.ClientUser;
 using APCapstoneProject.Model;
@@ -16,14 +17,16 @@ namespace APCapstoneProject.Service
         private readonly IBankRepository _bankRepo;
         private readonly IAccountRepository _accountRepo;
         private readonly IMapper _mapper;
+        private readonly BankingAppDbContext _context;
 
-        public BankUserService(IBankUserRepository bankUserRepo, IClientUserRepository clientUserRepo, IBankRepository bankRepo, IAccountRepository accRepo, IMapper mapper)
+        public BankUserService(IBankUserRepository bankUserRepo, BankingAppDbContext context, IClientUserRepository clientUserRepo, IBankRepository bankRepo, IAccountRepository accRepo, IMapper mapper)
         {
             _bankUserRepo = bankUserRepo;
             _clientUserRepo = clientUserRepo;
             _bankRepo = bankRepo;
             _accountRepo = accRepo;
             _mapper = mapper;
+            _context = context;
         }
 
 
@@ -75,65 +78,117 @@ namespace APCapstoneProject.Service
         }
 
 
-
-
-        //public async Task<ClientStatusReadDto?> ApproveClientUserAsync(int clientUserId, int bankUserId, ClientApprovalDto dto)
+        //public async Task<ReadClientUserDto?> ApproveClientUserAsync(int clientUserId, int bankUserId, ClientApprovalDto dto)
         //{
-        //    // Step 1: Verify the approving BankUser
-        //    var bankUser = await _userRepo.GetByIdAsync(bankUserId);
-        //    if (bankUser == null || bankUser is not BankUser)
-        //        throw new UnauthorizedAccessException("Only valid Bank Users can approve clients.");
+        //    // --- Step 1: Verify the approving BankUser ---
+        //    var bankUser = await _bankUserRepo.GetBankUserByIdAsync(bankUserId);
+        //    if (bankUser == null || !(bankUser is BankUser) || bankUser.BankId == null)
+        //    {
+        //        throw new UnauthorizedAccessException("Approving user is not a valid Bank User or is missing Bank association.");
+        //    }
 
-        //    // Step 2: Fetch the client to approve
-        //    var client = await _userRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
+        //    // --- Step 2: Fetch the client to approve, ensuring ownership ---
+        //    var client = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
         //    if (client == null)
+        //    {
         //        throw new KeyNotFoundException("Client not found or does not belong to this Bank User.");
+        //    }
 
-        //    // Step 3: Check if account already exists
-        //    if (await _accountRepo.ExistsForClientAsync(clientUserId))
-        //        throw new InvalidOperationException("This client already has an account.");
+        //    // --- Step 3: Check if already processed ---
+        //    if (client.StatusId != 0) // Assuming 0 is PENDING
+        //    {
+        //        throw new InvalidOperationException($"Client is already in status '{client.VerificationStatus?.StatusEnum.ToString() ?? client.StatusId.ToString()}'. Cannot re-process.");
+        //    }
 
-        //    // Step 4: Update client’s verification status
+        //    Account? createdAccount = null; // To hold account details if created
+
+        //    // --- Step 4: Apply Approval/Rejection ---
         //    if (dto.IsApproved)
         //    {
-        //        client.StatusId = 1; // APPROVED
-        //        client.IsActive = true;
+        //        // Check if account already exists
+        //        var existingAccount = await _accountRepo.GetByClientIdAsync(clientUserId);
+        //        if (existingAccount != null)
+        //        {
+        //            throw new InvalidOperationException("This client unexpectedly already has an account.");
+        //        }
 
-        //        // Step 5: Auto-create account
-        //        var account = new Account
+        //        // Update client status
+        //        client.StatusId = 1; // Assuming 1 is APPROVED
+        //        client.IsActive = true;
+        //        client.UpdatedAt = DateTime.UtcNow;
+
+
+        //        // --- CHANGE 1: Call existing UpdateAsync which saves immediately ---
+        //        await _clientUserRepo.UpdateClientUserAsync(client);
+
+        //        // Create the account object
+        //        var newAccount = new Account
         //        {
         //            ClientUserId = clientUserId,
-        //            BankId = bankUser.BankId!.Value, // from BankUser
+        //            BankId = bankUser.BankId.Value,
         //            Balance = dto.InitialBalance,
         //            AccountNumber = GenerateAccountNumber(),
-        //            CreatedAt = DateTime.UtcNow,
-        //            UpdatedAt = DateTime.UtcNow
+        //            IsActive = true,
+        //            CreatedAt = DateTime.UtcNow
         //        };
 
-        //        await _accountRepo.CreateAccountAsync(account);
+
+
+
+        //        // --- CHANGE 2: Add and Save the account separately ---
+        //        await _accountRepo.AddAsync(newAccount);
+        //        bool accountSaved = await _accountRepo.SaveChangesAsync();
+        //        if (!accountSaved)
+        //        {
+        //            // CRITICAL: Account creation failed AFTER client was approved.
+        //            // Log this error. Manual intervention might be needed.
+        //            // Consider throwing an exception to signal the partial failure.
+        //            throw new DbUpdateException($"Client {clientUserId} was approved, but failed to create the associated account.");
+        //        }
+        //        createdAccount = newAccount; // Store for the return DTO
         //    }
-        //    else
+        //    else // Client is Rejected
         //    {
-        //        client.StatusId = 2; // REJECTED
+        //        client.StatusId = 2; // Assuming 2 is REJECTED
+        //                             //  client.IsActive = false;
+        //        client.UpdatedAt = DateTime.UtcNow;
+
+        //        // --- CHANGE 3: Call existing UpdateAsync which saves immediately ---
+        //        await _clientUserRepo.UpdateClientUserAsync(client);
         //    }
 
-        //    // Step 6: Save changes
-        //    await _userRepo.UpdateAsync(client);
-        //    var updatedClient = await _userRepo.GetByIdAsync(client.UserId);
+        //    // --- Step 5: Fetch updated client data and return DTO ---
+        //    // Re-fetch AFTER saving to ensure Status is updated
+        //    var updatedClient = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
+        //    if (updatedClient == null)
+        //    {
+        //        throw new KeyNotFoundException("Failed to retrieve updated client information after processing.");
+        //    }
 
-        //    return _mapper.Map<ClientStatusReadDto>(updatedClient);
+        //    // Manually add AccountNumber to DTO if account was created in this call
+        //    var resultDto = _mapper.Map<ReadClientUserDto>(updatedClient);
+        //    if (createdAccount != null)
+        //    {
+        //        resultDto.AccountNumber = createdAccount.AccountNumber;
+        //    }
+        //    else if (updatedClient.Account != null)
+        //    {
+        //        // If account existed previously (shouldn't happen with PENDING check)
+        //        resultDto.AccountNumber = updatedClient.Account.AccountNumber;
+        //    }
+
+
+        //    return resultDto;
         //}
-
-
 
 
         public async Task<ReadClientUserDto?> ApproveClientUserAsync(int clientUserId, int bankUserId, ClientApprovalDto dto)
         {
             // --- Step 1: Verify the approving BankUser ---
             var bankUser = await _bankUserRepo.GetBankUserByIdAsync(bankUserId);
-            if (bankUser == null || !(bankUser is BankUser) || bankUser.BankId == null)
+            if (bankUser == null || bankUser.BankId == null)
             {
-                throw new UnauthorizedAccessException("Approving user is not a valid Bank User or is missing Bank association.");
+                throw new UnauthorizedAccessException("Approving user is not a valid Bank User or missing bank association.");
             }
 
             // --- Step 2: Fetch the client to approve, ensuring ownership ---
@@ -144,97 +199,88 @@ namespace APCapstoneProject.Service
             }
 
             // --- Step 3: Check if already processed ---
-            if (client.StatusId != 0) // Assuming 0 is PENDING
+            if (client.StatusId != 0) // 0 → PENDING
             {
-                throw new InvalidOperationException($"Client is already in status '{client.VerificationStatus?.StatusEnum.ToString() ?? client.StatusId.ToString()}'. Cannot re-process.");
+                throw new InvalidOperationException(
+                    $"Client is already in status '{client.VerificationStatus?.StatusEnum.ToString() ?? client.StatusId.ToString()}'. Cannot re-process.");
             }
 
-            Account? createdAccount = null; // To hold account details if created
+            // --- Step 4: Begin DB Transaction ---
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            // --- Step 4: Apply Approval/Rejection ---
-            if (dto.IsApproved)
+            try
             {
-                // Check if account already exists
-                var existingAccount = await _accountRepo.GetByClientIdAsync(clientUserId);
-                if (existingAccount != null)
+                Account? createdAccount = null;
+
+                // --- Step 5: Process Approval / Rejection ---
+                if (dto.IsApproved)
                 {
-                    throw new InvalidOperationException("This client unexpectedly already has an account.");
+                    // Ensure no account already exists
+                    var existingAccount = await _accountRepo.GetByClientIdAsync(clientUserId);
+                    if (existingAccount != null)
+                        throw new InvalidOperationException("This client unexpectedly already has an account.");
+
+                    // Update client approval
+                    client.StatusId = 1; // APPROVED
+                    client.IsActive = true;
+                    client.BankId = bankUser.BankId.Value;
+                    client.UpdatedAt = DateTime.UtcNow;
+                    await _clientUserRepo.UpdateClientUserAsync(client);
+
+                    // Create and save account
+                    var newAccount = new Account
+                    {
+                        ClientUserId = clientUserId,
+                        BankId = bankUser.BankId.Value,
+                        Balance = dto.InitialBalance,
+                        AccountNumber = GenerateAccountNumber(),
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow
+                    };
+
+                    await _accountRepo.AddAsync(newAccount);
+                    await _accountRepo.SaveChangesAsync();
+                    createdAccount = newAccount;
+                }
+                else
+                {
+                    // Reject client
+                    client.StatusId = 2; // REJECTED
+                    client.BankId = bankUser.BankId.Value;
+                    client.UpdatedAt = DateTime.UtcNow;
+                    await _clientUserRepo.UpdateClientUserAsync(client);
                 }
 
-                // Update client status
-                client.StatusId = 1; // Assuming 1 is APPROVED
-                client.IsActive = true;
-                client.UpdatedAt = DateTime.UtcNow;
+                // --- Step 6: Commit transaction ---
+                await transaction.CommitAsync();
 
-
-                // --- CHANGE 1: Call existing UpdateAsync which saves immediately ---
-                await _clientUserRepo.UpdateClientUserAsync(client);
-
-                // Create the account object
-                var newAccount = new Account
+                // --- Step 7: Fetch and return updated client info ---
+                var updatedClient = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
+                if (updatedClient == null)
                 {
-                    ClientUserId = clientUserId,
-                    BankId = bankUser.BankId.Value,
-                    Balance = dto.InitialBalance,
-                    AccountNumber = GenerateAccountNumber(),
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
-                };
-
-
-
-
-                // --- CHANGE 2: Add and Save the account separately ---
-                await _accountRepo.AddAsync(newAccount);
-                bool accountSaved = await _accountRepo.SaveChangesAsync();
-                if (!accountSaved)
-                {
-                    // CRITICAL: Account creation failed AFTER client was approved.
-                    // Log this error. Manual intervention might be needed.
-                    // Consider throwing an exception to signal the partial failure.
-                    throw new DbUpdateException($"Client {clientUserId} was approved, but failed to create the associated account.");
+                    throw new KeyNotFoundException("Failed to retrieve updated client information after processing.");
                 }
-                createdAccount = newAccount; // Store for the return DTO
+
+                var resultDto = _mapper.Map<ReadClientUserDto>(updatedClient);
+                if (createdAccount != null)
+                {
+                    resultDto.AccountNumber = createdAccount.AccountNumber;
+                }
+                else if (updatedClient.Account != null)
+                {
+                    resultDto.AccountNumber = updatedClient.Account.AccountNumber;
+                }
+
+                return resultDto;
             }
-            else // Client is Rejected
+            catch
             {
-                client.StatusId = 2; // Assuming 2 is REJECTED
-                                     //  client.IsActive = false;
-                client.UpdatedAt = DateTime.UtcNow;
-
-                // --- CHANGE 3: Call existing UpdateAsync which saves immediately ---
-                await _clientUserRepo.UpdateClientUserAsync(client);
+                // --- Step 8: Rollback on any failure ---
+                await transaction.RollbackAsync();
+                throw; // rethrow to controller for proper error response
             }
-
-            // --- Step 5: Fetch updated client data and return DTO ---
-            // Re-fetch AFTER saving to ensure Status is updated
-            var updatedClient = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
-            if (updatedClient == null)
-            {
-                throw new KeyNotFoundException("Failed to retrieve updated client information after processing.");
-            }
-
-            // Manually add AccountNumber to DTO if account was created in this call
-            var resultDto = _mapper.Map<ReadClientUserDto>(updatedClient);
-            if (createdAccount != null)
-            {
-                resultDto.AccountNumber = createdAccount.AccountNumber;
-            }
-            else if (updatedClient.Account != null)
-            {
-                // If account existed previously (shouldn't happen with PENDING check)
-                resultDto.AccountNumber = updatedClient.Account.AccountNumber;
-            }
-
-
-            return resultDto;
         }
 
-        //private string GenerateAccountNumber()
-        //{
-        //    var random = new Random();
-        //    return $"BPA{random.Next(10000000, 99999999)}{Guid.NewGuid().ToString("N")[..6].ToUpper()}";
-        //}
 
 
         private string GenerateAccountNumber()

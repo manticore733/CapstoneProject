@@ -4,10 +4,10 @@ namespace APCapstoneProject.Service
 {
     public interface IAccountService
     {
-        Task<IEnumerable<AccountReadDto>> GetAccountsByClientIdAsync(int clientUserId);
-        Task<AccountReadDto?> GetAccountByIdAsync(int id, int clientUserId);
-        //Task<AccountReadDto> CreateAccountAsync(CreateAccountDto dto, int clientUserId);
-        //Task<bool> UpdateAccountAsync(int id, UpdateAccountDto dto, int clientUserId);
-        Task<bool> DeleteAccountAsync(int id, int clientUserId);
+        Task<IEnumerable<ReadAccountDto>> GetAllAccountsAsync();
+        Task<ReadAccountDto?> GetAccountByIdAsync(int id);
+
+        Task<bool> CreditAsync(int accountId, decimal amount);
+        Task<bool> DebitAsync(int accountId, decimal amount);
     }
 }

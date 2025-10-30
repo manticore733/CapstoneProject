@@ -7,73 +7,46 @@ namespace APCapstoneProject.Service
 {
     public class AccountService : IAccountService
     {
-        private readonly IAccountRepository _repository;
-        private readonly IUserRepository _userRepository;
+        private readonly IAccountRepository _accountRepo;
         private readonly IMapper _mapper;
 
-        public AccountService(IAccountRepository repository, IUserRepository userRepository, IMapper mapper)
+        public AccountService(IAccountRepository accountRepo, IMapper mapper)
         {
-            _repository = repository;
-            _userRepository = userRepository;
+            _accountRepo = accountRepo;
             _mapper = mapper;
         }
 
-        public async Task<IEnumerable<AccountReadDto>> GetAccountsByClientIdAsync(int clientUserId)
+        public async Task<IEnumerable<ReadAccountDto>> GetAllAccountsAsync()
         {
-            var accounts = await _repository.GetByClientIdAsync(clientUserId);
-            return _mapper.Map<IEnumerable<AccountReadDto>>(accounts);
+            var accounts = await _accountRepo.GetAllAsync();
+            return _mapper.Map<IEnumerable<ReadAccountDto>>(accounts);
         }
 
-        public async Task<AccountReadDto?> GetAccountByIdAsync(int id, int clientUserId)
+        public async Task<ReadAccountDto?> GetAccountByIdAsync(int id)
         {
-            var account = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
-            return account == null ? null : _mapper.Map<AccountReadDto>(account);
+            var account = await _accountRepo.GetByIdAsync(id);
+            return account == null ? null : _mapper.Map<ReadAccountDto>(account);
         }
 
-        //public async Task<AccountReadDto> CreateAccountAsync(CreateAccountDto dto, int clientUserId)
-        //{
-        //    var isClientUser = await _userRepository.IsActiveClientUserAsync(clientUserId);
-        //    if (!isClientUser)
-        //        throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
-
-        //    // Check if user already has an account (1:1 rule)
-        //    var existing = await _repository.GetByClientIdAsync(clientUserId);
-        //    if (existing.Any())
-        //        throw new InvalidOperationException("ClientUser already has an account.");
-
-        //    var account = _mapper.Map<Account>(dto);
-        //    account.ClientUserId = clientUserId;
-        //    account.AccountNumber = GenerateAccountNumber();
-        //    account.StatusId = 1; // e.g. Active
-
-        //    await _repository.AddAsync(account);
-        //    return _mapper.Map<AccountReadDto>(account);
-        //}
-
-        //public async Task<bool> UpdateAccountAsync(int id, UpdateAccountDto dto, int clientUserId)
-        //{
-        //    var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
-        //    if (existing == null) return false;
-
-        //    _mapper.Map(dto, existing);
-        //    await _repository.UpdateAsync(existing);
-        //    return true;
-        //}
-
-        public async Task<bool> DeleteAccountAsync(int id, int clientUserId)
+        public async Task<bool> CreditAsync(int accountId, decimal amount)
         {
-            var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
-            if (existing == null) return false;
+            var account = await _accountRepo.GetByIdAsync(accountId);
+            if (account == null || !account.IsActive) return false;
 
-            return await _repository.SoftDeleteAsync(id);
+            account.Balance += amount;
+            await _accountRepo.UpdateAsync(account);
+            return true;
         }
 
-        private string GenerateAccountNumber()
+        public async Task<bool> DebitAsync(int accountId, decimal amount)
         {
-            var random = new Random();
-            string eightDigits = random.Next(10000000, 99999999).ToString();
-            string sixAlphanumeric = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
-            return $"BPA{eightDigits}{sixAlphanumeric}";
+            var account = await _accountRepo.GetByIdAsync(accountId);
+            if (account == null || !account.IsActive || account.Balance < amount)
+                return false;
+
+            account.Balance -= amount;
+            await _accountRepo.UpdateAsync(account);
+            return true;
         }
     }
 }

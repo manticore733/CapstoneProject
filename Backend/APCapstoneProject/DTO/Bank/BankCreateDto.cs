@@ -9,7 +9,7 @@ namespace APCapstoneProject.DTO.Bank
 
         [Required(ErrorMessage = "Bank IFSC is required!")]
         public string IFSC { get; set; } = string.Empty;
-
+       
         [DataType(DataType.Date)]
         public DateTime EstablishmentDate { get; set; }
     }

@@ -8,35 +8,44 @@ namespace APCapstoneProject.Controllers
     [ApiController]
     public class AccountsController : ControllerBase
     {
-        private readonly IAccountService _service;
+        private readonly IAccountService _accountService;
 
-        public AccountsController(IAccountService service)
+        public AccountsController(IAccountService accountService)
         {
-            _service = service;
+            _accountService = accountService;
         }
 
-        [HttpGet("myaccounts/{clientUserId}")]
-        public async Task<IActionResult> GetMyAccounts(int clientUserId)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<ReadAccountDto>>> GetAllAccounts()
         {
-            var accounts = await _service.GetAccountsByClientIdAsync(clientUserId);
+            var accounts = await _accountService.GetAllAccountsAsync();
             return Ok(accounts);
         }
 
-        [HttpGet("{id}/ownedby/{clientUserId}")]
-        public async Task<IActionResult> GetMyAccount(int id, int clientUserId)
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ReadAccountDto>> GetAccount(int id)
         {
-            var account = await _service.GetAccountByIdAsync(id, clientUserId);
+            var account = await _accountService.GetAccountByIdAsync(id);
             if (account == null) return NotFound();
             return Ok(account);
         }
 
-
-        [HttpDelete("{id}/ownedby/{clientUserId}")]
-        public async Task<IActionResult> Delete(int id, int clientUserId)
+        [HttpPut("{id}/credit")]
+        public async Task<IActionResult> CreditAccount(int id, [FromBody] TransactionAmountDto dto)
         {
-            var success = await _service.DeleteAccountAsync(id, clientUserId);
-            if (!success) return NotFound("Account not found or you do not have permission.");
-            return NoContent();
+            if (dto.Amount <= 0) return BadRequest("Invalid amount.");
+            var success = await _accountService.CreditAsync(id, dto.Amount);
+            if (!success) return NotFound();
+            return Ok(new { message = "Account credited successfully." });
+        }
+
+        [HttpPut("{id}/debit")]
+        public async Task<IActionResult> DebitAccount(int id, [FromBody] TransactionAmountDto dto)
+        {
+            if (dto.Amount <= 0) return BadRequest("Invalid amount.");
+            var success = await _accountService.DebitAsync(id, dto.Amount);
+            if (!success) return BadRequest("Insufficient balance or invalid account.");
+            return Ok(new { message = "Account debited successfully." });
         }
     }
 }

@@ -4,24 +4,13 @@ using AutoMapper;
 
 namespace APCapstoneProject.Mapping
 {
-    public class AccountProfile: Profile
+    public class AccountProfile : Profile
     {
-        public AccountProfile() 
+        public AccountProfile()
         {
-            CreateMap<Account, AccountReadDto>()
-                .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank.BankName))
-                .ForMember(dest => dest.ClientUserName, opt => opt.MapFrom(src => src.ClientUser.UserFullName));
-
-            //CreateMap<CreateAccountDto, Account>();
-            //CreateMap<UpdateAccountDto, Account>()
-            //    .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
-
-
-            //this is added new -- pranav
-            // Add this map for the simple balance DTO
-            CreateMap<Account, AccountBalanceDto>();
-
-
+            CreateMap<Account, ReadAccountDto>()
+                .ForMember(dest => dest.ClientName, opt => opt.MapFrom(src => src.ClientUser.UserFullName))
+                .ForMember(dest => dest.BankName, opt => opt.MapFrom(src => src.Bank.BankName));
         }
     }
 }

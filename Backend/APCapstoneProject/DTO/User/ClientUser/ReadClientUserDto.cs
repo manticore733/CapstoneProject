@@ -13,7 +13,7 @@ namespace APCapstoneProject.DTO.User.ClientUser
         public int UserRoleId { get; set; }
         public string? RoleName { get; set; }
 
-        // public int? BankId { get; set; } // should not be here, discuss 
+        public int? BankId { get; set; } // should not be here, discuss 
         public string? Address { get; set; }
 
         public int StatusId { get; set; }
