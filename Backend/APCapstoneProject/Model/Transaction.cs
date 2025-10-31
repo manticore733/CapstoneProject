@@ -29,7 +29,12 @@ namespace APCapstoneProject.Model
         public int AccountId { get; set; }
         public virtual Account? Account { get; set; }
 
-        
+
+        public string BankName { get; set; } = string.Empty;
+        public string IFSC { get; set; } = string.Empty;
+        public string DestinationAccountNumber { get; set; }
+
+
         [DataType(DataType.DateTime)]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
