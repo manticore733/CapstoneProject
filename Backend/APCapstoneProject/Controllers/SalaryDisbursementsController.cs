@@ -1,4 +1,5 @@
 ﻿using APCapstoneProject.DTO.SalaryDisbursement;
+using APCapstoneProject.Model;
 using APCapstoneProject.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,7 @@ namespace APCapstoneProject.Controllers
 
         // 🔹 POST: ClientUser initiates a salary disbursement to one employee
         [HttpPost("client/{clientUserId}")]
-        public async Task<ActionResult<ReadSalaryDisbursementDto>> CreateDisbursement(int clientUserId, [FromBody] CreateSalaryDisbursementDto dto)
+        public async Task<ActionResult<ReadSalaryDisbursementDto>> CreateDisbursement(int clientUserId, [FromForm] CreateSalaryDisbursementDto dto)
         {
             var result = await _disbursementService.CreateSalaryDisbursementAsync(clientUserId, dto);
             return CreatedAtAction(nameof(GetById), new { id = result.TransactionId }, result);
@@ -67,13 +68,12 @@ namespace APCapstoneProject.Controllers
         public async Task<ActionResult<ReadSalaryDisbursementDto>> GetById(int id)
         {
             // Reuse service method for fetching one
-            var all = await _disbursementService.GetSalaryDisbursementsByClientUserIdAsync(0); // adjust if needed
-            var found = all.FirstOrDefault(d => d.TransactionId == id);
+            var salaryDisbursement = await _disbursementService.GetSalaryDisbursementByIdAsync(id);
 
-            if (found == null)
+            if (salaryDisbursement == null)
                 return NotFound("Salary disbursement not found.");
 
-            return Ok(found);
+            return Ok(salaryDisbursement);
         }
     }
 }

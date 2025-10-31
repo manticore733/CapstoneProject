@@ -1,5 +1,6 @@
 ﻿using APCapstoneProject.Data;
 using APCapstoneProject.DTO.Payment;
+using APCapstoneProject.DTO.SalaryDisbursement;
 using APCapstoneProject.Model;
 using APCapstoneProject.Repository;
 using AutoMapper;
@@ -53,11 +54,8 @@ namespace APCapstoneProject.Service
             };
 
             await _paymentRepo.AddPaymentAsync(payment);
-
-
-
-
-            return _mapper.Map<ReadPaymentDto>(payment);
+            var paymentFromDb = await _paymentRepo.GetPaymentByPaymentIdAsync(payment.TransactionId);
+            return _mapper.Map<ReadPaymentDto>(paymentFromDb);
         }
 
         public async Task<ReadPaymentDto?> GetPaymentsByPaymentIdAsync(int paymentId)
@@ -128,9 +126,10 @@ namespace APCapstoneProject.Service
 
             payment.StatusId = 2; // REJECTED
             payment.ApprovedAt = DateTime.UtcNow;
-            await _paymentRepo.UpdatePaymentAsync(payment);
 
-            return _mapper.Map<ReadPaymentDto>(payment);
+            await _paymentRepo.UpdatePaymentAsync(payment);
+            var paymentFromDb = await _paymentRepo.GetPaymentByPaymentIdAsync(payment.TransactionId);
+            return _mapper.Map<ReadPaymentDto>(paymentFromDb);
         }
     }
 }

@@ -25,6 +25,12 @@ namespace APCapstoneProject.Repository
             await _context.SaveChangesAsync();
         }
 
+        public async Task AddDetailsAsync(IEnumerable<SalaryDisbursementDetail> details)
+        {
+            await _context.SalaryDisbursementDetails.AddRangeAsync(details);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task<SalaryDisbursement?> GetByIdAsync(int id)
         {
             return await _context.SalaryDisbursements

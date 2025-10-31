@@ -4,6 +4,7 @@ using APCapstoneProject.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace APCapstoneProject.Migrations
 {
     [DbContext(typeof(BankingAppDbContext))]
-    partial class BankingAppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251031082849_migration3")]
+    partial class migration3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -274,20 +277,8 @@ namespace APCapstoneProject.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("BankName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("DestinationAccountNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
-
-                    b.Property<string>("IFSC")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool?>("IsSuccessful")
                         .HasColumnType("bit");
@@ -355,13 +346,25 @@ namespace APCapstoneProject.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("DestinationAccountNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Discriminator")
                         .IsRequired()
                         .HasMaxLength(21)
                         .HasColumnType("nvarchar(21)");
+
+                    b.Property<string>("IFSC")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ProcessedAt")
                         .HasColumnType("datetime2");
@@ -514,17 +517,8 @@ namespace APCapstoneProject.Migrations
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("BankName")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("BeneficiaryId")
                         .HasColumnType("int");
-
-                    b.Property<string>("DestinationAccountNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("IFSC")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SenderClientId")
                         .HasColumnType("int");

@@ -12,11 +12,18 @@ namespace APCapstoneProject.Model
         public int ClientUserId { get; set; }
         public virtual ClientUser? ClientUser { get; set; }
 
-        public bool AllEmployees { get; set; } = true;
+        public bool AllEmployees { get; set; }
 
         [DataType(DataType.Currency)]
         [Precision(18, 2)]
         public decimal TotalAmount { get; set; }
+
+        public bool? IsPartialSuccess { get; set; } = null; // true if some succeed, false if all succeed
+        public int TotalEmployees { get; set; }
+        public int SuccessfulCount { get; set; }
+        public int FailedCount { get; set; }
+
+
 
         [DataType(DataType.DateTime)]
         public DateTime DisbursementDate { get; set; } = DateTime.UtcNow;
