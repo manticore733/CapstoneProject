@@ -57,6 +57,11 @@ namespace APCapstoneProject
 
 
 
+            builder.Services.AddScoped<ISalaryDisbursementRepository, SalaryDisbursementRepository>();
+            builder.Services.AddScoped<ISalaryDisbursementService, SalaryDisbursementService>();
+
+
+
 
             // --- ADD THIS LINE TO REGISTER YOUR SETTINGS ---
             builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
