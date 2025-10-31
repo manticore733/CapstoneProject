@@ -4,13 +4,18 @@ namespace APCapstoneProject.Model
 {
     public enum DocProofType
     {
-        AADHAAR_CARD,
-        PAN_CARD,
-        ELECTRICITY_BILL,
-        PASSPORT,
-        DRIVING_LICENSE,
+        // Example: Certificate of Incorporation
+        BUSINESS_REGISTRATION,
+
+        // Example: Company PAN Card, GST Certificate
+        TAX_ID_PROOF,
+
+        // Example: Company utility bill, bank statement
+        PROOF_OF_ADDRESS,
+
         OTHER
     }
+
     public class ProofType
     {
         public int ProofTypeId { get; set; }

@@ -1,11 +1,10 @@
-﻿using APCapstoneProject.Model;
+﻿using APCapstoneProject.DTO.Beneficiary;
 using APCapstoneProject.Service;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APCapstoneProject.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/beneficiaries")] // Changed route for simplicity
     [ApiController]
     public class BeneficiaryController : ControllerBase
     {
@@ -16,47 +15,58 @@ namespace APCapstoneProject.Controllers
             _beneficiaryService = beneficiaryService;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpGet("mybeneficiaries/{clientUserId}")]
+        public async Task<IActionResult> GetMyBeneficiaries(int clientUserId)
         {
-            var beneficiaries = await _beneficiaryService.GetAllBeneficiariesAsync();
-            return Ok(beneficiaries);
-        }
-
-        [HttpGet("client/{clientUserId}")]
-        public async Task<IActionResult> GetByClientId(int clientUserId)
-        {
+            // LATER: clientUserId will come from the JWT token
             var beneficiaries = await _beneficiaryService.GetBeneficiariesByClientIdAsync(clientUserId);
             return Ok(beneficiaries);
         }
 
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpGet("{id}/ownedby/{clientUserId}")]
+        public async Task<IActionResult> GetMyBeneficiary(int id, int clientUserId)
         {
-            var beneficiary = await _beneficiaryService.GetBeneficiaryByIdAsync(id);
+            // LATER: clientUserId will come from the JWT token
+            var beneficiary = await _beneficiaryService.GetBeneficiaryByIdAsync(id, clientUserId);
             if (beneficiary == null) return NotFound();
             return Ok(beneficiary);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] Beneficiary beneficiary)
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpPost("createdby/{clientUserId}")]
+        public async Task<IActionResult> Create(int clientUserId, [FromBody] CreateBeneficiaryDto beneficiaryDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
-            var created = await _beneficiaryService.CreateBeneficiaryAsync(beneficiary);
-            return CreatedAtAction(nameof(GetById), new { id = created.BeneficiaryId }, created);
+
+            // LATER: clientUserId will come from the JWT token
+            var created = await _beneficiaryService.CreateBeneficiaryAsync(beneficiaryDto, clientUserId);
+
+            return CreatedAtAction(nameof(GetMyBeneficiary), new { id = created.BeneficiaryId, clientUserId = clientUserId }, created);
         }
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Beneficiary beneficiary)
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpPut("{id}/ownedby/{clientUserId}")]
+        public async Task<IActionResult> Update(int id, int clientUserId, [FromBody] UpdateBeneficiaryDto beneficiaryDto)
         {
-            await _beneficiaryService.UpdateBeneficiaryAsync(id, beneficiary);
-            return NoContent();
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            // LATER: clientUserId will come from the JWT token
+            var updatedBeneficiary = await _beneficiaryService.UpdateBeneficiaryAsync(id, beneficiaryDto, clientUserId);
+
+            if (updatedBeneficiary==null) return NotFound("Beneficiary not found or you do not have permission.");
+            return Ok(updatedBeneficiary);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
+        [HttpDelete("{id}/ownedby/{clientUserId}")]
+        public async Task<IActionResult> Delete(int id, int clientUserId)
         {
-            await _beneficiaryService.DeleteBeneficiaryAsync(id);
+            // LATER: clientUserId will come from the JWT token
+            var success = await _beneficiaryService.DeleteBeneficiaryAsync(id, clientUserId);
+
+            if (!success) return NotFound("Beneficiary not found or you do not have permission.");
             return NoContent();
         }
     }

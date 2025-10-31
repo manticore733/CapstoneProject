@@ -1,63 +1,116 @@
-﻿using APCapstoneProject.Model;
+﻿using APCapstoneProject.DTO.Beneficiary;
+using APCapstoneProject.Model;
 using APCapstoneProject.Repository;
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 
 namespace APCapstoneProject.Service
 {
-    public class BeneficiaryService: IBeneficiaryService
+    public class BeneficiaryService : IBeneficiaryService
     {
         private readonly IBeneficiaryRepository _beneficiaryRepository;
+        private readonly IClientUserRepository _clientUserRepository;
+        private readonly IMapper _mapper;
 
-        public BeneficiaryService(IBeneficiaryRepository beneficiaryRepository)
+        public BeneficiaryService(
+            IBeneficiaryRepository beneficiaryRepository,
+            IMapper mapper,
+            IClientUserRepository clientUserRepository) 
         {
             _beneficiaryRepository = beneficiaryRepository;
+            _mapper = mapper;
+            _clientUserRepository = clientUserRepository;
         }
 
-        public async Task<IEnumerable<Beneficiary>> GetAllBeneficiariesAsync()
+        public async Task<IEnumerable<BeneficiaryReadDto>> GetBeneficiariesByClientIdAsync(int clientUserId)
         {
-            return await _beneficiaryRepository.GetAllAsync();
+            
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+            
+            var beneficiaries = await _beneficiaryRepository.GetByClientIdAsync(clientUserId);
+            return _mapper.Map<IEnumerable<BeneficiaryReadDto>>(beneficiaries);
         }
 
-        public async Task<IEnumerable<Beneficiary>> GetBeneficiariesByClientIdAsync(int clientUserId)
+        public async Task<BeneficiaryReadDto?> GetBeneficiaryByIdAsync(int id, int clientUserId)
         {
-            return await _beneficiaryRepository.GetByClientIdAsync(clientUserId);
+            var beneficiary = await _beneficiaryRepository.GetByIdAndClientIdAsync(id, clientUserId);
+            if (beneficiary == null) return null;
+            return _mapper.Map<BeneficiaryReadDto>(beneficiary);
         }
 
-        public async Task<Beneficiary?> GetBeneficiaryByIdAsync(int id)
+        public async Task<BeneficiaryReadDto> CreateBeneficiaryAsync([FromBody] CreateBeneficiaryDto beneficiaryDto, int clientUserId)
         {
-            return await _beneficiaryRepository.GetByIdAsync(id);
-        }
+            
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+            
 
-        public async Task<Beneficiary> CreateBeneficiaryAsync(Beneficiary beneficiary)
-        {
-            // ✅ Business Rule: Account number must be unique per client
-            var existing = await _beneficiaryRepository.GetByClientIdAsync(beneficiary.ClientUserId);
-            if (existing.Any(b => b.AccountNumber == beneficiary.AccountNumber))
+
+
+            // unique account number per client
+            var existing = await _beneficiaryRepository.GetByClientIdAsync(clientUserId);
+            if (existing.Any(b => b.AccountNumber == beneficiaryDto.AccountNumber))
                 throw new Exception("Beneficiary with this account number already exists for this client!");
 
-            return await _beneficiaryRepository.AddAsync(beneficiary);
+            var beneficiary = _mapper.Map<Beneficiary>(beneficiaryDto);
+
+            beneficiary.ClientUserId = clientUserId;
+            beneficiary.IsActive = true;
+
+            await _beneficiaryRepository.AddAsync(beneficiary);
+
+            return _mapper.Map<BeneficiaryReadDto>(beneficiary);
         }
 
-        public async Task UpdateBeneficiaryAsync(int id, Beneficiary updatedBeneficiary)
+        public async Task<BeneficiaryReadDto> UpdateBeneficiaryAsync(int id,[FromBody] UpdateBeneficiaryDto beneficiaryDto, int clientUserId)
         {
-            var existing = await _beneficiaryRepository.GetByIdAsync(id);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+            
+            var existing = await _beneficiaryRepository.GetByIdAndClientIdAsync(id, clientUserId);
             if (existing == null)
-                throw new KeyNotFoundException("Beneficiary not found!");
+            {
+                return null; 
+            }
 
-            existing.BeneficiaryName = updatedBeneficiary.BeneficiaryName;
-            existing.AccountNumber = updatedBeneficiary.AccountNumber;
-            existing.BankName = updatedBeneficiary.BankName;
-            existing.IFSC = updatedBeneficiary.IFSC;
-            existing.UpdatedAt = DateTime.UtcNow;
-
+            // use automapper
+            _mapper.Map(beneficiaryDto, existing);
             await _beneficiaryRepository.UpdateAsync(existing);
+
+            var updated = await _beneficiaryRepository.GetByIdAndClientIdAsync(existing.BeneficiaryId, clientUserId);
+            return _mapper.Map<BeneficiaryReadDto>(updated);
         }
 
-        public async Task DeleteBeneficiaryAsync(int id)
+        public async Task<bool> DeleteBeneficiaryAsync(int id, int clientUserId)
         {
-            if (!await _beneficiaryRepository.ExistsAsync(id))
-                throw new KeyNotFoundException("Beneficiary not found!");
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
 
-            await _beneficiaryRepository.DeleteAsync(id);
+            var existing = await _beneficiaryRepository.GetByIdAndClientIdAsync(id, clientUserId);
+            if (existing == null)
+            {
+                return false;
+            }
+
+            return await _beneficiaryRepository.DeleteAsync(id);
         }
     }
 }
+
+
+
+
+

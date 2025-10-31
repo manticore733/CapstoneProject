@@ -10,7 +10,9 @@
         public int UserRoleId { get; set; }
         public string? RoleName { get; set; }
         public int? BankId { get; set; }
+        public string? Address { get; set; }
         public bool IsActive { get; set; }
         public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

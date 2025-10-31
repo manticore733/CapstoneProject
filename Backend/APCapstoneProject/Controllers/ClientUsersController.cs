@@ -1,7 +1,9 @@
 ﻿using APCapstoneProject.DTO.User;
+using APCapstoneProject.DTO.User.ClientUser;
 using APCapstoneProject.Service;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace APCapstoneProject.Controllers
 {
@@ -9,11 +11,11 @@ namespace APCapstoneProject.Controllers
     [ApiController]
     public class ClientUsersController : ControllerBase
     {
-        private readonly IUserService _userService;
+        private readonly IClientUserService _clientUserService;
 
-        public ClientUsersController(IUserService userService)
+        public ClientUsersController(IClientUserService clientUserService)
         {
-            _userService = userService;
+            _clientUserService = clientUserService;
         }
 
         // --- FOR TESTING ---
@@ -24,9 +26,9 @@ namespace APCapstoneProject.Controllers
         {
             try
             {
-                // When we add auth, we'll get 'bankUserId' from the token instead.
-                var newUser = await _userService.CreateClientUserAsync(createDto, bankUserId);
-                return CreatedAtAction(nameof(UserController.GetUser), "User", new { id = newUser.UserId }, newUser);
+                // When we add auth, get 'bankUserId' from the token instead.
+                var newUser = await _clientUserService.CreateClientUserAsync(createDto, bankUserId);
+                return CreatedAtAction(nameof(UserController.GetUserById), "User", new { id = newUser.UserId }, newUser);
             }
             catch (Exception ex)
             {
@@ -39,11 +41,9 @@ namespace APCapstoneProject.Controllers
         [HttpPut("{id}/ownedby/{bankUserId}")]
         public async Task<IActionResult> UpdateClientUser(int id, int bankUserId, UpdateClientUserDto updateDto)
         {
-            if (id != updateDto.UserId) return BadRequest("Mismatched ID");
-
-            var success = await _userService.UpdateClientUserAsync(id, updateDto, bankUserId);
-            if (!success) return NotFound("Client not found or does not belong to this Bank User.");
-            return NoContent();
+            var updatedUser = await _clientUserService.UpdateClientUserAsync(id, updateDto, bankUserId);
+            if (updatedUser==null) return NotFound("Client not found or does not belong to this Bank User.");
+            return Ok(updatedUser);
         }
 
         // --- FOR TESTING ---
@@ -51,7 +51,7 @@ namespace APCapstoneProject.Controllers
         [HttpGet("myclients/{bankUserId}")]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> GetMyClients(int bankUserId)
         {
-            var clients = await _userService.GetClientsForBankUserAsync(bankUserId);
+            var clients = await _clientUserService.GetClientsForBankUserAsync(bankUserId);
             return Ok(clients);
         }
 
@@ -59,18 +59,31 @@ namespace APCapstoneProject.Controllers
         [HttpGet("{id}/ownedby/{bankUserId}")]
         public async Task<ActionResult<UserReadDto>> GetMyClient(int id, int bankUserId)
         {
-            var client = await _userService.GetClientForBankUserAsync(id, bankUserId);
+            var client = await _clientUserService.GetClientForBankUserAsync(id, bankUserId);
             if (client == null) return NotFound();
             return Ok(client);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteClientUser(int id)
+        // --- FOR TESTING ---
+        // Ensure that a BankUser can delete only their own clients
+        [HttpDelete("{id}/ownedby/{bankUserId}")]
+        public async Task<IActionResult> DeleteClientUser(int id, int bankUserId)
         {
-            // The generic soft delete is fine for any user
-            var success = await _userService.SoftDeleteAsync(id);
-            if (!success) return NotFound();
-            return NoContent();
+            try
+            {
+                var success = await _clientUserService.DeleteClientUserAsync(id, bankUserId);
+                if (!success)
+                    return NotFound("Client not found or does not belong to this Bank User.");
+
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
+
+        // Additional methods for business logic
+
     }
 }

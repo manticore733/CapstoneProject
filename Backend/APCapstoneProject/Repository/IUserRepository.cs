@@ -5,19 +5,9 @@ namespace APCapstoneProject.Repository
     public interface IUserRepository
     {
         Task<User?> GetByIdAsync(int id);
-        Task<IEnumerable<User>> GetAllAsync();
+        Task<IEnumerable<User>> GetUsersAsync();
         Task AddAsync(User user);
-        void Update(User user);
-        Task<bool> SoftDeleteAsync(int id);
-        Task<bool> SaveChangesAsync();
-
-
-
-        // --- ADD THESE NEW METHODS ---
-        Task<IEnumerable<User>> GetClientsByBankUserIdAsync(int bankUserId);
-        Task<ClientUser?> GetClientByBankUserIdAsync(int clientId, int bankUserId);
-
-
-
+        Task UpdateAsync(User user);
+        Task<bool> DeleteAsync(int id);
     }
 }

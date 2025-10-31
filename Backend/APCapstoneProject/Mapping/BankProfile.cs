@@ -4,18 +4,22 @@ using AutoMapper;
 
 namespace APCapstoneProject.Mapping
 {
-    public class BankProfile: Profile
+    public class BankProfile : Profile
     {
         public BankProfile()
         {
             // Entity → DTO
             CreateMap<Bank, BankReadDto>()
-                .ForMember(dest => dest.TotalUsers, opt => opt.MapFrom(src => src.Users.Count))
-                .ForMember(dest => dest.TotalAccounts, opt => opt.MapFrom(src => src.Accounts.Count));
+                .ForMember(dest => dest.TotalBankUsers, opt => opt.MapFrom(src => src.Users.Count))
+                .ForMember(dest => dest.TotalClientUserAccountsHandled, opt => opt.MapFrom(src => src.Accounts.Count));
 
-            // DTO → Entity
+            // DTO → Entity (for Create)
             CreateMap<BankCreateDto, Bank>();
-            CreateMap<BankUpdateDto, Bank>();
+
+            // DTO → Entity (for Update)
+            // If null values are sent, the existing ones do not change.
+            CreateMap<BankUpdateDto, Bank>()
+                .ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
         }
     }
 }

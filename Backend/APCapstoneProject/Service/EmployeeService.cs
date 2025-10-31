@@ -1,54 +1,104 @@
-﻿using APCapstoneProject.Model;
+﻿using APCapstoneProject.DTO.Employee;
+using APCapstoneProject.Model;
 using APCapstoneProject.Repository;
+using AutoMapper;
 
 namespace APCapstoneProject.Service
 {
     public class EmployeeService : IEmployeeService
     {
         private readonly IEmployeeRepository _repository;
+        private readonly IMapper _mapper;
+        private readonly IClientUserRepository _clientUserRepository;
 
-        public EmployeeService(IEmployeeRepository repository)
+        public EmployeeService(
+             IEmployeeRepository repository,
+             IClientUserRepository clientUserRepository,
+             IMapper mapper)
         {
             _repository = repository;
+            _clientUserRepository = clientUserRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<Employee>> GetAllAsync()
+        public async Task<IEnumerable<EmployeeReadDto>> GetEmployeesByClientIdAsync(int clientUserId)
         {
-            return await _repository.GetAllAsync();
+            var employees = await _repository.GetByClientIdAsync(clientUserId);
+            return _mapper.Map<IEnumerable<EmployeeReadDto>>(employees);
         }
 
-        public async Task<Employee?> GetByIdAsync(int id)
+        public async Task<EmployeeReadDto?> GetEmployeeByIdAsync(int id, int clientUserId)
         {
-            return await _repository.GetByIdAsync(id);
+            var employee = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
+            if (employee == null) return null;
+            return _mapper.Map<EmployeeReadDto>(employee);
         }
 
-        public async Task<Employee> CreateAsync(Employee employee)
+        public async Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId)
         {
-            employee.CreatedAt = DateTime.UtcNow;
-            return await _repository.AddAsync(employee);
+            // --- 4. USE YOUR NEW REPOSITORY METHOD ---
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+            // --- END OF VALIDATION ---
+
+            // Business Rule: Check for duplicate email...
+            var existing = await _repository.GetByClientIdAsync(clientUserId);
+            
+
+            var employee = _mapper.Map<Employee>(employeeDto);
+
+            employee.ClientUserId = clientUserId;
+            employee.IsActive = true;
+
+            await _repository.AddAsync(employee);
+            return _mapper.Map<EmployeeReadDto>(employee);
         }
 
-        public async Task<Employee?> UpdateAsync(int id, Employee employee)
+
+
+
+        public async Task<bool> UpdateEmployeeAsync(int id, UpdateEmployeeDto employeeDto, int clientUserId)
         {
-            var existing = await _repository.GetByIdAsync(id);
-            if (existing == null) return null;
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
 
-            existing.EmployeeName = employee.EmployeeName;
-            existing.Email = employee.Email;
-            existing.AccountNumber = employee.AccountNumber;
-            existing.BankName = employee.BankName;
-            existing.IFSC = employee.IFSC;
-            existing.Salary = employee.Salary;
-            existing.DateOfJoining = employee.DateOfJoining;
-            existing.DateOfLeaving = employee.DateOfLeaving;
-            existing.ClientUserId = employee.ClientUserId;
+            // Get the employee *and* check ownership
+            var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
+            if (existing == null)
+            {
+                return false; // Not found or doesn't belong to this user
+            }
 
-            return await _repository.UpdateAsync(existing);
+            // Map the DTO onto the existing model
+            _mapper.Map(employeeDto, existing);
+
+            await _repository.Update(existing);
+            return true;
+
         }
 
-        public async Task<bool> SoftDeleteAsync(int id)
+        public async Task<bool> DeleteEmployeeAsync(int id, int clientUserId)
         {
-            return await _repository.SoftDeleteAsync(id);
+            var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
+            if (!isClientUser)
+            {
+                throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
+            }
+
+            // Check ownership before deleting
+            var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
+            if (existing == null)
+            {
+                return false; // Not found or doesn't belong to this user
+            }
+
+            return await _repository.DeleteAsync(id);
         }
     }
 }

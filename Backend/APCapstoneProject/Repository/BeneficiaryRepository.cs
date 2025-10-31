@@ -5,21 +5,13 @@ using System;
 
 namespace APCapstoneProject.Repository
 {
-    public class BeneficiaryRepository: IBeneficiaryRepository
+    public class BeneficiaryRepository : IBeneficiaryRepository
     {
         private readonly BankingAppDbContext _context;
 
         public BeneficiaryRepository(BankingAppDbContext context)
         {
             _context = context;
-        }
-
-        public async Task<IEnumerable<Beneficiary>> GetAllAsync()
-        {
-            return await _context.Beneficiaries
-                .Include(b => b.ClientUser)
-                .Where(b => b.IsActive)
-                .ToListAsync();
         }
 
         public async Task<IEnumerable<Beneficiary>> GetByClientIdAsync(int clientUserId)
@@ -30,15 +22,17 @@ namespace APCapstoneProject.Repository
                 .ToListAsync();
         }
 
-        public async Task<Beneficiary?> GetByIdAsync(int id)
+        public async Task<Beneficiary?> GetByIdAndClientIdAsync(int id, int clientUserId)
         {
             return await _context.Beneficiaries
                 .Include(b => b.ClientUser)
-                .FirstOrDefaultAsync(b => b.BeneficiaryId == id && b.IsActive);
+                .FirstOrDefaultAsync(b => b.BeneficiaryId == id && b.ClientUserId == clientUserId && b.IsActive);
         }
 
         public async Task<Beneficiary> AddAsync(Beneficiary beneficiary)
         {
+            beneficiary.CreatedAt = DateTime.UtcNow;
+            beneficiary.UpdatedAt = DateTime.UtcNow;
             _context.Beneficiaries.Add(beneficiary);
             await _context.SaveChangesAsync();
             return beneficiary;
@@ -51,15 +45,15 @@ namespace APCapstoneProject.Repository
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id)
         {
             var beneficiary = await _context.Beneficiaries.FindAsync(id);
-            if (beneficiary != null)
-            {
-                beneficiary.IsActive = false; // Soft delete
-                beneficiary.UpdatedAt = DateTime.UtcNow;
-                await _context.SaveChangesAsync();
-            }
+            if (beneficiary == null) return false;
+            
+            beneficiary.IsActive = false; // Soft delete
+            beneficiary.UpdatedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            return true;
         }
 
         public async Task<bool> ExistsAsync(int id)
