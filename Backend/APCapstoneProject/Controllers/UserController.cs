@@ -1,11 +1,13 @@
 ﻿using APCapstoneProject.DTO.User;
 using APCapstoneProject.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace APCapstoneProject.Controllers
 {
+    [Authorize(Roles = "SUPER_ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class UserController : ControllerBase

@@ -2,10 +2,12 @@
 using APCapstoneProject.Model;
 using APCapstoneProject.Service;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APCapstoneProject.Controllers
 {
+    [Authorize(Roles = "SUPER_ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class BankController : ControllerBase

@@ -1,12 +1,14 @@
 ﻿using APCapstoneProject.DTO.Employee;
 using APCapstoneProject.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APCapstoneProject.Controllers
 {
-    [Route("api/employees")] // Changed route to plural
+    [Authorize(Roles = "CLIENT_USER")]
+    [Route("api/[controller]")]
     [ApiController]
-    public class EmployeesController : ControllerBase // Renamed controller
+    public class EmployeesController : ControllerBase
     {
         private readonly IEmployeeService _service;
 
@@ -15,50 +17,50 @@ namespace APCapstoneProject.Controllers
             _service = service;
         }
 
-        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
-        [HttpGet("myemployees/{clientUserId}")]
-        public async Task<IActionResult> GetMyEmployees(int clientUserId)
+        [HttpGet("myemployees")]
+        public async Task<IActionResult> GetMyEmployees()
         {
+            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var employees = await _service.GetEmployeesByClientIdAsync(clientUserId);
             return Ok(employees);
         }
 
-        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
-        [HttpGet("{id}/ownedby/{clientUserId}")]
-        public async Task<IActionResult> GetMyEmployee(int id, int clientUserId)
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetMyEmployee(int id)
         {
+            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var employee = await _service.GetEmployeeByIdAsync(id, clientUserId);
             if (employee == null) return NotFound();
             return Ok(employee);
         }
 
-        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
-        [HttpPost("createdby/{clientUserId}")]
-        public async Task<IActionResult> Create(int clientUserId, [FromBody] CreateEmployeeDto employeeDto)
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateEmployeeDto employeeDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var created = await _service.CreateEmployeeAsync(employeeDto, clientUserId);
 
             return CreatedAtAction(nameof(GetMyEmployee), new { id = created.EmployeeId, clientUserId = clientUserId }, created);
         }
 
-        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
-        [HttpPut("{id}/ownedby/{clientUserId}")]
-        public async Task<IActionResult> Update(int id, int clientUserId, [FromBody] UpdateEmployeeDto employeeDto)
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateEmployeeDto employeeDto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
 
+            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var success = await _service.UpdateEmployeeAsync(id, employeeDto, clientUserId);
 
             if (!success) return NotFound("Employee not found or you do not have permission.");
             return NoContent();
         }
 
-        // [Authorize(Roles = "CLIENT_USER")] // <-- Add this later
-        [HttpDelete("{id}/ownedby/{clientUserId}")]
-        public async Task<IActionResult> Delete(int id, int clientUserId)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
+            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var success = await _service.DeleteEmployeeAsync(id, clientUserId);
 
             if (!success) return NotFound("Employee not found or you do not have permission.");

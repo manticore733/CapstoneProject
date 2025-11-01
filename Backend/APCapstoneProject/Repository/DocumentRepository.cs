@@ -16,7 +16,7 @@ namespace APCapstoneProject.Repository
         public async Task AddAsync(Document document)
         {
             // Set Create time (assuming your model doesn't auto-set it)
-            // document.CreatedAt = DateTime.UtcNow; 
+            //document.CreatedAt = DateTime.UtcNow;
             await _context.Documents.AddAsync(document);
         }
 

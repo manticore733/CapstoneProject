@@ -108,15 +108,17 @@ namespace APCapstoneProject.Service
             return documentDto;
         }
 
-        public async Task<IEnumerable<DocumentReadDto>> GetDocumentsForClientAsync(int clientUserId)
+        public async Task<IEnumerable<DocumentReadDto>> GetDocumentsForClientAsync(int bankUserId, int clientUserId)
         {
-            // Validate Client User
+            // check if client with given Id exists
             var clientUser = await _userRepository.GetByIdAsync(clientUserId);
-            if (clientUser == null || !(clientUser is ClientUser))
-            {
-                // Return empty list or throw error, depending on desired behavior
-                return new List<DocumentReadDto>();
-            }
+            if (clientUser == null || clientUser is not ClientUser)
+                throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
+
+            // Checking if clientUser belonmgs to BankUser
+            var client = clientUser as ClientUser;
+            if (client.BankUserId != bankUserId)
+                throw new UnauthorizedAccessException("This client does not belong to you");
 
             var documents = await _documentRepository.GetDocumentsByClientIdAsync(clientUserId);
 

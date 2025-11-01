@@ -5,6 +5,6 @@ namespace APCapstoneProject.Service
     public interface IDocumentService
     {
         Task<DocumentReadDto> UploadDocumentAsync(int clientUserId, int proofTypeId, IFormFile file);
-        Task<IEnumerable<DocumentReadDto>> GetDocumentsForClientAsync(int clientUserId);
+        Task<IEnumerable<DocumentReadDto>> GetDocumentsForClientAsync(int bankUserId, int clientUserId);
     }
 }
