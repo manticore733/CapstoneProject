@@ -1,9 +1,14 @@
-
+﻿
 using APCapstoneProject.Data;
+using APCapstoneProject.DTO.JWT;
 using APCapstoneProject.Repository;
 using APCapstoneProject.Service;
 using APCapstoneProject.Settings;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
 
 namespace APCapstoneProject
 {
@@ -60,15 +65,46 @@ namespace APCapstoneProject
             builder.Services.AddScoped<ISalaryDisbursementRepository, SalaryDisbursementRepository>();
             builder.Services.AddScoped<ISalaryDisbursementService, SalaryDisbursementService>();
 
+            builder.Services.AddScoped<IAuthRepository, AuthRepository>();
+            builder.Services.AddScoped<IAuthService, AuthService>();
+
 
 
 
             // --- ADD THIS LINE TO REGISTER YOUR SETTINGS ---
             builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
 
-            //// Bind Cloudinary settings from appsettings.json
-            //builder.Services.Configure<CloudinarySettingsDTO>(
-            //    builder.Configuration.GetSection("CloudinarySettings"));
+            //adding jwt hre
+            // 🔹 Add JWT Configuration
+            builder.Services.Configure<JWTSettings>(builder.Configuration.GetSection("JWT"));
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                var jwt = builder.Configuration.GetSection("JWT").Get<JWTSettings>();
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwt.Issuer,
+                    ValidAudience = jwt.Audience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwt.SecretKey))
+                };
+            });
+
+
+
+
+
+
+
+
 
 
 
@@ -77,7 +113,41 @@ namespace APCapstoneProject
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            //builder.Services.AddSwaggerGen();
+
+
+
+            //configuring swagger
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "APCapstoneProject API", Version = "v1" });
+
+                var securityScheme = new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Description = "Enter JWT Bearer token",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    Reference = new OpenApiReference
+                    {
+                        Id = JwtBearerDefaults.AuthenticationScheme,
+                        Type = ReferenceType.SecurityScheme
+                    }
+                };
+
+                options.AddSecurityDefinition(securityScheme.Reference.Id, securityScheme);
+                options.AddSecurityRequirement(new OpenApiSecurityRequirement
+                    {
+                        { securityScheme, Array.Empty<string>() }
+                    });
+            });
+
+
+
+
+
 
 
             builder.Services.AddCors(options =>
@@ -95,11 +165,27 @@ namespace APCapstoneProject
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
+            //if (app.Environment.IsDevelopment())
+            //{
+            //    app.UseSwagger();
+            //    app.UseSwaggerUI();
+            //}
+
+            // 🔹 Middleware pipeline
             if (app.Environment.IsDevelopment())
             {
                 app.UseSwagger();
-                app.UseSwaggerUI();
+                app.UseSwaggerUI(options =>
+                {
+                    options.SwaggerEndpoint("/swagger/v1/swagger.json", "APCapstoneProject API");
+                    options.EnablePersistAuthorization(); // ✅ keeps JWT saved between requests
+                });
             }
+
+
+
+
+
 
             app.UseCors("AllowAll");
 
