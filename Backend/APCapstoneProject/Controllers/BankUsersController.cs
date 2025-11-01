@@ -2,12 +2,14 @@
 using APCapstoneProject.DTO.User.BankUser;
 using APCapstoneProject.DTO.User.ClientUser;
 using APCapstoneProject.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace APCapstoneProject.Controllers
 {
+    [Authorize(Roles = "SUPER_ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class BankUsersController : ControllerBase
@@ -97,9 +99,7 @@ namespace APCapstoneProject.Controllers
 
 
         // bu approves cu based on valid doc
-        // --- ADD THIS NEW ENDPOINT ---
-        // PUT /api/clientusers/{clientId}/approvedby/{bankUserId}
-        // [Authorize(Roles = "BANK_USER")] // <-- Add later
+        [Authorize(Roles = "BANK_USER")]
         [HttpPut("{clientId}/approveby/{bankUserId}")]
         public async Task<ActionResult<ReadClientUserDto>> ApproveClient(int clientId, int bankUserId, [FromBody] ClientApprovalDto approvalDto)
         {
