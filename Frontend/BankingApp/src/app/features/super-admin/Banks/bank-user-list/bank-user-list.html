@@ -1,0 +1,118 @@
+<div class="bg-white shadow p-6 rounded-2xl">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold text-gray-700">🏦 Bank Users</h2>
+    <button
+      (click)="addUser()"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      + Add Bank User
+    </button>
+  </div>
+
+  <table class="min-w-full border border-gray-200 rounded">
+    <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+      <tr>
+        <th class="py-2 px-3 text-left">Name</th>
+        <th class="py-2 px-3 text-left">Username</th>
+        <th class="py-2 px-3 text-left">Email</th>
+        <th class="py-2 px-3 text-left">Phone</th>
+        <th class="py-2 px-3 text-left">Branch</th>
+        <th class="py-2 px-3 text-left">Bank</th>
+        <th class="py-2 px-3 text-left">Status</th>
+        <th class="py-2 px-3 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of bankUsers" class="border-b hover:bg-gray-50">
+        <td class="py-2 px-3">{{ user.userFullName }}</td>
+        <td class="py-2 px-3">{{ user.userName }}</td>
+        <td class="py-2 px-3">{{ user.userEmail }}</td>
+        <td class="py-2 px-3">{{ user.userPhone }}</td>
+        <td class="py-2 px-3">{{ user.branch }}</td>
+        
+        <td class="py-2 px-3">
+          {{ getBankName(user.bankId) }}
+        </td>
+
+        <td class="py-2 px-3">
+          <span
+            [class.bg-green-200]="user.isActive"
+            [class.bg-red-200]="!user.isActive"
+            class="px-2 py-1 rounded text-xs"
+          >
+            {{ user.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+        <td class="py-2 px-3 text-center space-x-2">
+          <button
+            (click)="editUser(user)"
+            class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+          >
+            Edit
+          </button>
+          <button
+            (click)="deleteUser(user.userId)"
+            class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div
+    *ngIf="showForm"
+    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center"
+  >
+    <div class="bg-white p-6 rounded-xl shadow-md w-96">
+      <h3 class="text-lg font-semibold mb-4">
+        {{ isEdit ? 'Edit Bank User' : 'Add Bank User' }}
+      </h3>
+
+
+
+      <form (ngSubmit)="saveUser()">
+  <input type="text" [(ngModel)]="newUser.userFullName" name="userFullName"
+         placeholder="Full Name" class="border p-2 w-full rounded mb-3" required />
+
+  <input type="text" [(ngModel)]="newUser.userName" name="userName"
+         placeholder="Username" class="border p-2 w-full rounded mb-3" required [readonly]="isEdit" />
+
+  <input *ngIf="!isEdit" type="password" [(ngModel)]="newUser.password" name="password"
+         placeholder="Password" class="border p-2 w-full rounded mb-3" required />
+
+  <input type="email" [(ngModel)]="newUser.userEmail" name="userEmail"
+         placeholder="Email" class="border p-2 w-full rounded mb-3" required />
+
+  <input type="text" [(ngModel)]="newUser.userPhone" name="userPhone"
+         placeholder="Phone Number" class="border p-2 w-full rounded mb-3" required />
+
+  <input type="text" [(ngModel)]="newUser.branch" name="branch"
+         placeholder="Branch" class="border p-2 w-full rounded mb-3" required />
+
+  <!-- Bank dropdown only visible during create -->
+  <select *ngIf="!isEdit" [(ngModel)]="newUser.bankId" name="bankId"
+          class="border p-2 w-full rounded mb-3" required>
+    <option value="" disabled selected>Select Bank</option>
+    <option *ngFor="let bank of banks" [value]="bank.bankId">{{ bank.bankName }}</option>
+  </select>
+
+  <div class="flex justify-between">
+    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+      Save
+    </button>
+    <button type="button" (click)="cancelForm()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+      Cancel
+    </button>
+  </div>
+</form>
+
+
+
+
+
+
+    </div>
+  </div>
+</div>

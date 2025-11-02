@@ -1,0 +1,248 @@
+<!-- <div class="bg-white shadow p-6 rounded-2xl">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold text-gray-700">🏦 Banks</h2>
+    <button
+      (click)="addBank()"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      + Add Bank
+    </button>
+  </div>
+
+
+  <table class="min-w-full border border-gray-200 rounded">
+    <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+      <tr>
+        <th class="py-2 px-3 text-left">Name</th>
+        <th class="py-2 px-3 text-left">IFSC</th>
+        <th class="py-2 px-3 text-left">Established</th>
+        <th class="py-2 px-3 text-left">Active</th>
+        <th class="py-2 px-3 text-left">Bank Users</th>
+        <th class="py-2 px-3 text-left">Clients</th>
+        <th class="py-2 px-3 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let bank of banks" class="border-b hover:bg-gray-50">
+        <td class="py-2 px-3">{{ bank.bankName }}</td>
+        <td class="py-2 px-3">{{ bank.ifsc }}</td>
+        <td class="py-2 px-3">{{ bank.establishmentDate | date }}</td>
+        <td class="py-2 px-3">
+          <span
+            [class.bg-green-200]="bank.isActive"
+            [class.bg-red-200]="!bank.isActive"
+            class="px-2 py-1 rounded text-xs"
+          >
+            {{ bank.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+        <td class="py-2 px-3 text-center">
+          {{ bank.totalBankUsers || 0 }}
+        </td>
+        <td class="py-2 px-3 text-center">
+          {{ bank.totalClientUserAccountsHandled || 0 }}
+        </td>
+        <td class="py-2 px-3 text-center space-x-2">
+          <button
+            (click)="editBank(bank)"
+            class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+          >
+            Edit
+          </button>
+          <button
+            (click)="deleteBank(bank.bankId)"
+            class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+
+  <div
+    *ngIf="showForm"
+    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center"
+  >
+    <div class="bg-white p-6 rounded-xl shadow-md w-96">
+      <h3 class="text-lg font-semibold mb-4">
+        {{ isEdit ? 'Edit Bank' : 'Add Bank' }}
+      </h3>
+
+      <form (ngSubmit)="saveBank()">
+        <input
+          type="text"
+          [(ngModel)]="newBank.bankName"
+          name="bankName"
+          placeholder="Bank Name"
+          class="border p-2 w-full rounded mb-3"
+          required
+        />
+        <input
+          type="text"
+          [(ngModel)]="newBank.ifsc"
+          name="ifsc"
+          placeholder="IFSC Code"
+          class="border p-2 w-full rounded mb-3"
+          required
+        />
+        <input
+          type="date"
+          [(ngModel)]="newBank.establishmentDate"
+          name="establishmentDate"
+          class="border p-2 w-full rounded mb-3"
+        />
+        <label class="flex items-center space-x-2 mb-3">
+          <input
+            type="checkbox"
+            [(ngModel)]="newBank.isActive"
+            name="isActive"
+          />
+          <span>Active</span>
+        </label>
+
+        <div class="flex justify-between">
+          <button
+            type="submit"
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            (click)="cancelForm()"
+            class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div> -->
+
+
+
+
+
+
+
+
+
+<div class="bg-white shadow p-6 rounded-2xl">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold text-gray-700">🏦 Banks</h2>
+    <button
+      (click)="addBank()"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      + Add Bank
+    </button>
+  </div>
+
+  <table class="min-w-full border border-gray-200 rounded">
+    <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+      <tr>
+        <th class="py-2 px-3 text-left">Name</th>
+        <th class="py-2 px-3 text-left">IFSC</th>
+        <th class="py-2 px-3 text-left">Established</th>
+        <th class="py-2 px-3 text-left">Active</th>
+        <th class="py-2 px-3 text-left">Bank Users</th>
+        <th class="py-2 px-3 text-left">Clients</th>
+        <th class="py-2 px-3 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let bank of banks" class="border-b hover:bg-gray-50">
+        <td class="py-2 px-3">{{ bank.bankName }}</td>
+        <td class="py-2 px-3">{{ bank.ifsc }}</td>
+        <td class="py-2 px-3">{{ bank.establishmentDate | date }}</td>
+        <td class="py-2 px-3">
+          <span
+            [class.bg-green-200]="bank.isActive"
+            [class.bg-red-200]="!bank.isActive"
+            class="px-2 py-1 rounded text-xs"
+          >
+            {{ bank.isActive ? 'Active' : 'Inactive' }}
+          </span>
+        </td>
+        <td class="py-2 px-3 text-center">{{ bank.totalBankUsers || 0 }}</td>
+        <td class="py-2 px-3 text-center">
+          {{ bank.totalClientUserAccountsHandled || 0 }}
+        </td>
+        <td class="py-2 px-3 text-center space-x-2">
+          <button
+            (click)="editBank(bank)"
+            class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+          >
+            Edit
+          </button>
+          <button
+            (click)="deleteBank(bank.bankId)"
+            class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Form Modal -->
+  <div
+    *ngIf="showForm"
+    class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center"
+  >
+    <div class="bg-white p-6 rounded-xl shadow-md w-96">
+      <h3 class="text-lg font-semibold mb-4">
+        {{ isEdit ? 'Edit Bank' : 'Add Bank' }}
+      </h3>
+
+      <form (ngSubmit)="saveBank()">
+        <input
+          type="text"
+          [(ngModel)]="newBank.bankName"
+          name="bankName"
+          placeholder="Bank Name"
+          class="border p-2 w-full rounded mb-3"
+          required
+        />
+        <input
+          type="text"
+          [(ngModel)]="newBank.ifsc"
+          name="ifsc"
+          placeholder="IFSC Code"
+          class="border p-2 w-full rounded mb-3"
+          required
+        />
+
+        <!-- Show Establishment Date only for CREATE -->
+        <input
+          *ngIf="!isEdit"
+          type="date"
+          [(ngModel)]="newBank.establishmentDate"
+          name="establishmentDate"
+          class="border p-2 w-full rounded mb-3"
+          required
+        />
+
+        <div class="flex justify-between">
+          <button
+            type="submit"
+            class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+          >
+            Save
+          </button>
+          <button
+            type="button"
+            (click)="cancelForm()"
+            class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+          >
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

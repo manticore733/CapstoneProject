@@ -1,0 +1,64 @@
+<div class="flex h-screen bg-gray-100">
+  <!-- Sidebar -->
+  <div
+    class="bg-blue-700 text-white w-64 p-5 space-y-4 transition-all duration-300"
+    [class.hidden]="!sidebarOpen"
+  >
+    <h2 class="text-2xl font-bold mb-6">Super Admin</h2>
+
+    <ul class="space-y-2">
+      <li>
+        <button
+          (click)="navigateTo('/super-admin/banks')"
+          class="block w-full text-left py-2 px-3 rounded hover:bg-blue-600"
+        >
+          🏦 Manage Banks
+        </button>
+      </li>
+      <li>
+        <button
+          (click)="navigateTo('/super-admin/bank-users')"
+          class="block w-full text-left py-2 px-3 rounded hover:bg-blue-600"
+        >
+          👨‍💼 Bank Users
+        </button>
+      </li>
+      <li>
+        <button
+          (click)="navigateTo('/super-admin/reports')"
+          class="block w-full text-left py-2 px-3 rounded hover:bg-blue-600"
+        >
+          📊 Reports
+        </button>
+      </li>
+    </ul>
+  </div>
+
+  <!-- Main content -->
+  <div class="flex-1 flex flex-col">
+    <!-- Navbar -->
+    <div class="bg-white shadow flex items-center justify-between px-6 py-3">
+      <div class="flex items-center space-x-3">
+        <button
+          (click)="toggleSidebar()"
+          class="p-2 bg-gray-200 rounded hover:bg-gray-300"
+        >
+          ☰
+        </button>
+        <h1 class="text-xl font-semibold text-gray-700">Dashboard</h1>
+      </div>
+
+      <button
+        (click)="logout()"
+        class="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
+      >
+        Logout
+      </button>
+    </div>
+
+    <!-- Page Content -->
+    <div class="p-6 overflow-auto">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
