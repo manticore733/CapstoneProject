@@ -11,6 +11,8 @@ namespace APCapstoneProject.Data
         public DbSet<User> Users { get; set; }
         public DbSet<ClientUser> ClientUsers { get; set; }
         public DbSet<BankUser> BankUsers { get; set; }
+        // --- ADD THIS LINE ---
+        public DbSet<SuperAdmin> SuperAdmins { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
 
         public DbSet<Bank> Banks { get; set; }

@@ -27,9 +27,15 @@ namespace APCapstoneProject
 
             builder.Services.AddControllers();
 
+            //builder.Services.AddAutoMapper(cfg =>
+            //{
+            //    cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
+            //});
+
             builder.Services.AddAutoMapper(cfg =>
             {
-                cfg.AddMaps(AppDomain.CurrentDomain.GetAssemblies());
+                // This line now ONLY scans your main project's assembly
+                cfg.AddMaps(typeof(Program).Assembly);
             });
 
 
