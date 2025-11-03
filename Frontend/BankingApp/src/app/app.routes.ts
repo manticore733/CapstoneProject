@@ -5,10 +5,14 @@ import { authGuard } from './core/guards/auth-guard';
 import { SuperAdmin } from './features/super-admin/dashboard/super-admin/super-admin';  
 import { roleGuard } from './core/guards/role-guard';
 import { BankUserDashboard } from './features/bank-user/dashboard/bank-user-dashboard/bank-user-dashboard';
-import { ClientUser } from './features/client-user/dashboard/client-user/client-user';
+import { ClientUserDashboard } from './features/client-user/client-user-dashboard/client-user-dashboard';
 import { Unauthorized } from './pages/unauthorized/unauthorized/unauthorized';
 import { BankList } from './features/super-admin/Banks/bank-list/bank-list';
 import { BankUserList } from './features/super-admin/Banks/bank-user-list/bank-user-list';
+import { ClientList } from './features/bank-user/components/client-list/client-list';
+import { ClientDetails } from './features/bank-user/components/client-details/client-details';
+import { DocumentViewer } from './features/bank-user/components/document-viewer/document-viewer';
+import { ClientForm } from './features/bank-user/components/client-form/client-form';
 
 
 export const routes: Routes = [
@@ -16,14 +20,7 @@ export const routes: Routes = [
   { path: 'login', component: Login },
 
   
- // Super Admin dashboard
-  // {
-  //   path: 'super-admin/dashboard',
-  //   component: SuperAdmin,
-  //   canActivate: [authGuard, roleGuard],
-  //   data: { role: 'SUPER_ADMIN' },
-  // },
-
+ 
   {
   path: 'super-admin/dashboard',
   component: SuperAdmin,
@@ -35,6 +32,8 @@ export const routes: Routes = [
       path: 'banks',
      component: BankList,
     },
+    //added route for bank users
+     { path: 'bank-users', component: BankUserList }, 
   ],
 },
 
@@ -48,12 +47,21 @@ export const routes: Routes = [
      component: BankUserDashboard,
     canActivate: [authGuard, roleGuard],
     data: { role: 'BANK_USER' },
+      children: [
+      { path: '', redirectTo: 'clients', pathMatch: 'full' },
+      { path: 'clients', component: ClientList },
+     { path: 'clients/:id', component: ClientDetails },
+
+      { path: 'documents/:clientId', component: DocumentViewer },
+          { path: 'client/add', component: ClientForm },
+    { path: 'client/edit/:id', component: ClientForm },
+    ],
   },
 
   // Client User dashboard
   {
     path: 'client/dashboard',
-   component:ClientUser,
+   component:ClientUserDashboard,
     canActivate: [authGuard, roleGuard],
     data: { role: 'CLIENT_USER' },
   },
@@ -74,3 +82,13 @@ export const routes: Routes = [
     component: Unauthorized
   },
 ];
+
+
+
+
+
+
+
+
+
+

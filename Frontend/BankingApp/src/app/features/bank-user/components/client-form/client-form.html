@@ -1,0 +1,116 @@
+<!-- <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-xl shadow-md w-96 relative">
+    <h2 class="text-xl font-semibold mb-4 text-center">{{ title }}</h2>
+
+    <form [formGroup]="clientForm" (ngSubmit)="save()" class="space-y-3">
+      <div>
+        <label class="block mb-1">Company Name</label>
+        <input type="text" formControlName="userFullName" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1">Username</label>
+        <input type="text" formControlName="userName" class="border p-2 w-full rounded" />
+      </div>
+
+      <div *ngIf="!client">
+        <label class="block mb-1">Password</label>
+        <input type="password" formControlName="password" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1">Email</label>
+        <input type="email" formControlName="userEmail" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1">Phone</label>
+        <input type="text" formControlName="userPhone" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1">Address</label>
+        <input type="text" formControlName="address" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1">Establishment Date</label>
+        <input type="date" formControlName="establishmentDate" class="border p-2 w-full rounded" />
+      </div>
+
+      <div class="flex justify-between mt-4">
+        <button type="button" (click)="cancel()" class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500">
+          Cancel
+        </button>
+        <button type="submit" [disabled]="loading" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+          {{ loading ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div> -->
+
+
+
+<div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+  <div class="bg-white p-6 rounded-xl shadow-md w-96 relative animate-fadeIn">
+    <h2 class="text-xl font-semibold mb-4 text-center text-green-700">
+      {{ title }}
+    </h2>
+
+    <form [formGroup]="clientForm" (ngSubmit)="save()" class="space-y-3">
+      <div>
+        <label class="block mb-1 font-medium">Company Name</label>
+        <input type="text" formControlName="userFullName" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">Username</label>
+        <input type="text" formControlName="userName" class="border p-2 w-full rounded" />
+      </div>
+
+      <!-- Password only shown when creating -->
+      <div *ngIf="!client">
+        <label class="block mb-1 font-medium">Password</label>
+        <input type="password" formControlName="password" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">Email</label>
+        <input type="email" formControlName="userEmail" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">Phone</label>
+        <input type="text" formControlName="userPhone" class="border p-2 w-full rounded" />
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">Address</label>
+        <input type="text" formControlName="address" class="border p-2 w-full rounded" />
+      </div>
+
+      <div *ngIf="!client">
+        <label class="block mb-1 font-medium">Establishment Date</label>
+        <input type="date" formControlName="establishmentDate" class="border p-2 w-full rounded" />
+      </div>
+
+      <div class="flex justify-between mt-5">
+        <button
+          type="button"
+          (click)="cancel()"
+          class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="loading"
+          class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+        >
+          {{ loading ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

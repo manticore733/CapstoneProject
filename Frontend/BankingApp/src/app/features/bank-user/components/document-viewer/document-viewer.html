@@ -1,0 +1,111 @@
+<!-- <p>document-viewer works!</p>
+<div class="bg-white shadow p-6 rounded-2xl">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold text-gray-700">📄 Client Documents</h2>
+    <button
+      (click)="goBack()"
+      class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+    >
+      ← Back
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center text-gray-500 py-8">
+    Loading documents...
+  </div>
+
+  <div *ngIf="error" class="text-center text-red-600 py-4">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && documents.length === 0" class="text-center text-gray-400 py-8">
+    No documents uploaded for this client.
+  </div>
+
+  <div *ngIf="documents.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <div
+      *ngFor="let doc of documents"
+      class="border rounded-lg p-4 shadow-sm hover:shadow-md cursor-pointer transition"
+      (click)="openDocument(doc.documentURL)"
+    >
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-gray-700 truncate">{{ doc.documentName }}</h3>
+        <span class="text-xs bg-gray-100 px-2 py-1 rounded">
+          {{ doc.proofTypeName }}
+        </span>
+      </div>
+
+      <div class="mt-3 text-center">
+        <img
+          *ngIf="doc.documentURL.endsWith('.jpg') || doc.documentURL.endsWith('.png') || doc.documentURL.endsWith('.jpeg')"
+          [src]="doc.documentURL"
+          alt="{{ doc.documentName }}"
+          class="h-40 w-full object-cover rounded"
+        />
+        <div *ngIf="!doc.documentURL.match(/\.(jpg|jpeg|png)$/)" class="h-40 flex items-center justify-center bg-gray-100 rounded">
+          <span class="text-sm text-gray-600">📎 View File</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div> -->
+
+
+
+<p>document-viewer works!</p>
+<div class="bg-white shadow p-6 rounded-2xl">
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold text-gray-700">📄 Client Documents</h2>
+    <button
+      (click)="goBack()"
+      class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+    >
+      ← Back
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center text-gray-500 py-8">
+    Loading documents...
+  </div>
+
+  <div *ngIf="error" class="text-center text-red-600 py-4">
+    {{ error }}
+  </div>
+
+  <div *ngIf="!loading && !error && documents.length === 0" class="text-center text-gray-400 py-8">
+    No documents uploaded for this client.
+  </div>
+
+  <div *ngIf="documents.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <div
+      *ngFor="let doc of documents"
+      class="border rounded-lg p-4 shadow-sm hover:shadow-md cursor-pointer transition"
+      (click)="openDocument(doc.documentURL)"
+    >
+      <div class="flex items-center justify-between">
+        <h3 class="font-semibold text-gray-700 truncate">{{ doc.documentName }}</h3>
+        <span class="text-xs bg-gray-100 px-2 py-1 rounded">
+          {{ doc.proofTypeName }}
+        </span>
+      </div>
+
+      <div class="mt-3 text-center">
+        <!-- ✅ Image preview -->
+        <img
+          *ngIf="isImageFile(doc.documentURL)"
+          [src]="doc.documentURL"
+          alt="{{ doc.documentName }}"
+          class="h-40 w-full object-cover rounded"
+        />
+
+        <!-- ✅ Non-image placeholder -->
+        <div
+          *ngIf="!isImageFile(doc.documentURL)"
+          class="h-40 flex items-center justify-center bg-gray-100 rounded"
+        >
+          <span class="text-sm text-gray-600">📎 View File</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
