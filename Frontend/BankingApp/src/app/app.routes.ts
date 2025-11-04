@@ -13,6 +13,16 @@ import { ClientList } from './features/bank-user/components/client-list/client-l
 import { ClientDetails } from './features/bank-user/components/client-details/client-details';
 import { DocumentViewer } from './features/bank-user/components/document-viewer/document-viewer';
 import { ClientForm } from './features/bank-user/components/client-form/client-form';
+import { AllDocuments } from './features/bank-user/components/all-documents/all-documents';
+import { BeneficiaryListComponent } from './features/client-user/components/beneficiary-list-component/beneficiary-list-component';
+import { EmployeeListComponent } from './features/client-user/components/employee-list-component/employee-list-component';
+import { MakePaymentComponent } from './features/client-user/components/make-payment-component/make-payment-component';
+
+
+
+
+
+
 
 
 export const routes: Routes = [
@@ -55,6 +65,10 @@ export const routes: Routes = [
       { path: 'documents/:clientId', component: DocumentViewer },
           { path: 'client/add', component: ClientForm },
     { path: 'client/edit/:id', component: ClientForm },
+     {
+        path: 'all-documents', // ← Add this new route
+        component: AllDocuments
+      },
     ],
   },
 
@@ -64,7 +78,26 @@ export const routes: Routes = [
    component:ClientUserDashboard,
     canActivate: [authGuard, roleGuard],
     data: { role: 'CLIENT_USER' },
+    children: [
+      { path: '', redirectTo: 'beneficiaries', pathMatch: 'full' },
+      { 
+        path: 'beneficiaries', 
+        component: BeneficiaryListComponent 
+      },
+      // We will add routes for employees, payments, etc. here later
+      { 
+        path: 'employees', 
+        component: EmployeeListComponent 
+      },
+      { 
+        path: 'make-payment', 
+        component: MakePaymentComponent 
+      },
+    ]
   },
+
+
+
 
   {
   path: 'super-admin/bank-users',

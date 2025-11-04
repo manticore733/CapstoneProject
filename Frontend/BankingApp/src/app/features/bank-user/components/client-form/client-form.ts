@@ -49,6 +49,7 @@ export class ClientForm {
           userEmail: formValue.userEmail,
           userPhone: formValue.userPhone,
           address: formValue.address,
+          statusId: this.client.statusId
         }
       : {
           ...formValue,

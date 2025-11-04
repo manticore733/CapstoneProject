@@ -1,10 +1,15 @@
 import { Component } from '@angular/core';
 import { AuthService } from '../../../core/services/auth-service';
 import { Router } from '@angular/router';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
 @Component({
   selector: 'app-client-user-dashboard',
-  imports: [],
+  imports: [CommonModule,
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive],
   templateUrl: './client-user-dashboard.html',
   styleUrl: './client-user-dashboard.css',
 })

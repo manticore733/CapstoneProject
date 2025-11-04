@@ -14,11 +14,19 @@ export class BankUserDashboard {
 
      userId = localStorage.getItem('userId');
   role = localStorage.getItem('role');
+    // Sidebar toggle state
+  isSidebarOpen = true;
+
 
   constructor(private auth: AuthService, private router: Router) {}
 
   logout() {
     this.auth.logout();
+  }
+
+    // Toggle sidebar visibility
+  toggleSidebar() {
+    this.isSidebarOpen = !this.isSidebarOpen;
   }
 
 

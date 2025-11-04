@@ -1,0 +1,85 @@
+<div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 overflow-y-auto p-4">
+  
+  <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-lg relative my-8">
+    <h2 class="text-xl font-semibold mb-4 text-center text-gray-700">
+      {{ title }}
+    </h2>
+
+    <form [formGroup]="form" (ngSubmit)="save()" class="space-y-3">
+      
+      <div>
+        <label class="block mb-1 font-medium">Employee Name</label>
+        <input type="text" formControlName="employeeName" class="border p-2 w-full rounded" />
+        <div *ngIf="form.controls['employeeName'].touched && form.controls['employeeName'].invalid" class="text-red-500 text-xs mt-1">
+          Employee name is required.
+        </div>
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">Email</label>
+        <input type="email" formControlName="email" class="border p-2 w-full rounded" />
+        <div *ngIf="form.controls['email'].touched && form.controls['email'].invalid" class="text-red-500 text-xs mt-1">
+          A valid email is required.
+        </div>
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">Salary (per month)</label>
+        <input type="number" formControlName="salary" class="border p-2 w-full rounded" />
+        <div *ngIf="form.controls['salary'].touched && form.controls['salary'].invalid" class="text-red-500 text-xs mt-1">
+          Salary is required and must be greater than 0.
+        </div>
+      </div>
+      
+      <div>
+        <label class="block mb-1 font-medium">Account Number</label>
+        <input type="text" formControlName="accountNumber" class="border p-2 w-full rounded" />
+        <div *ngIf="form.controls['accountNumber'].touched && form.controls['accountNumber'].invalid" class="text-red-500 text-xs mt-1">
+          <span *ngIf="form.controls['accountNumber'].errors?.['required']">Account number is required.</span>
+          <span *ngIf="form.controls['accountNumber'].errors?.['pattern']">Must be digits only.</span>
+        </div>
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">Bank Name</label>
+        <input type="text" formControlName="bankName" class="border p-2 w-full rounded" />
+        <div *ngIf="form.controls['bankName'].touched && form.controls['bankName'].invalid" class="text-red-500 text-xs mt-1">
+          Bank name is required.
+        </div>
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">IFSC Code</label>
+        <input type="text" formControlName="ifsc" class="border p-2 w-full rounded" />
+        <div *ngIf="form.controls['ifsc'].touched && form.controls['ifsc'].invalid" class="text-red-500 text-xs mt-1">
+          IFSC code is required.
+        </div>
+      </div>
+
+      <div>
+        <label class="block mb-1 font-medium">Date of Joining</label>
+        <input type="date" formControlName="dateOfJoining" class="border p-2 w-full rounded" />
+        <div *ngIf="form.controls['dateOfJoining'].touched && form.controls['dateOfJoining'].invalid" class="text-red-500 text-xs mt-1">
+          Date of joining is required.
+        </div>
+      </div>
+
+      <div class="flex justify-between mt-5">
+        <button
+          type="button"
+          (click)="cancel()"
+          class="bg-gray-400 text-white px-4 py-2 rounded hover:bg-gray-500"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          [disabled]="loading"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-300"
+        >
+          {{ loading ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

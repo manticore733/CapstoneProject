@@ -1,0 +1,74 @@
+<div class="bg-white shadow p-6 rounded-2xl relative">
+  
+  <div class="flex justify-between items-center mb-4">
+    <h2 class="text-xl font-bold text-gray-700">🧑‍💼 My Employees</h2>
+    <button
+      (click)="openAddForm()"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      + Add Employee
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="text-center py-4 text-gray-500">
+    Loading employees...
+  </div>
+
+  <div *ngIf="error" class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4" role="alert">
+    <p class="font-bold">Feature Locked</p>
+    <p>{{ error }}</p>
+  </div>
+
+  <table
+    *ngIf="!loading && employees.length > 0"
+    class="min-w-full border border-gray-200 rounded"
+  >
+    <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+      <tr>
+        <th class="py-2 px-3 text-left">Name</th>
+        <th class="py-2 px-3 text-left">Email</th>
+        <th class="py-2 px-3 text-left">Salary</th>
+        <th class="py-2 px-3 text-left">Account Number</th>
+        <th class="py-2 px-3 text-left">Bank</th>
+        <th class="py-2 px-3 text-center">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        *ngFor="let e of employees"
+        class="border-b hover:bg-gray-50 transition"
+      >
+        <td class="py-2 px-3">{{ e.employeeName }}</td>
+        <td class="py-2 px-3">{{ e.email }}</td>
+        <td class="py-2 px-3">{{ e.salary | currency:'INR' }}</td>
+        <td class="py-2 px-3">{{ e.accountNumber }}</td>
+        <td class="py-2 px-3">{{ e.bankName }}</td>
+        <td class="py-2 px-3 text-center space-x-2">
+          <button
+            (click)="openEditForm(e)"
+            class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+          >
+            Edit
+          </button>
+          <button
+            (click)="deleteEmployee(e.employeeId)"
+            class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div *ngIf="!loading && !error && employees.length === 0" class="text-center py-6">
+    <p class="text-gray-500">No employees found. Click "Add Employee" to get started.</p>
+  </div>
+
+  <app-employee-form-component
+    *ngIf="showForm"
+    [employee]="selectedEmployee"
+    (close)="closeForm()"
+    (saved)="onFormSaved()"
+  ></app-employee-form-component>
+</div>
