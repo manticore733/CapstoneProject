@@ -40,12 +40,37 @@ namespace APCapstoneProject.Repository
                     .ThenInclude(d => d.Employee)
                 .FirstOrDefaultAsync(s => s.TransactionId == id);
         }
+        // SalaryDisbursementRepository.cs
+        public async Task<IEnumerable<SalaryDisbursement>> GetAllAsync()
+        {
+            return await _context.SalaryDisbursements
+                .Include(s => s.ClientUser)
+                .Include(s => s.TransactionStatus)
+                .Include(s => s.Details)!
+                    .ThenInclude(d => d.Employee)
+                .ToListAsync();
+        }
+
+        
+
+        public async Task<IEnumerable<SalaryDisbursement>> GetByBankUserIdAsync(int bankUserId)
+        {
+            return await _context.SalaryDisbursements
+                .Include(s => s.ClientUser)
+                .Include(s => s.TransactionStatus)
+                .Include(s => s.Details)!
+                    .ThenInclude(d => d.Employee)
+                .Where(s => s.ClientUser != null && s.ClientUser.BankUserId == bankUserId)
+                .ToListAsync();
+        }
+
 
         public async Task<IEnumerable<SalaryDisbursement>> GetByClientUserIdAsync(int clientUserId)
         {
             return await _context.SalaryDisbursements
                 .Include(s => s.TransactionStatus)
                 .Include(s => s.Details)
+                    .ThenInclude(d => d.Employee)
                 .Where(s => s.ClientUserId == clientUserId)
                 .OrderByDescending(s => s.CreatedAt)
                 .ToListAsync();

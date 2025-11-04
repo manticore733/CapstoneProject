@@ -35,6 +35,16 @@ namespace APCapstoneProject.Repository
                 .FirstOrDefaultAsync(p => p.TransactionId == id);
         }
 
+        public async Task<IEnumerable<Payment>> GetAllAsync()
+        {
+            return await _context.Payments
+                .Include(p => p.SenderClient)
+                .Include(p => p.Beneficiary)
+                .Include(p => p.TransactionStatus)
+                .ToListAsync();
+        }
+
+
         public async Task<IEnumerable<Payment>> GetPaymentsByClientUserIdAsync(int clientUserId)
         {
             return await _context.Payments

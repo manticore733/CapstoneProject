@@ -76,6 +76,11 @@ namespace APCapstoneProject
             builder.Services.AddScoped<IAuthRepository, AuthRepository>();
             builder.Services.AddScoped<IAuthService, AuthService>();
 
+            builder.Services.AddScoped<IReportRecordRepository, ReportRecordRepository>();
+            builder.Services.AddScoped<IReportService, ReportService>();
+
+
+
 
 
 

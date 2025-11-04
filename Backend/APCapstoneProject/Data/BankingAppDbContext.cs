@@ -28,6 +28,8 @@ namespace APCapstoneProject.Data
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionType> TransactionTypes { get; set; }
 
+        public DbSet<ReportRecord> ReportRecords { get; set; }
+
         public DbSet<Payment> Payments { get; set; }
         public DbSet<SalaryDisbursement> SalaryDisbursements { get; set; }
         public DbSet<SalaryDisbursementDetail> SalaryDisbursementDetails { get; set; }

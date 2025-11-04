@@ -27,7 +27,7 @@ import { MakePaymentComponent } from './features/client-user/components/make-pay
 
 export const routes: Routes = [
     { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: Login },
+    { path: 'login', component: Login },
 
   
  
