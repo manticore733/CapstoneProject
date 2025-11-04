@@ -64,8 +64,11 @@ namespace APCapstoneProject.Controllers
         // 🔹 PUT: Reject a disbursement by bank user
         [Authorize(Roles = "BANK_USER")]
         [HttpPut("{disbursementId}/reject")]
-        public async Task<ActionResult<ReadSalaryDisbursementDto>> Reject(int disbursementId, int bankUserId)
+        public async Task<ActionResult<ReadSalaryDisbursementDto>> Reject(int disbursementId)
+
         {
+            // Get the Bank User's ID from their login token
+            var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _disbursementService.RejectSalaryDisbursementAsync(disbursementId, bankUserId);
             if (result == null)
                 return NotFound("Salary disbursement not found or not pending.");

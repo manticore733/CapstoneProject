@@ -19,8 +19,8 @@ import { EmployeeListComponent } from './features/client-user/components/employe
 import { MakePaymentComponent } from './features/client-user/components/make-payment-component/make-payment-component';
 import { DisburseSalaryComponent } from './features/client-user/components/disburse-salary-component/disburse-salary-component';
 import { DocumentUploadComponent } from './features/client-user/components/document-upload-component/document-upload-component';
-
-
+import { PendingApprovalsComponent } from './features/bank-user/components/pending-approvals-component/pending-approvals-component';
+import { TransactionHistoryComponent } from './features/client-user/components/transaction-history-component/transaction-history-component';
 
 
 
@@ -69,6 +69,10 @@ export const routes: Routes = [
         path: 'all-documents', // ← Add this new route
         component: AllDocuments
       },
+      { 
+        path: 'pending-approvals', 
+        component: PendingApprovalsComponent 
+      }
     ],
   },
 
@@ -100,6 +104,10 @@ export const routes: Routes = [
       { 
         path: 'upload-documents', 
         component: DocumentUploadComponent
+      },
+      { 
+        path: 'history', 
+        component: TransactionHistoryComponent
       },
     ]
   },

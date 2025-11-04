@@ -46,5 +46,12 @@ export class PaymentService {
   rejectPayment(paymentId: number): Observable<Payment> {
     return this.api.put<Payment>(`${this.endpoint}/${paymentId}/reject`, {});
   }
+
+
+
+
+
+
+  
   
 }

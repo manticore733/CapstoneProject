@@ -63,6 +63,7 @@ namespace APCapstoneProject.Service
                 // Optional: Use original filename, or generate a unique one
                 PublicId = Path.GetFileNameWithoutExtension(file.FileName) + "_" + Guid.NewGuid().ToString(),
                 Overwrite = true // Or false if you want to prevent overwriting
+
             };
 
             RawUploadResult uploadResult; // Use RawUploadResult

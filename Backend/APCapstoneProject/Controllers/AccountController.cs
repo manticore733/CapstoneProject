@@ -1,5 +1,6 @@
 ﻿using APCapstoneProject.DTO.Account;
 using APCapstoneProject.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace APCapstoneProject.Controllers
@@ -46,6 +47,24 @@ namespace APCapstoneProject.Controllers
             var success = await _accountService.DebitAsync(id, dto.Amount);
             if (!success) return BadRequest("Insufficient balance or invalid account.");
             return Ok(new { message = "Account debited successfully." });
+        }
+
+
+        // --- ADD THIS ENTIRE METHOD ---
+        [Authorize(Roles = "CLIENT_USER")]
+        [HttpGet("myaccount")]
+        public async Task<ActionResult<ReadAccountDto>> GetMyAccount()
+        {
+            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
+            var account = await _accountService.GetAccountByClientUserIdAsync(clientUserId);
+
+            if (account == null)
+            {
+                // This is not an error. It just means the BU hasn't approved them yet.
+                return NotFound(new { message = "Account not yet created or approved." });
+            }
+
+            return Ok(account);
         }
     }
 }
