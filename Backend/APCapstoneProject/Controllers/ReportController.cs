@@ -50,15 +50,16 @@ namespace APCapstoneProject.Controllers
         }
 
         // 🔹 BANK USER REPORT (TRANSACTIONS / PAYMENTS / SALARIES)
-        [HttpGet("bank/{bankUserId}/transactions")]
-        //[Authorize(Roles = "BANK_USER")]
+        [HttpGet("bank/transactions")]
+        [Authorize(Roles = "BANK_USER")]
         public async Task<IActionResult> GetBankUserReport(
-            int bankUserId,
             [FromQuery] string reportType = "both", //"salaries" or "payments"
             [FromQuery] DateTime? startDate = null,
             [FromQuery] DateTime? endDate = null,
             [FromQuery] string? export = null)
         {
+            int bankUserId = GetCurrentUserId();
+
             if (export?.ToLower() == "excel")
             {
                 var result = await _reportService.GenerateBankUserReportExcelAsync(bankUserId, "BANK_USER", reportType, startDate, endDate);
@@ -76,14 +77,15 @@ namespace APCapstoneProject.Controllers
         }
 
         // 🔹 CLIENT USER REPORT (PAYMENTS + SALARIES)
-        [HttpGet("client/{clientUserId}")]
-        //[Authorize(Roles = "CLIENT_USER")]
+        [HttpGet("client")]
+        [Authorize(Roles = "CLIENT_USER")]
         public async Task<IActionResult> GetClientUserReport(
-            int clientUserId,
             [FromQuery] DateTime? startDate = null,
             [FromQuery] DateTime? endDate = null,
             [FromQuery] string? export = null)
         {
+            int clientUserId = GetCurrentUserId();
+
             if (export?.ToLower() == "excel")
             {
                 var result = await _reportService.GenerateClientUserReportExcelAsync(clientUserId, "CLIENT_USER", startDate, endDate);

@@ -41,6 +41,7 @@ import { AuthService } from '../../../../core/services/auth-service';
 import { Router, RouterOutlet, NavigationEnd } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { filter } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
 
 @Component({
   selector: 'app-super-admin',
@@ -80,6 +81,10 @@ export class SuperAdmin {
 
   isActive(route: string): boolean {
   return this.currentRoute.includes(route);
+
+  
+
+
 }
 
 

@@ -83,7 +83,7 @@ export const routes: Routes = [
     canActivate: [authGuard, roleGuard],
     data: { role: 'CLIENT_USER' },
     children: [
-      { path: '', redirectTo: 'beneficiaries', pathMatch: 'full' },
+      { path: '', redirectTo: 'history', pathMatch: 'full' },
       { 
         path: 'beneficiaries', 
         component: BeneficiaryListComponent 
