@@ -23,6 +23,11 @@ namespace APCapstoneProject.Controllers
             return int.TryParse(claim?.Value, out var id) ? id : 0;
         }
 
+        private string GetCurrentUserRole()
+        {
+            return User.FindFirst(ClaimTypes.Role)?.Value ?? "UNKNOWN";
+        }
+
         // 🔹 SYSTEM SUMMARY REPORT (SUPER ADMIN)
         [HttpGet("system-summary")]
         [Authorize(Roles = "SUPER_ADMIN")]
@@ -102,5 +107,25 @@ namespace APCapstoneProject.Controllers
             if (data == null) return NotFound();
             return Ok(data);
         }
+
+
+
+        // 🔹 4️⃣ REPORT HISTORY (COMMON TO ALL ROLES)
+        [HttpGet("history")]
+        [Authorize] // All authenticated roles
+        public async Task<IActionResult> GetReportHistory()
+        {
+            int userId = GetCurrentUserId();
+            string role = GetCurrentUserRole();
+
+            var history = await _reportService.GetReportHistoryAsync(userId, role);
+
+            if (!history.Any())
+                return NotFound(new { message = "No reports found for this user." });
+
+            return Ok(history);
+        }
+
+
     }
 }

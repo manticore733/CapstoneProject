@@ -422,5 +422,19 @@ namespace APCapstoneProject.Service
             };
         }
 
+
+        public async Task<IEnumerable<ReportRecord>> GetReportHistoryAsync(int userId, string role)
+        {
+            var allRecords = await _reportRecordRepo.GetByUserIdAsync(userId);
+
+            // Ensure users only see their own reports
+            return allRecords
+                .Where(r => r.RequestedByRole.Equals(role, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(r => r.GeneratedAt)
+                .ToList();
+        }
+
+
+
     }
 }

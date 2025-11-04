@@ -1,4 +1,5 @@
 ﻿using APCapstoneProject.DTO.Reports;
+using APCapstoneProject.Model;
 
 namespace APCapstoneProject.Service
 {
@@ -13,5 +14,8 @@ namespace APCapstoneProject.Service
         Task<ReportResultDto> GenerateSystemSummaryExcelAsync(int requestedByUserId, string role, DateTime? startDate = null, DateTime? endDate = null);
         Task<ReportResultDto> GenerateBankUserReportExcelAsync(int bankUserId, string role, string reportType = "both", DateTime? startDate = null, DateTime? endDate = null);
         Task<ReportResultDto> GenerateClientUserReportExcelAsync(int clientUserId, string role, DateTime? startDate = null, DateTime? endDate = null);
+
+        Task<IEnumerable<ReportRecord>> GetReportHistoryAsync(int userId, string role);
+
     }
 }
