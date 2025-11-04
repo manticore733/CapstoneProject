@@ -16,7 +16,6 @@ namespace APCapstoneProject.Controllers
             _authService = authService;
         }
 
-        // 🔹 POST: api/Auth/login
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequestDto dto)
         {
@@ -26,7 +25,7 @@ namespace APCapstoneProject.Controllers
             var response = await _authService.LoginAsync(dto);
 
             if (!response.IsSuccess)
-                return Unauthorized(new { message = response.Message });
+                return BadRequest(new { message = response.Message });
 
             return Ok(new
             {
@@ -36,6 +35,7 @@ namespace APCapstoneProject.Controllers
                 message = response.Message
             });
         }
+
 
         // Example of testing authorization
         [HttpGet("secure-test")]

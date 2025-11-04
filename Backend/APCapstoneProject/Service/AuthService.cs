@@ -2,6 +2,7 @@
 using APCapstoneProject.DTO.JWT;
 using APCapstoneProject.Model;
 using APCapstoneProject.Repository;
+using APCapstoneProject.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,18 +15,33 @@ namespace APCapstoneProject.Service
     {
         private readonly IAuthRepository _authRepository;
         private readonly JWTSettings _jwtSettings;
+        private readonly ICaptchaService _captchaService;
 
-        public AuthService(IAuthRepository authRepository, IOptions<JWTSettings> jwtOptions)
+        public AuthService(IAuthRepository authRepository,
+                           IOptions<JWTSettings> jwtOptions,
+                           ICaptchaService captchaService)
         {
             _authRepository = authRepository;
             _jwtSettings = jwtOptions.Value;
+            _captchaService = captchaService;
         }
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
         {
+            // 🔹 STEP 1: Verify CAPTCHA first
+            var captchaValid = await _captchaService.VerifyCaptchaAsync(dto.CaptchaToken);
+            if (!captchaValid)
+            {
+                return new LoginResponseDto
+                {
+                    IsSuccess = false,
+                    Message = "Captcha verification failed. Please try again."
+                };
+            }
+
+            // Continue login flow
             var user = await _authRepository.GetUserByUsernameAsync(dto.Username);
 
-            // ❌ User not found
             if (user == null)
             {
                 return new LoginResponseDto
@@ -35,7 +51,6 @@ namespace APCapstoneProject.Service
                 };
             }
 
-            // 🔐 Verify hashed password
             if (!BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash))
             {
                 return new LoginResponseDto
@@ -45,7 +60,7 @@ namespace APCapstoneProject.Service
                 };
             }
 
-            // ✅ Generate JWT token
+            // 🔹 STEP 3: Generate JWT token
             string token = GenerateToken(user);
 
             return new LoginResponseDto

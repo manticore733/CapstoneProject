@@ -82,7 +82,9 @@ namespace APCapstoneProject
 
 
 
-
+            // Add Captcha Config
+            builder.Services.Configure<CaptchaSettings>(builder.Configuration.GetSection("CaptchaSettings"));
+            builder.Services.AddScoped<ICaptchaService, CaptchaService>();
 
             // --- ADD THIS LINE TO REGISTER YOUR SETTINGS ---
             builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("CloudinarySettings"));
