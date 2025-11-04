@@ -17,10 +17,10 @@ import { AllDocuments } from './features/bank-user/components/all-documents/all-
 import { BeneficiaryListComponent } from './features/client-user/components/beneficiary-list-component/beneficiary-list-component';
 import { EmployeeListComponent } from './features/client-user/components/employee-list-component/employee-list-component';
 import { MakePaymentComponent } from './features/client-user/components/make-payment-component/make-payment-component';
-
-
-
-
+import { DisburseSalaryComponent } from './features/client-user/components/disburse-salary-component/disburse-salary-component';
+import { DocumentUploadComponent } from './features/client-user/components/document-upload-component/document-upload-component';
+import { PendingApprovalsComponent } from './features/bank-user/components/pending-approvals-component/pending-approvals-component';
+import { TransactionHistoryComponent } from './features/client-user/components/transaction-history-component/transaction-history-component';
 
 
 
@@ -69,6 +69,10 @@ export const routes: Routes = [
         path: 'all-documents', // ← Add this new route
         component: AllDocuments
       },
+      { 
+        path: 'pending-approvals', 
+        component: PendingApprovalsComponent 
+      }
     ],
   },
 
@@ -92,6 +96,18 @@ export const routes: Routes = [
       { 
         path: 'make-payment', 
         component: MakePaymentComponent 
+      },
+      { 
+        path: 'disburse-salary', 
+        component: DisburseSalaryComponent 
+      },
+      { 
+        path: 'upload-documents', 
+        component: DocumentUploadComponent
+      },
+      { 
+        path: 'history', 
+        component: TransactionHistoryComponent
       },
     ]
   },
