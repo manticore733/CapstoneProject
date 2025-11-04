@@ -124,5 +124,28 @@ namespace APCapstoneProject.Service
 
             return _mapper.Map<IEnumerable<DocumentReadDto>>(documents);
         }
+
+        public async Task<IEnumerable<DocumentReadDto>> GetMyDocumentsAsync(int clientUserId)
+        {
+            // 1. Validate Client User (optional, but good practice)
+            var clientUser = await _userRepository.GetByIdAsync(clientUserId);
+            if (clientUser == null || !(clientUser is ClientUser))
+            {
+                throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
+            }
+
+            // 2. Get documents
+            var documents = await _documentRepository.GetDocumentsByClientIdAsync(clientUserId);
+
+            // 3. Map and return
+            return _mapper.Map<IEnumerable<DocumentReadDto>>(documents);
+        }
+
+
+
+
+
+
+
     }
 }

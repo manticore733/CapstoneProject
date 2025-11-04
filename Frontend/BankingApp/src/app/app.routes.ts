@@ -18,7 +18,7 @@ import { BeneficiaryListComponent } from './features/client-user/components/bene
 import { EmployeeListComponent } from './features/client-user/components/employee-list-component/employee-list-component';
 import { MakePaymentComponent } from './features/client-user/components/make-payment-component/make-payment-component';
 import { DisburseSalaryComponent } from './features/client-user/components/disburse-salary-component/disburse-salary-component';
-
+import { DocumentUploadComponent } from './features/client-user/components/document-upload-component/document-upload-component';
 
 
 
@@ -96,6 +96,10 @@ export const routes: Routes = [
       { 
         path: 'disburse-salary', 
         component: DisburseSalaryComponent 
+      },
+      { 
+        path: 'upload-documents', 
+        component: DocumentUploadComponent
       },
     ]
   },

@@ -68,5 +68,29 @@ namespace APCapstoneProject.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, $"An error occurred retrieving documents: {ex.Message}");
             }
         }
+
+        // --- ADD THIS ENTIRE METHOD ---
+        [Authorize(Roles = "CLIENT_USER")]
+        [HttpGet("mydocuments")]
+        public async Task<ActionResult<IEnumerable<DocumentReadDto>>> GetMyDocuments()
+        {
+            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
+            try
+            {
+                var documents = await _documentService.GetMyDocumentsAsync(clientUserId);
+                return Ok(documents);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+        }
+
+
+
+
+
+
+
     }
 }
