@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 export interface LoginRequest {
   username: string;
   password: string;
+  captchaToken?: string;
 }
 
 export interface LoginResponse {
