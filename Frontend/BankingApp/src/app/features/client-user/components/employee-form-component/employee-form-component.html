@@ -1,4 +1,4 @@
-<div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 overflow-y-auto p-4">
+<!-- <div class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 overflow-y-auto p-4">
   
   <div class="bg-white p-6 rounded-xl shadow-md w-full max-w-lg relative my-8">
     <h2 class="text-xl font-semibold mb-4 text-center text-gray-700">
@@ -78,6 +78,180 @@
           class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:bg-gray-300"
         >
           {{ loading ? 'Saving...' : 'Save' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overflow-y-auto"
+  (click)="cancel()"
+>
+  <div
+    class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl transform transition-all my-8"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900">
+          {{ title }}
+        </h3>
+      </div>
+      <button
+        (click)="cancel()"
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <form [formGroup]="form" (ngSubmit)="save()" class="p-6 space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Employee Name -->
+        <div class="md:col-span-2">
+          <label class="block text-sm font-medium text-gray-700 mb-2">Employee Name *</label>
+          <input
+            type="text"
+            formControlName="employeeName"
+            placeholder="Enter employee name"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+            [class.border-red-500]="form.controls['employeeName'].touched && form.controls['employeeName'].invalid"
+          />
+          <div *ngIf="form.controls['employeeName'].touched && form.controls['employeeName'].invalid" class="text-red-500 text-xs mt-1">
+            Employee name is required.
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
+          <input
+            type="email"
+            formControlName="email"
+            placeholder="employee@example.com"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+            [class.border-red-500]="form.controls['email'].touched && form.controls['email'].invalid"
+          />
+          <div *ngIf="form.controls['email'].touched && form.controls['email'].invalid" class="text-red-500 text-xs mt-1">
+            A valid email is required.
+          </div>
+        </div>
+
+        <!-- Salary -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Monthly Salary (₹) *</label>
+          <input
+            type="number"
+            formControlName="salary"
+            placeholder="50000"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+            [class.border-red-500]="form.controls['salary'].touched && form.controls['salary'].invalid"
+          />
+          <div *ngIf="form.controls['salary'].touched && form.controls['salary'].invalid" class="text-red-500 text-xs mt-1">
+            Salary is required and must be greater than 0.
+          </div>
+        </div>
+
+        <!-- Account Number -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Account Number *</label>
+          <input
+            type="text"
+            formControlName="accountNumber"
+            placeholder="Enter account number"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none font-mono"
+            [class.border-red-500]="form.controls['accountNumber'].touched && form.controls['accountNumber'].invalid"
+          />
+          <div *ngIf="form.controls['accountNumber'].touched && form.controls['accountNumber'].invalid" class="text-red-500 text-xs mt-1">
+            <span *ngIf="form.controls['accountNumber'].errors?.['required']">Account number is required.</span>
+            <span *ngIf="form.controls['accountNumber'].errors?.['pattern']">Must be digits only.</span>
+          </div>
+        </div>
+
+        <!-- Bank Name -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Bank Name *</label>
+          <input
+            type="text"
+            formControlName="bankName"
+            placeholder="Enter bank name"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+            [class.border-red-500]="form.controls['bankName'].touched && form.controls['bankName'].invalid"
+          />
+          <div *ngIf="form.controls['bankName'].touched && form.controls['bankName'].invalid" class="text-red-500 text-xs mt-1">
+            Bank name is required.
+          </div>
+        </div>
+
+        <!-- IFSC Code -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">IFSC Code *</label>
+          <input
+            type="text"
+            formControlName="ifsc"
+            placeholder="Enter IFSC code"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none font-mono uppercase"
+            [class.border-red-500]="form.controls['ifsc'].touched && form.controls['ifsc'].invalid"
+          />
+          <div *ngIf="form.controls['ifsc'].touched && form.controls['ifsc'].invalid" class="text-red-500 text-xs mt-1">
+            IFSC code is required.
+          </div>
+        </div>
+
+        <!-- Date of Joining -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Date of Joining *</label>
+          <input
+            type="date"
+            formControlName="dateOfJoining"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+            [class.border-red-500]="form.controls['dateOfJoining'].touched && form.controls['dateOfJoining'].invalid"
+          />
+          <div *ngIf="form.controls['dateOfJoining'].touched && form.controls['dateOfJoining'].invalid" class="text-red-500 text-xs mt-1">
+            Date of joining is required.
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex gap-3 pt-4">
+        <button
+          type="submit"
+          [disabled]="loading || form.invalid"
+          class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition duration-200 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {{ loading ? 'Saving...' : 'Save Employee' }}
+        </button>
+        <button
+          type="button"
+          (click)="cancel()"
+          class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-200"
+        >
+          Cancel
         </button>
       </div>
     </form>

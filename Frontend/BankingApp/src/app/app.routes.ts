@@ -22,6 +22,8 @@ import { DocumentUploadComponent } from './features/client-user/components/docum
 import { PendingApprovalsComponent } from './features/bank-user/components/pending-approvals-component/pending-approvals-component';
 import { TransactionHistoryComponent } from './features/client-user/components/transaction-history-component/transaction-history-component';
 import { SuperAdminReports } from './features/super-admin/Reports/super-admin-reports/super-admin-reports';
+import { BankReportComponent } from './features/bank-user/components/bank-report-component/bank-report-component';
+import { ClientReportComponent } from './features/client-user/components/client-report-component/client-report-component';
 
 
 
@@ -70,6 +72,10 @@ export const routes: Routes = [
       { 
         path: 'pending-approvals', 
         component: PendingApprovalsComponent 
+      },
+      { 
+        path: 'reports', 
+        component: BankReportComponent 
       }
     ],
   },
@@ -106,6 +112,10 @@ export const routes: Routes = [
       { 
         path: 'history', 
         component: TransactionHistoryComponent
+      },
+      { 
+        path: 'reports', 
+        component: ClientReportComponent 
       },
     ]
   },
