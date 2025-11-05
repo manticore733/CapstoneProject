@@ -21,6 +21,7 @@ import { DisburseSalaryComponent } from './features/client-user/components/disbu
 import { DocumentUploadComponent } from './features/client-user/components/document-upload-component/document-upload-component';
 import { PendingApprovalsComponent } from './features/bank-user/components/pending-approvals-component/pending-approvals-component';
 import { TransactionHistoryComponent } from './features/client-user/components/transaction-history-component/transaction-history-component';
+import { SuperAdminReports } from './features/super-admin/Reports/super-admin-reports/super-admin-reports';
 
 
 
@@ -32,20 +33,17 @@ export const routes: Routes = [
   
  
   {
-  path: 'super-admin/dashboard',
-  component: SuperAdmin,
-  canActivate: [authGuard, roleGuard],
-  data: { role: 'SUPER_ADMIN' },
-  children: [
-    { path: '', redirectTo: 'banks', pathMatch: 'full' },
-    {
-      path: 'banks',
-     component: BankList,
-    },
-    //added route for bank users
-     { path: 'bank-users', component: BankUserList }, 
-  ],
-},
+    path: 'super-admin/dashboard',
+    component: SuperAdmin,
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'SUPER_ADMIN' },
+    children: [
+      { path: '', redirectTo: 'banks', pathMatch: 'full' },
+      { path: 'banks', component: BankList },
+      { path: 'bank-users', component: BankUserList },
+      { path: 'reports', component: SuperAdminReports },
+    ],
+  },
 
 
 
