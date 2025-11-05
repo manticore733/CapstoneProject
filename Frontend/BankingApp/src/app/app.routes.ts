@@ -21,6 +21,8 @@ import { DisburseSalaryComponent } from './features/client-user/components/disbu
 import { DocumentUploadComponent } from './features/client-user/components/document-upload-component/document-upload-component';
 import { PendingApprovalsComponent } from './features/bank-user/components/pending-approvals-component/pending-approvals-component';
 import { TransactionHistoryComponent } from './features/client-user/components/transaction-history-component/transaction-history-component';
+import { ClientReportComponent } from './features/client-user/components/client-report-component/client-report-component';
+import { BankReportComponent } from './features/bank-user/components/bank-report-component/bank-report-component';
 
 
 
@@ -72,6 +74,10 @@ export const routes: Routes = [
       { 
         path: 'pending-approvals', 
         component: PendingApprovalsComponent 
+      },
+      { 
+        path: 'reports', 
+        component: BankReportComponent 
       }
     ],
   },
@@ -108,6 +114,10 @@ export const routes: Routes = [
       { 
         path: 'history', 
         component: TransactionHistoryComponent
+      },
+      { 
+        path: 'reports', 
+        component: ClientReportComponent 
       },
     ]
   },

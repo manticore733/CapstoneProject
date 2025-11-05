@@ -1,0 +1,520 @@
+<!-- <div class="space-y-8">
+
+
+  <div class="bg-white shadow p-6 rounded-2xl">
+    <div class="flex flex-col md:flex-row justify-between md:items-center gap-4">
+      <h2 class="text-2xl font-bold text-gray-700">Client Transaction History</h2>
+      
+   
+      <form [formGroup]="filterForm" (ngSubmit)="runReport()" class="flex flex-col sm:flex-row gap-2">
+        
+        <div>
+          <label for="reportType" class="text-sm font-medium text-gray-600">Type</label>
+          <select id="reportType" formControlName="reportType" class="border p-2 rounded w-full h-10">
+            <option value="both">All Transactions</option>
+            <option value="payments">Payments Only</option>
+            <option value="salaries">Salaries Only</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="startDate" class="text-sm font-medium text-gray-600">Start Date</label>
+          <input type="date" id="startDate" formControlName="startDate" class="border p-2 rounded w-full">
+        </div>
+        <div>
+          <label for="endDate" class="text-sm font-medium text-gray-600">End Date</label>
+          <input type="date" id="endDate" formControlName="endDate" class="border p-2 rounded w-full">
+        </div>
+        <div class="flex items-end gap-2">
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 h-10">
+            Run Report
+          </button>
+          <button type="button" (click)="exportToExcel()" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 h-10">
+            Export Excel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <div *ngIf="loadingReport" class="text-center py-10">
+    <p class="text-gray-500">Generating report...</p>
+  </div>
+
+  <div *ngIf="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+    <p class="font-bold">Error</p>
+    <p>{{ error }}</p>
+  </div>
+
+
+  <div *ngIf="!loadingReport && reportData" class="bg-white shadow p-6 rounded-2xl">
+      <h3 class="text-xl font-bold text-gray-700 mb-4">Transaction Report</h3>
+      
+      <table *ngIf="reportData.length > 0" class="min-w-full border border-gray-200 rounded">
+        <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+          <tr>
+            <th class="py-2 px-3 text-left">Client Name</th>
+            <th class="py-2 px-3 text-left">Type</th>
+            <th class="py-2 px-3 text-left">Beneficiary / Employee</th>
+            <th class="py-2 px-3 text-left">Amount</th>
+            <th class="py-2 px-3 text-left">Status</th>
+            <th class="py-2 px-3 text-left">Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of reportData" class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">{{ row.clientName }} (ID: {{row.clientUserId}})</td>
+            <td class="py-2 px-3">
+              <span [class.text-blue-600]="row.type === 'Payment'" [class.text-green-600]="row.type === 'Salary'">
+                {{ row.type }}
+              </span>
+            </td>
+            <td class="py-2 px-3">{{ row.beneficiaryOrEmployee }}</td>
+            <td class="py-2 px-3">{{ row.amount | currency:'INR' }}</td>
+            <td class="py-2 px-3">
+              <span class="px-2 py-1 rounded text-xs font-semibold" [ngClass]="getStatusClass(row.status)">
+                {{ row.status }}
+              </span>
+            </td>
+            <td class="py-2 px-3">{{ row.createdAt | date:'short' }}</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div *ngIf="reportData.length === 0" class="text-center text-gray-400 py-6">
+        No transaction history found for this period.
+      </div>
+  </div>
+
+
+  <div class="bg-white shadow p-6 rounded-2xl">
+      <h3 class="text-xl font-bold text-gray-700 mb-4">Generated Report History</h3>
+      <div *ngIf="loadingHistory" class="text-gray-500">Loading history...</div>
+      <table *ngIf="!loadingHistory && reportHistory.length > 0" class="min-w-full border border-gray-200 rounded">
+        <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
+          <tr>
+            <th class="py-2 px-3 text-left">File Name</th>
+            <th class="py-2 px-3 text-left">Generated At</th>
+            <th class="py-2 px-3 text-left">Download</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let r of reportHistory" class="border-b hover:bg-gray-50">
+            <td class="py-2 px-3">{{ r.fileName }}</td>
+            <td class="py-2 px-3">{{ r.generatedAt | date:'short' }}</td>
+            <td class="py-2 px-3">
+              <a [href]="r.fileUrl" target="_blank" class="text-blue-600 hover:underline">Download</a>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div *ngIf="!loadingHistory && reportHistory.length === 0" class="text-center text-gray-400 py-6">
+        No generated Excel reports found.
+      </div>
+  </div>
+
+</div> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="space-y-6">
+  <!-- Header Section -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
+        <svg class="w-7 h-7 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+        </svg>
+      </div>
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800">Client Transaction Reports</h2>
+        <p class="text-sm text-gray-500 mt-1">View and analyze all client transactions</p>
+      </div>
+    </div>
+
+    <!-- Filter Form -->
+    <form [formGroup]="filterForm" (ngSubmit)="runReport()" class="flex flex-col sm:flex-row gap-3 items-end">
+      <div class="flex-1">
+        <label for="reportType" class="block text-sm font-medium text-gray-700 mb-2">Transaction Type</label>
+        <select 
+          id="reportType" 
+          formControlName="reportType" 
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none appearance-none bg-white"
+        >
+          <option value="both">All Transactions</option>
+          <option value="payments">Payments Only</option>
+          <option value="salaries">Salaries Only</option>
+        </select>
+      </div>
+      
+      <div class="flex-1">
+        <label for="startDate" class="block text-sm font-medium text-gray-700 mb-2">Start Date</label>
+        <input 
+          type="date" 
+          id="startDate" 
+          formControlName="startDate" 
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+        >
+      </div>
+      
+      <div class="flex-1">
+        <label for="endDate" class="block text-sm font-medium text-gray-700 mb-2">End Date</label>
+        <input 
+          type="date" 
+          id="endDate" 
+          formControlName="endDate" 
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+        >
+      </div>
+      
+      <div class="flex gap-2">
+        <button 
+          type="submit" 
+          class="flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-lg hover:bg-green-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+          </svg>
+          Run Report
+        </button>
+        <button 
+          type="button" 
+          (click)="exportToExcel()" 
+          class="flex items-center gap-2 bg-emerald-600 text-white px-5 py-2.5 rounded-lg hover:bg-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Export Excel
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loadingReport" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+    <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+    <p class="mt-4 text-gray-600">Generating report...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error && !loadingReport" class="bg-red-50 border border-red-200 rounded-xl p-5">
+    <div class="flex items-start gap-3">
+      <svg class="w-6 h-6 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg>
+      <div>
+        <p class="font-semibold text-red-900">Error</p>
+        <p class="text-red-700 text-sm mt-1">{{ error }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transaction Report Table -->
+  <div *ngIf="!loadingReport && reportData.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+      <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+        <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+        </svg>
+        Transaction Report ({{ filteredData.length }} records)
+      </h3>
+    </div>
+
+    <!-- Filters -->
+    <div class="p-6 bg-gray-50 border-b border-gray-200">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <!-- Search -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Search</label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              (input)="applyFilters()"
+              placeholder="Client, beneficiary, or employee..."
+              class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+            />
+          </div>
+        </div>
+
+        <!-- Type Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Transaction Type</label>
+          <select
+            [(ngModel)]="typeFilter"
+            (change)="applyFilters()"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none appearance-none bg-white"
+          >
+            <option value="all">All Types</option>
+            <option value="Payment">Payment</option>
+            <option value="Salary">Salary</option>
+          </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
+          <select
+            [(ngModel)]="statusFilter"
+            (change)="applyFilters()"
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none appearance-none bg-white"
+          >
+            <option value="all">All Status</option>
+            <option value="PENDING">Pending</option>
+            <option value="APPROVED">Approved</option>
+            <option value="REJECTED">Rejected</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-20">#</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client Name</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Type</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Beneficiary/Employee</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Amount</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Date</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let row of getPaginatedData(); let i = index" class="hover:bg-gray-50 transition-colors duration-150">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
+              {{ getStartIndex() + i + 1 }}
+            </td>
+            <td class="px-6 py-4">
+              <div class="text-sm font-semibold text-gray-900">{{ row.clientName }}</div>
+              <div class="text-xs text-gray-500">ID: {{ row.clientUserId }}</div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span 
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                [class.bg-blue-100]="row.type === 'Payment'"
+                [class.text-blue-800]="row.type === 'Payment'"
+                [class.bg-green-100]="row.type === 'Salary'"
+                [class.text-green-800]="row.type === 'Salary'"
+              >
+                {{ row.type }}
+              </span>
+            </td>
+            <td class="px-6 py-4">
+              <span class="text-sm text-gray-900">{{ row.beneficiaryOrEmployee }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm font-semibold text-gray-900">{{ row.amount | currency:'INR':'symbol':'1.0-0' }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium" [ngClass]="getStatusClass(row.status)">
+                {{ row.status }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              {{ row.createdAt | date:'medium' }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <div class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-600">
+          Showing {{ getStartIndex() + 1 }} to {{ getEndIndex() }} of {{ filteredData.length }} results
+        </p>
+        <div class="flex gap-2">
+          <button
+            (click)="previousPage()"
+            [disabled]="currentPage === 1"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
+            [class.text-gray-400]="currentPage === 1"
+            [class.cursor-not-allowed]="currentPage === 1"
+            [class.hover:bg-gray-50]="currentPage !== 1"
+          >
+            Previous
+          </button>
+          <button
+            (click)="nextPage()"
+            [disabled]="currentPage === getTotalPages()"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
+            [class.text-gray-400]="currentPage === getTotalPages()"
+            [class.cursor-not-allowed]="currentPage === getTotalPages()"
+            [class.hover:bg-gray-50]="currentPage !== getTotalPages()"
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loadingReport && reportData.length === 0 && !error" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
+    <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+    </svg>
+    <h3 class="mt-2 text-sm font-medium text-gray-900">No transactions found</h3>
+    <p class="mt-1 text-sm text-gray-500">No transaction history for the selected period.</p>
+  </div>
+
+ <!-- Generated Report History -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+  <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+    <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
+      <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      Generated Report History ({{ filteredHistory.length }} files)
+    </h3>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loadingHistory" class="text-center py-12">
+    <div class="inline-block animate-spin rounded-full h-10 w-10 border-b-2 border-green-600"></div>
+    <p class="mt-3 text-gray-600">Loading history...</p>
+  </div>
+
+  <!-- Search Filter for History -->
+  <div *ngIf="!loadingHistory && reportHistory.length > 0" class="p-6 bg-gray-50 border-b border-gray-200">
+    <div class="max-w-md">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Search Reports</label>
+      <div class="relative">
+        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+          <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+          </svg>
+        </div>
+        <input
+          type="text"
+          [(ngModel)]="historySearchTerm"
+          (input)="applyHistoryFilters()"
+          placeholder="Search by file name..."
+          class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- Report History Table -->
+  <div class="overflow-x-auto">
+    <table *ngIf="!loadingHistory && filteredHistory.length > 0" class="min-w-full divide-y divide-gray-200">
+      <thead class="bg-gray-50">
+        <tr>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-20">#</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">File Name</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Generated At</th>
+          <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Action</th>
+        </tr>
+      </thead>
+      <tbody class="bg-white divide-y divide-gray-200">
+        <tr *ngFor="let r of getPaginatedHistory(); let i = index" class="hover:bg-gray-50 transition-colors duration-150">
+          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
+            {{ getHistoryStartIndex() + i + 1 }}
+          </td>
+          <td class="px-6 py-4">
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <span class="text-sm font-medium text-gray-900">{{ r.fileName }}</span>
+            </div>
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+            {{ r.generatedAt | date:'medium' }}
+          </td>
+          <td class="px-6 py-4 whitespace-nowrap">
+            <a 
+              [href]="r.fileUrl" 
+              target="_blank" 
+              class="inline-flex items-center gap-2 text-green-600 hover:text-green-800 font-medium text-sm"
+            >
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Download
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Empty State (After Search) -->
+    <div *ngIf="!loadingHistory && filteredHistory.length === 0 && reportHistory.length > 0" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No reports found</h3>
+      <p class="mt-1 text-sm text-gray-500">Try adjusting your search.</p>
+    </div>
+
+    <!-- Empty State (No Reports) -->
+    <div *ngIf="!loadingHistory && reportHistory.length === 0" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No generated reports</h3>
+      <p class="mt-1 text-sm text-gray-500">Your exported Excel reports will appear here.</p>
+    </div>
+  </div>
+
+  <!-- Pagination for History -->
+  <div *ngIf="!loadingHistory && filteredHistory.length > 0" class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+    <div class="flex items-center justify-between">
+      <p class="text-sm text-gray-600">
+        Showing {{ getHistoryStartIndex() + 1 }} to {{ getHistoryEndIndex() }} of {{ filteredHistory.length }} results
+      </p>
+      <div class="flex gap-2">
+        <button
+          (click)="previousHistoryPage()"
+          [disabled]="historyCurrentPage === 1"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
+          [class.text-gray-400]="historyCurrentPage === 1"
+          [class.cursor-not-allowed]="historyCurrentPage === 1"
+          [class.hover:bg-gray-50]="historyCurrentPage !== 1"
+        >
+          Previous
+        </button>
+        <button
+          (click)="nextHistoryPage()"
+          [disabled]="historyCurrentPage === getHistoryTotalPages()"
+          class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
+          [class.text-gray-400]="historyCurrentPage === getHistoryTotalPages()"
+          [class.cursor-not-allowed]="historyCurrentPage === getHistoryTotalPages()"
+          [class.hover:bg-gray-50]="historyCurrentPage !== getHistoryTotalPages()"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
