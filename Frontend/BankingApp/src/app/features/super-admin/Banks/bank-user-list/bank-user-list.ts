@@ -24,10 +24,12 @@ export class BankUserList {
   isEdit = false;
   selectedUser: BankUser | null = null;
 
+  submitting = false;
+formError: string | null = null;
 
-// --- FIX 1: Changed type to 'any' ---
-  // This allows the object to hold 'CreateBankUser' fields when adding
-  // and 'BankUser' fields (like 'isActive' and 'branch') when editing.
+
+
+
   newUser: any = {};
 
   constructor(
@@ -67,47 +69,51 @@ export class BankUserList {
     this.newUser = { ...user };
   }
 
-  // saveUser() {
-  //   if (this.isEdit && this.selectedUser) {
-  //     this.bankUserService.update(this.selectedUser.userId, this.newUser).subscribe({
-  //       next: () => this.refresh(),
-  //       error: err => console.error('Error updating user', err),
-  //     });
-  //   } else {
-  //     this.bankUserService.create(this.newUser as CreateBankUser).subscribe({
-  //       next: () => this.refresh(),
-  //       error: err => console.error('Error adding user', err),
-  //     });
-  //   }
-  // }
+ 
+ saveUser() {
+  this.submitting = true;
+  this.formError = null;
 
-  saveUser() {
   if (this.isEdit && this.selectedUser) {
     const updatePayload = {
-      userFullName: this.newUser.userFullName,
-      userEmail: this.newUser.userEmail,
-      userPhone: this.newUser.userPhone,
-      branch: this.newUser.branch,
+      userFullName: this.newUser.userFullName.trim(),
+      userEmail: this.newUser.userEmail.trim(),
+      userPhone: this.newUser.userPhone.trim(),
+      branch: this.newUser.branch.trim(),
     };
 
     this.bankUserService.update(this.selectedUser.userId, updatePayload).subscribe({
-      next: () => this.refresh(),
-      error: err => console.error('Error updating user', err),
+      next: () => {
+        this.refresh();
+        alert('User updated successfully!');
+      },
+      error: err => {
+        console.error('Error updating user', err);
+        this.formError = err.error?.message || 'Failed to update user. Please try again.';
+        this.submitting = false;
+      },
     });
   } else {
     const createPayload = {
-      userFullName: this.newUser.userFullName,
-      userName: this.newUser.userName,
+      userFullName: this.newUser.userFullName.trim(),
+      userName: this.newUser.userName.trim(),
       password: this.newUser.password,
-      userEmail: this.newUser.userEmail,
-      userPhone: this.newUser.userPhone,
+      userEmail: this.newUser.userEmail.trim(),
+      userPhone: this.newUser.userPhone.trim(),
       bankId: this.newUser.bankId,
-      branch: this.newUser.branch,
+      branch: this.newUser.branch.trim(),
     };
 
     this.bankUserService.create(createPayload).subscribe({
-      next: () => this.refresh(),
-      error: err => console.error('Error adding user', err),
+      next: () => {
+        this.refresh();
+        alert('User created successfully!');
+      },
+      error: err => {
+        console.error('Error adding user', err);
+        this.formError = err.error?.message || 'Failed to create user. Username may already exist.';
+        this.submitting = false;
+      },
     });
   }
 }
@@ -125,11 +131,13 @@ export class BankUserList {
     }
   }
 
-  cancelForm() {
-    this.showForm = false;
-    this.newUser = {};
-    this.selectedUser = null;
-  }
+cancelForm() {
+  this.showForm = false;
+  this.newUser = {};
+  this.selectedUser = null;
+  this.formError = null;
+  this.submitting = false;
+}
 
   private refresh() {
     this.loadUsers();

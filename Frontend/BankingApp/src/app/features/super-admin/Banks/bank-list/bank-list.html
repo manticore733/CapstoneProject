@@ -293,96 +293,221 @@
     </div>
   </div>
 
-
-
-
-
-  <!-- Form Modal -->
+  <!-- Add/Edit Bank Modal -->
   <div
-    *ngIf="showForm"
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-    (click)="cancelForm()"
+  *ngIf="showForm"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+  (click)="cancelForm()"
+>
+  <div
+    class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
+    (click)="$event.stopPropagation()"
   >
-    <div
-      class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
-      (click)="$event.stopPropagation()"
-    >
-      <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-            </svg>
-          </div>
-          <h3 class="text-xl font-bold text-gray-900">
-            {{ isEdit ? 'Edit Bank' : 'Add New Bank' }}
-          </h3>
-        </div>
-        <button
-          (click)="cancelForm()"
-          class="text-gray-400 hover:text-gray-600 transition-colors"
-        >
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
           </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900">
+          {{ isEdit ? 'Edit Bank' : 'Add New Bank' }}
+        </h3>
+      </div>
+      <button
+        (click)="cancelForm()"
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <form #bankForm="ngForm" (ngSubmit)="saveBank()" class="p-6 space-y-5">
+      <!-- Bank Name Field -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Bank Name <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="newBank.bankName"
+          name="bankName"
+          #bankName="ngModel"
+          placeholder="Enter bank name (e.g., State Bank of India)"
+          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+          [class.border-gray-300]="!bankName.invalid || !bankName.touched"
+          [class.border-red-500]="bankName.invalid && bankName.touched"
+          required
+          minlength="3"
+          maxlength="100"
+          pattern="^[a-zA-Z0-9\s&.-]+$"
+        />
+        <!-- Validation Messages -->
+        <div *ngIf="bankName.invalid && bankName.touched" class="mt-1 text-sm text-red-600">
+          <p *ngIf="bankName.errors?.['required']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Bank name is required
+          </p>
+          <p *ngIf="bankName.errors?.['minlength']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Bank name must be at least 3 characters
+          </p>
+          <p *ngIf="bankName.errors?.['maxlength']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Bank name cannot exceed 100 characters
+          </p>
+          <p *ngIf="bankName.errors?.['pattern']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Bank name can only contain letters, numbers, spaces, and & . -
+          </p>
+        </div>
+        <p *ngIf="!bankName.invalid || !bankName.touched" class="mt-1 text-xs text-gray-500">
+          Enter the full official bank name
+        </p>
+      </div>
+
+      <!-- IFSC Code Field -->
+     <!-- IFSC Code Field -->
+<div>
+  <label class="block text-sm font-medium text-gray-700 mb-2">
+    IFSC Code <span class="text-red-500">*</span>
+  </label>
+  <input
+    type="text"
+    [(ngModel)]="newBank.ifsc"
+    name="ifsc"
+    #ifsc="ngModel"
+    placeholder="Enter IFSC code (e.g., SBIN0001234)"
+    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none font-mono uppercase"
+    [class.border-gray-300]="!ifsc.invalid || !ifsc.touched"
+    [class.border-red-500]="ifsc.invalid && ifsc.touched"
+    required
+    minlength="11"
+    maxlength="11"
+    pattern="^[A-Za-z0-9]+$"
+    (input)="newBank.ifsc = $any($event.target).value.toUpperCase()"
+  />
+  <!-- Validation Messages -->
+  <div *ngIf="ifsc.invalid && ifsc.touched" class="mt-1 text-sm text-red-600">
+    <p *ngIf="ifsc.errors?.['required']" class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+      </svg>
+      IFSC code is required
+    </p>
+    <p *ngIf="ifsc.errors?.['minlength'] || ifsc.errors?.['maxlength']" class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+      </svg>
+      IFSC code must be exactly 11 characters
+    </p>
+    <p *ngIf="ifsc.errors?.['pattern'] && !ifsc.errors?.['minlength'] && !ifsc.errors?.['maxlength']" class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+      </svg>
+      IFSC code can only contain letters and numbers (no special characters)
+    </p>
+  </div>
+  <p *ngIf="!ifsc.invalid || !ifsc.touched" class="mt-1 text-xs text-gray-500">
+    11-character alphanumeric code without special characters
+  </p>
+</div>
+
+      <!-- Establishment Date Field (Only for Add) -->
+      <div *ngIf="!isEdit">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Establishment Date <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="date"
+          [(ngModel)]="newBank.establishmentDate"
+          name="establishmentDate"
+          #establishmentDate="ngModel"
+          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+          [class.border-gray-300]="!establishmentDate.invalid || !establishmentDate.touched"
+          [class.border-red-500]="establishmentDate.invalid && establishmentDate.touched"
+          [max]="maxDate"
+          required
+        />
+        <!-- Validation Messages -->
+        <div *ngIf="establishmentDate.invalid && establishmentDate.touched" class="mt-1 text-sm text-red-600">
+          <p *ngIf="establishmentDate.errors?.['required']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Establishment date is required
+          </p>
+        </div>
+        <p *ngIf="newBank.establishmentDate && !establishmentDate.invalid" class="mt-1 text-xs text-green-600 flex items-center gap-1">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          Date cannot be in the future
+        </p>
+        <p *ngIf="!establishmentDate.invalid || !establishmentDate.touched" class="mt-1 text-xs text-gray-500">
+          Select the bank's establishment date
+        </p>
+      </div>
+
+      <!-- Error Display (API Errors) -->
+      <div *ngIf="formError" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <p class="font-semibold text-red-900">Validation Error</p>
+            <p class="text-sm text-red-700 mt-1">{{ formError }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex gap-3 pt-4">
+        <button
+          type="submit"
+          [disabled]="bankForm.invalid || submitting"
+          class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition duration-200 shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <svg *ngIf="submitting" class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ submitting ? 'Processing...' : (isEdit ? 'Update Bank' : 'Create Bank') }}
+        </button>
+        <button
+          type="button"
+          (click)="cancelForm()"
+          [disabled]="submitting"
+          class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Cancel
         </button>
       </div>
 
-      <!-- Modal Body -->
-      <form (ngSubmit)="saveBank()" class="p-6 space-y-5">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">Bank Name</label>
-          <input
-            type="text"
-            [(ngModel)]="newBank.bankName"
-            name="bankName"
-            placeholder="Enter bank name"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
-            required
-          />
-        </div>
-
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">IFSC Code</label>
-          <input
-            type="text"
-            [(ngModel)]="newBank.ifsc"
-            name="ifsc"
-            placeholder="Enter IFSC code"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none font-mono"
-            required
-          />
-        </div>
-
-        <div *ngIf="!isEdit">
-          <label class="block text-sm font-medium text-gray-700 mb-2">Establishment Date</label>
-          <input
-            type="date"
-            [(ngModel)]="newBank.establishmentDate"
-            name="establishmentDate"
-            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
-            required
-          />
-        </div>
-
-        <!-- Modal Footer -->
-        <div class="flex gap-3 pt-4">
-          <button
-            type="submit"
-            class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition duration-200 shadow-md hover:shadow-lg"
-          >
-            {{ isEdit ? 'Update Bank' : 'Create Bank' }}
-          </button>
-          <button
-            type="button"
-            (click)="cancelForm()"
-            class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-200"
-          >
-            Cancel
-          </button>
-        </div>
-      </form>
-    </div>
+      <!-- Form Hint -->
+      <p class="text-xs text-gray-500 text-center">
+        <span class="text-red-500">*</span> Required fields
+      </p>
+    </form>
   </div>
+</div>
+
+
+
+
+
+  
 </div>
