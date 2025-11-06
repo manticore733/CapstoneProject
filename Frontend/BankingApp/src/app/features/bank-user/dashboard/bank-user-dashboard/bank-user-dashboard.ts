@@ -12,7 +12,7 @@ import { CommonModule } from '@angular/common';
 export class BankUserDashboard {
 
 
-     userId = localStorage.getItem('userId');
+  userId = localStorage.getItem('userId');
   role = localStorage.getItem('role');
     // Sidebar toggle state
   isSidebarOpen = true;
@@ -29,5 +29,6 @@ export class BankUserDashboard {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
 
+  
 
 }

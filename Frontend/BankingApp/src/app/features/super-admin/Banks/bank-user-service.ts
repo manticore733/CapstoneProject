@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from '../../../core/services/api-service';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 import { BankUser } from '../../../core/models/BankUser';
 import { CreateBankUser } from '../../../core/models/CreateBankUser';
 
@@ -28,5 +28,4 @@ export class BankUserService {
   delete(id: number): Observable<any> {
     return this.api.delete(`${this.endpoint}/${id}`);
   }
-  
 }

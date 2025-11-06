@@ -1,3 +1,6 @@
+
+
+
 import { Component } from '@angular/core';
 import { ClientUser } from '../../../../core/models/ClientUser';
 import { FormsModule } from '@angular/forms';
@@ -16,13 +19,23 @@ export class ClientDetails {
   clientId!: number;
   client: ClientUser | null = null;
   documents: any[] = [];
+  filteredDocuments: any[] = [];
   loading = false;
   error: string | null = null;
 
-  // For separate approve/reject modals
+  // For modals
   showApproveModal = false;
   showRejectModal = false;
   initialBalance: number = 0;
+
+  // Search and Filter
+  searchTerm = '';
+  proofTypeFilter = 'all';
+  proofTypes: string[] = [];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,7 +50,7 @@ export class ClientDetails {
     this.loadDocuments();
   }
 
-  loadClient() {
+  loadClient(): void {
     this.loading = true;
     this.clientService.getClientById(this.clientId).subscribe({
       next: (res: ClientUser | null) => {
@@ -52,31 +65,87 @@ export class ClientDetails {
     });
   }
 
-  loadDocuments() {
+  loadDocuments(): void {
     this.documentService.getDocumentsForClient(this.clientId).subscribe({
-      next: (res) => (this.documents = res),
+      next: (res) => {
+        this.documents = res;
+        this.filteredDocuments = [...res];
+        this.extractProofTypes();
+      },
       error: (err) => console.error('Error fetching documents', err),
     });
   }
 
-  openApproveModal() {
+  // Extract unique proof types
+  extractProofTypes(): void {
+    const types = new Set(this.documents.map(doc => doc.proofTypeName));
+    this.proofTypes = Array.from(types).sort();
+  }
+
+  // Filter documents
+  applyFilters(): void {
+    this.filteredDocuments = this.documents.filter(doc => {
+      const matchesSearch = !this.searchTerm || 
+        doc.documentName.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+      const matchesType = this.proofTypeFilter === 'all' || 
+        doc.proofTypeName === this.proofTypeFilter;
+
+      return matchesSearch && matchesType;
+    });
+    this.currentPage = 1;
+  }
+
+  // Pagination
+  getPaginatedDocuments(): any[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    return this.filteredDocuments.slice(start, end);
+  }
+
+  getStartIndex(): number {
+    return (this.currentPage - 1) * this.itemsPerPage;
+  }
+
+  getEndIndex(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.filteredDocuments.length);
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.filteredDocuments.length / this.itemsPerPage);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.getTotalPages()) {
+      this.currentPage++;
+    }
+  }
+
+  // Modal methods
+  openApproveModal(): void {
     this.showApproveModal = true;
     this.initialBalance = 0;
   }
 
-  closeApproveModal() {
+  closeApproveModal(): void {
     this.showApproveModal = false;
   }
 
-  openRejectModal() {
+  openRejectModal(): void {
     this.showRejectModal = true;
   }
 
-  closeRejectModal() {
+  closeRejectModal(): void {
     this.showRejectModal = false;
   }
 
-  submitApproval() {
+  submitApproval(): void {
     const approvalData = {
       isApproved: true,
       initialBalance: this.initialBalance,
@@ -95,7 +164,7 @@ export class ClientDetails {
     });
   }
 
-  submitRejection() {
+  submitRejection(): void {
     const approvalData = {
       isApproved: false,
       initialBalance: 0,
@@ -114,11 +183,11 @@ export class ClientDetails {
     });
   }
 
-  goBack() {
+  goBack(): void {
     this.router.navigate(['/bank/dashboard/clients']);
   }
 
-  viewDocuments() {
+  viewDocuments(): void {
     this.router.navigate(['/bank/dashboard/documents', this.clientId]);
   }
 }

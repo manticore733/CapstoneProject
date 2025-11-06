@@ -1,117 +1,3 @@
-<!-- 
-
-
-
-
-
-<div class="bg-white shadow p-6 rounded-2xl relative">
-  <div class="flex justify-between items-center mb-4">
-    <h2 class="text-xl font-bold text-gray-700">👥 My Clients</h2>
-    <div class="space-x-2">
-      <button
-        (click)="openAddClientForm()"
-        class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-      >
-        ➕ Add Client
-      </button>
-      <button
-        (click)="loadClients()"
-        class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-      >
-        🔄 Refresh
-      </button>
-    </div>
-  </div>
-
-
-  <div *ngIf="loading" class="text-center py-4 text-gray-500">
-    Loading clients...
-  </div>
-
-
-  <div *ngIf="error" class="text-center py-4 text-red-500">
-    {{ error }}
-  </div>
-
-  
-  <table
-    *ngIf="!loading && clients.length > 0"
-    class="min-w-full border border-gray-200 rounded"
-  >
-    <thead class="bg-gray-100 text-gray-600 uppercase text-sm">
-      <tr>
-        <th class="py-2 px-3 text-left">Name</th>
-        <th class="py-2 px-3 text-left">Email</th>
-        <th class="py-2 px-3 text-left">Phone</th>
-        <th class="py-2 px-3 text-left">Address</th>
-        <th class="py-2 px-3 text-left">Status</th>
-        <th class="py-2 px-3 text-center">Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        *ngFor="let client of clients"
-        class="border-b hover:bg-gray-50 transition"
-      >
-        <td class="py-2 px-3">{{ client.userFullName }}</td>
-        <td class="py-2 px-3">{{ client.userEmail }}</td>
-        <td class="py-2 px-3">{{ client.userPhone }}</td>
-        <td class="py-2 px-3">{{ client.address }}</td>
-        <td class="py-2 px-3">
-          <span
-            class="px-2 py-1 rounded text-xs font-semibold"
-            [ngClass]="getStatusBadgeClass(client.statusName)"
-          >
-            {{ client.statusName }}
-          </span>
-        </td>
-        <td class="py-2 px-3 text-center space-x-2">
-          <button
-            (click)="viewClientDetails(client.userId)"
-            class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-          >
-            View
-          </button>
-          <button
-            (click)="openEditClientForm(client)"
-            class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
-          >
-            Edit
-          </button>
-          <button
-            (click)="deleteClient(client.userId)"
-            class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600"
-          >
-            Delete
-          </button>
-        </td>
-      </tr>
-    </tbody>
-  </table>
-
- 
-  <div *ngIf="!loading && clients.length === 0" class="text-center py-6">
-    <p class="text-gray-500">No clients found.</p>
-  </div>
-
-
-  <app-client-form
-    *ngIf="showForm"
-    [client]="selectedClient"
-    (close)="closeForm()"
-    (saved)="onClientSaved()"
-  ></app-client-form>
-</div> -->
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -151,6 +37,45 @@
     </div>
   </div>
 
+  <!-- Search and Filter Section -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- Search Bar -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Search Clients</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()"
+            placeholder="Search by client name or username..."
+            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none"
+          />
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+        <select
+          [(ngModel)]="statusFilter"
+          (change)="applyFilters()"
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 outline-none appearance-none bg-white"
+        >
+          <option value="all">All Status</option>
+          <option value="PENDING">Pending</option>
+          <option value="APPROVED">Approved</option>
+          <option value="REJECTED">Rejected</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading State -->
   <div *ngIf="loading" class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center">
     <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
@@ -167,10 +92,23 @@
 
   <!-- Table Section -->
   <div *ngIf="!loading && !error" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <!-- Results Summary -->
+    <div class="px-6 py-3 bg-gray-50 border-b border-gray-200">
+      <p class="text-sm text-gray-600">
+        Showing <span class="font-semibold">{{ getStartIndex() + 1 }}</span> to 
+        <span class="font-semibold">{{ getEndIndex() }}</span> of 
+        <span class="font-semibold">{{ filteredClients.length }}</span> clients
+        <span *ngIf="filteredClients.length !== clients.length" class="text-gray-500">
+          (filtered from {{ clients.length }} total)
+        </span>
+      </p>
+    </div>
+
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
           <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-20">#</th>
             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Client Details</th>
             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Contact Info</th>
             <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Address</th>
@@ -179,7 +117,10 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr *ngFor="let client of clients" class="hover:bg-gray-50 transition-colors duration-150">
+          <tr *ngFor="let client of getPaginatedClients(); let i = index" class="hover:bg-gray-50 transition-colors duration-150">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
+              {{ getStartIndex() + i + 1 }}
+            </td>
             <td class="px-6 py-4 whitespace-nowrap">
               <div class="flex items-center">
                 <div class="flex-shrink-0 h-10 w-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -258,12 +199,47 @@
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="clients.length === 0" class="text-center py-12">
+    <div *ngIf="filteredClients.length === 0" class="text-center py-12">
       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
       </svg>
-      <h3 class="mt-2 text-sm font-medium text-gray-900">No clients found</h3>
-      <p class="mt-1 text-sm text-gray-500">Get started by adding a new client.</p>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">
+        {{ clients.length === 0 ? 'No clients found' : 'No matching results' }}
+      </h3>
+      <p class="mt-1 text-sm text-gray-500">
+        {{ clients.length === 0 ? 'Get started by adding a new client.' : 'Try adjusting your search or filters.' }}
+      </p>
+    </div>
+
+    <!-- Pagination -->
+    <div *ngIf="filteredClients.length > 0" class="px-6 py-4 border-t border-gray-200 bg-gray-50">
+      <div class="flex items-center justify-between">
+        <p class="text-sm text-gray-600">
+          Page {{ currentPage }} of {{ getTotalPages() }}
+        </p>
+        <div class="flex gap-2">
+          <button
+            (click)="previousPage()"
+            [disabled]="currentPage === 1"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
+            [class.text-gray-400]="currentPage === 1"
+            [class.cursor-not-allowed]="currentPage === 1"
+            [class.hover:bg-gray-50]="currentPage !== 1"
+          >
+            Previous
+          </button>
+          <button
+            (click)="nextPage()"
+            [disabled]="currentPage === getTotalPages()"
+            class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors"
+            [class.text-gray-400]="currentPage === getTotalPages()"
+            [class.cursor-not-allowed]="currentPage === getTotalPages()"
+            [class.hover:bg-gray-50]="currentPage !== getTotalPages()"
+          >
+            Next
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 

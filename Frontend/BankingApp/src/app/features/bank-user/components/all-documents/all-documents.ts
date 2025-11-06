@@ -1,5 +1,7 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ClientService } from '../../services/client-service';
 import { DocumentService } from '../../services/document-service';
 import { forkJoin, switchMap, map } from 'rxjs';
@@ -17,14 +19,24 @@ interface DocumentWithClient {
 
 @Component({
   selector: 'app-all-documents',
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './all-documents.html',
   styleUrl: './all-documents.css',
 })
 export class AllDocuments implements OnInit {
   allDocuments: DocumentWithClient[] = [];
+  filteredDocuments: DocumentWithClient[] = [];
   loading = false;
   error: string | null = null;
+
+  // Search and Filter
+  searchTerm = '';
+  documentTypeFilter = 'all';
+  documentTypes: string[] = [];
+
+  // Pagination
+  currentPage = 1;
+  itemsPerPage = 10;
 
   constructor(
     private clientService: ClientService,
@@ -76,6 +88,8 @@ export class AllDocuments implements OnInit {
       .subscribe({
         next: (documents) => {
           this.allDocuments = documents;
+          this.filteredDocuments = [...documents];
+          this.extractDocumentTypes();
           this.loading = false;
         },
         error: (err) => {
@@ -86,12 +100,65 @@ export class AllDocuments implements OnInit {
       });
   }
 
-  openDocument(url: string): void {
-    window.open(url, '_blank');
+  // Extract unique document types for filter
+  extractDocumentTypes(): void {
+    const types = new Set(this.allDocuments.map(doc => doc.proofTypeName));
+    this.documentTypes = Array.from(types).sort();
   }
 
+  // Search and Filter Logic
+  applyFilters(): void {
+    this.filteredDocuments = this.allDocuments.filter(doc => {
+      const matchesSearch = !this.searchTerm || 
+        doc.documentName.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        doc.clientName.toLowerCase().includes(this.searchTerm.toLowerCase());
+
+      const matchesType = this.documentTypeFilter === 'all' || 
+        doc.proofTypeName === this.documentTypeFilter;
+
+      return matchesSearch && matchesType;
+    });
+    this.currentPage = 1; // Reset to first page
+  }
+
+  // Pagination Logic
+  getPaginatedDocuments(): DocumentWithClient[] {
+    const start = (this.currentPage - 1) * this.itemsPerPage;
+    const end = start + this.itemsPerPage;
+    return this.filteredDocuments.slice(start, end);
+  }
+
+  getStartIndex(): number {
+    return (this.currentPage - 1) * this.itemsPerPage;
+  }
+
+  getEndIndex(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.filteredDocuments.length);
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.filteredDocuments.length / this.itemsPerPage);
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.getTotalPages()) {
+      this.currentPage++;
+    }
+  }
+
+  // Navigation
   viewClientDetails(clientId: number): void {
     this.router.navigate(['/bank/dashboard/clients', clientId]);
+  }
+
+  openDocument(url: string): void {
+    window.open(url, '_blank');
   }
 
   isImageFile(url: string): boolean {
