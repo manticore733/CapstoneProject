@@ -54,8 +54,8 @@ export class SalaryDisbursementService {
   /**
    * (Bank User) Rejects a salary disbursement
    */
-  rejectDisbursement(disbursementId: number): Observable<SalaryDisbursement> {
-    return this.api.put<SalaryDisbursement>(`${this.endpoint}/${disbursementId}/reject`, {});
+  rejectDisbursement(disbursementId: number, payload: { bankRemark: string }): Observable<SalaryDisbursement> {
+    return this.api.put<SalaryDisbursement>(`${this.endpoint}/${disbursementId}/reject`, payload);
   }
   
 }

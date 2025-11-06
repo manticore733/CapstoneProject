@@ -43,5 +43,11 @@ export class EmployeeService {
     // The backend Delete returns NoContent (void)
     return this.api.delete<void>(`${this.endpoint}/${id}`);
   }
+
+
+  uploadEmployeeExcel(formData: FormData) {
+    return this.api.post<any>(`${this.endpoint}/uploadExcel`, formData);
+  }
+
   
 }

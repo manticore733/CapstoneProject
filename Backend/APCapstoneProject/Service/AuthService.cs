@@ -83,7 +83,13 @@ namespace APCapstoneProject.Service
                 new Claim("UserId", user.UserId.ToString()),
                 new Claim("Username", user.UserName),
                 new Claim(ClaimTypes.Role, user.Role.Role.ToString())
+
             };
+
+            if (user is ClientUser clientUser && clientUser.VerificationStatus != null)
+            {
+                claims.Add(new Claim("Status", clientUser.VerificationStatus.StatusEnum.ToString()));
+            }
 
             var token = new JwtSecurityToken(
                 issuer: _jwtSettings.Issuer,

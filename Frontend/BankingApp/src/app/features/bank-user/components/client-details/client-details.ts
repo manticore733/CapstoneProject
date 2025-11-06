@@ -22,6 +22,7 @@ export class ClientDetails {
   filteredDocuments: any[] = [];
   loading = false;
   error: string | null = null;
+  remark: string = '';
 
   // For modals
   showApproveModal = false;
@@ -131,6 +132,7 @@ export class ClientDetails {
   openApproveModal(): void {
     this.showApproveModal = true;
     this.initialBalance = 0;
+    this.remark = '';
   }
 
   closeApproveModal(): void {
@@ -139,6 +141,7 @@ export class ClientDetails {
 
   openRejectModal(): void {
     this.showRejectModal = true;
+    this.remark = '';
   }
 
   closeRejectModal(): void {
@@ -149,6 +152,7 @@ export class ClientDetails {
     const approvalData = {
       isApproved: true,
       initialBalance: this.initialBalance,
+      remark: this.remark || ''
     };
 
     this.clientService.approveClient(this.clientId, approvalData).subscribe({
@@ -156,6 +160,7 @@ export class ClientDetails {
         alert('Client approved successfully!');
         this.closeApproveModal();
         this.loadClient();
+        this.remark = '';
       },
       error: (err) => {
         console.error('Error approving client', err);
@@ -168,6 +173,7 @@ export class ClientDetails {
     const approvalData = {
       isApproved: false,
       initialBalance: 0,
+      remark: this.remark || ''
     };
 
     this.clientService.approveClient(this.clientId, approvalData).subscribe({
@@ -175,6 +181,7 @@ export class ClientDetails {
         alert('Client rejected successfully!');
         this.closeRejectModal();
         this.loadClient();
+        this.remark = '';
       },
       error: (err) => {
         console.error('Error rejecting client', err);

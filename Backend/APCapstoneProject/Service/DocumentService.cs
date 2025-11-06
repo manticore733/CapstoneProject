@@ -12,18 +12,18 @@ namespace APCapstoneProject.Service
     public class DocumentService : IDocumentService
     {
         private readonly IDocumentRepository _documentRepository;
-        private readonly IUserRepository _userRepository; // To verify ClientUser exists
+        private readonly IClientUserRepository _clientUserRepository; // To verify ClientUser exists
         private readonly IMapper _mapper;
         private readonly Cloudinary _cloudinary; // Cloudinary client
 
         public DocumentService(
             IDocumentRepository documentRepository,
-            IUserRepository userRepository,
+            IClientUserRepository clientUserRepository,
             IMapper mapper,
             IOptions<CloudinarySettings> config) // Inject settings via IOptions
         {
             _documentRepository = documentRepository;
-            _userRepository = userRepository;
+            _clientUserRepository = clientUserRepository;
             _mapper = mapper;
 
             // --- Configure Cloudinary Client ---
@@ -39,7 +39,7 @@ namespace APCapstoneProject.Service
         public async Task<DocumentReadDto> UploadDocumentAsync(int clientUserId, int proofTypeId, IFormFile file)
         {
             // 1. Validate Client User
-            var clientUser = await _userRepository.GetByIdAsync(clientUserId);
+            var clientUser = await _clientUserRepository.GetClientUserByIdAsync(clientUserId);
             if (clientUser == null || !(clientUser is ClientUser))
             {
                 throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
@@ -96,6 +96,17 @@ namespace APCapstoneProject.Service
             await _documentRepository.AddAsync(document);
             await _documentRepository.SaveChangesAsync();
 
+            
+            // change user verification status back to pending if he is reuploading.
+            if (clientUser.VerificationStatus.StatusEnum == StatusEnum.REJECTED)
+            {
+                clientUser.StatusId = (int)StatusEnum.PENDING;  // ✅ set FK manually
+                await _clientUserRepository.UpdateClientUserAsync(clientUser);
+                await _documentRepository.SaveChangesAsync();
+            }
+
+
+
             // 6. Return DTO (Need to get ProofType name)
             // Re-fetch or manually construct DTO if AddAsync doesn't return relations
             // For simplicity, let's assume AddAsync updates the ID and we map manually for now
@@ -112,7 +123,7 @@ namespace APCapstoneProject.Service
         public async Task<IEnumerable<DocumentReadDto>> GetDocumentsForClientAsync(int bankUserId, int clientUserId)
         {
             // check if client with given Id exists
-            var clientUser = await _userRepository.GetByIdAsync(clientUserId);
+            var clientUser = await _clientUserRepository.GetClientUserByIdAsync(clientUserId);
             if (clientUser == null || clientUser is not ClientUser)
                 throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
 
@@ -129,7 +140,7 @@ namespace APCapstoneProject.Service
         public async Task<IEnumerable<DocumentReadDto>> GetMyDocumentsAsync(int clientUserId)
         {
             // 1. Validate Client User (optional, but good practice)
-            var clientUser = await _userRepository.GetByIdAsync(clientUserId);
+            var clientUser = await _clientUserRepository.GetClientUserByIdAsync(clientUserId);
             if (clientUser == null || !(clientUser is ClientUser))
             {
                 throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
@@ -141,12 +152,5 @@ namespace APCapstoneProject.Service
             // 3. Map and return
             return _mapper.Map<IEnumerable<DocumentReadDto>>(documents);
         }
-
-
-
-
-
-
-
     }
 }

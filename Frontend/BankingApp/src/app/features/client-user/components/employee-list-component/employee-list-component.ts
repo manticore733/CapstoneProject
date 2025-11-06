@@ -28,11 +28,104 @@ export class EmployeeListComponent {
   showForm = false;
   selectedEmployee: Employee | null = null;
 
+  toasts: { message: string; type: 'success' | 'error' | 'warning' | 'info'; autoClose?: boolean }[] = [];
+
+  showToast(
+    message: string,
+    type: 'success' | 'error' | 'warning' | 'info' = 'info',
+    autoClose: boolean = true
+  ) {
+    const toast = { message, type, autoClose };
+    this.toasts.push(toast);
+
+    // Auto close only if specified
+    if (autoClose) {
+      setTimeout(() => {
+        this.toasts.shift();
+      }, 4000);
+    }
+  }
+
+  closeToast(index: number) {
+    this.toasts.splice(index, 1);
+  }
+
+
+  getToastClass(type: string): string {
+    switch (type) {
+      case 'success':
+        return 'bg-green-50 border-l-4 border-green-500 text-green-700';
+      case 'error':
+        return 'bg-red-50 border-l-4 border-red-500 text-red-700';
+      case 'warning':
+        return 'bg-yellow-50 border-l-4 border-yellow-500 text-yellow-700';
+      default:
+        return 'bg-blue-50 border-l-4 border-blue-500 text-blue-700';
+    }
+  }
+
+
   constructor(private employeeService: EmployeeService) {}
 
   ngOnInit(): void {
     this.loadEmployees();
   }
+
+
+  onExcelSelected(event: Event): void {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.[0];
+  if (!file) return;
+
+  if (!file.name.endsWith('.xlsx') && !file.name.endsWith('.xls')) {
+    this.showToast('Please upload a valid Excel file (.xlsx or .xls)', 'warning');
+    input.value = '';
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  this.loading = true;
+  this.showToast('Uploading Excel file...', 'info');
+
+  this.employeeService.uploadEmployeeExcel(formData).subscribe({
+    next: (result) => {
+      if (result.failedCount > 0) {
+        // Show summary
+        this.showToast(
+          `Upload completed: ${result.successCount} succeeded, ${result.failedCount} failed.`,
+          'warning'
+        );
+
+        // Show each failed row as a persistent error toast
+        result.failedRows.forEach((row: any) => {
+          this.showToast(
+            `Row ${row.rowNumber}: ${row.errorMessage}`,
+            'error',
+            false // disable auto close
+          );
+        });
+      } else {
+        this.showToast(
+          `All ${result.successCount} employees uploaded successfully!`,
+          'success'
+        );
+      }
+
+      this.loadEmployees();
+      this.loading = false;
+    },
+    error: (err) => {
+      console.error('Excel upload failed:', err);
+      this.showToast(err.error || 'Failed to upload Excel. Please try again.', 'error');
+      this.loading = false;
+    },
+  });
+
+  input.value = ''; // Reset file input
+}
+
 
   loadEmployees(): void {
     this.loading = true;
@@ -115,9 +208,16 @@ export class EmployeeListComponent {
   }
 
   onFormSaved(): void {
-    this.loadEmployees();
-    this.closeForm();
-  }
+  const isEdit = !!this.selectedEmployee; // if it existed before saving, it was edit
+  this.loadEmployees();
+  this.closeForm();
+
+  this.showToast(
+    isEdit ? 'Employee updated successfully!' : 'New employee added successfully!',
+    'success'
+  );
+}
+
 
   // CRUD Actions
   deleteEmployee(id: number): void {
@@ -125,10 +225,11 @@ export class EmployeeListComponent {
       this.employeeService.deleteEmployee(id).subscribe({
         next: () => {
           this.loadEmployees();
+          this.showToast('Employee deleted successfully!', 'success');
         },
         error: (err) => {
           console.error('Error deleting employee', err);
-          alert('Failed to delete employee.');
+          this.showToast('Failed to delete employee. Please try again.', 'error');
         },
       });
     }

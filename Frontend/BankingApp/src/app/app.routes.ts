@@ -24,7 +24,7 @@ import { TransactionHistoryComponent } from './features/client-user/components/t
 import { SuperAdminReports } from './features/super-admin/Reports/super-admin-reports/super-admin-reports';
 import { BankReportComponent } from './features/bank-user/components/bank-report-component/bank-report-component';
 import { ClientReportComponent } from './features/client-user/components/client-report-component/client-report-component';
-
+import { clientStatusGuard } from './core/guards/client-status-guard';
 
 
 
@@ -83,42 +83,22 @@ export const routes: Routes = [
   // Client User dashboard
   {
     path: 'client/dashboard',
-   component:ClientUserDashboard,
-    canActivate: [authGuard, roleGuard],
+    component: ClientUserDashboard,
+    canActivate: [authGuard, roleGuard], // 👈 added here
+    canActivateChild: [clientStatusGuard],
     data: { role: 'CLIENT_USER' },
     children: [
       { path: '', redirectTo: 'history', pathMatch: 'full' },
-      { 
-        path: 'beneficiaries', 
-        component: BeneficiaryListComponent 
-      },
-      // We will add routes for employees, payments, etc. here later
-      { 
-        path: 'employees', 
-        component: EmployeeListComponent 
-      },
-      { 
-        path: 'make-payment', 
-        component: MakePaymentComponent 
-      },
-      { 
-        path: 'disburse-salary', 
-        component: DisburseSalaryComponent 
-      },
-      { 
-        path: 'upload-documents', 
-        component: DocumentUploadComponent
-      },
-      { 
-        path: 'history', 
-        component: TransactionHistoryComponent
-      },
-      { 
-        path: 'reports', 
-        component: ClientReportComponent 
-      },
-    ]
+      { path: 'beneficiaries', component: BeneficiaryListComponent },
+      { path: 'employees', component: EmployeeListComponent },
+      { path: 'make-payment', component: MakePaymentComponent },
+      { path: 'disburse-salary', component: DisburseSalaryComponent },
+      { path: 'upload-documents', component: DocumentUploadComponent },
+      { path: 'history', component: TransactionHistoryComponent },
+      { path: 'reports', component: ClientReportComponent },
+    ],
   },
+
 
 
 

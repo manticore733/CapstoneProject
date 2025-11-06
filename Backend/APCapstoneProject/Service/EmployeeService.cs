@@ -107,19 +107,27 @@ namespace APCapstoneProject.Service
         {
             var result = new EmployeeUploadResultDto();
 
+            // Load the Excel file
             using var stream = new MemoryStream();
             await file.CopyToAsync(stream);
             using var workbook = new XLWorkbook(stream);
             var worksheet = workbook.Worksheet(1);
 
-            var rows = worksheet.RowsUsed().Skip(1); // skip header row
+            var rows = worksheet.RowsUsed().Skip(1); // Skip header
             int rowIndex = 2;
+
+            // 🔹 Fetch existing employees once (performance optimization)
+            var existingEmployees = (await _repository.GetByClientIdAsync(clientUserId)).ToList();
+
+            // 🔹 Keep track of duplicates within the uploaded Excel itself
+            var seenEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var seenAccounts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var row in rows)
             {
                 try
                 {
-                    // 🔹 Extract fields safely
+                    // --- Extract fields safely ---
                     string name = row.Cell(1).GetValue<string>().Trim();
                     string email = row.Cell(2).GetValue<string>().Trim();
                     string accountNumber = row.Cell(3).GetValue<string>().Trim();
@@ -129,7 +137,7 @@ namespace APCapstoneProject.Service
                     string dateOfJoiningStr = row.Cell(7).GetValue<string>().Trim();
                     string dateOfLeavingStr = row.Cell(8).GetValue<string>().Trim();
 
-                    // 🔹 Basic field validation
+                    // --- Validate required fields ---
                     if (string.IsNullOrWhiteSpace(name))
                         throw new Exception("Employee name is required.");
                     if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
@@ -156,7 +164,21 @@ namespace APCapstoneProject.Service
                             throw new Exception("Invalid Date of Leaving format.");
                     }
 
-                    // 🔹 Create entity
+                    // --- Check for duplicate within the same Excel file ---
+                    if (!seenEmails.Add(email))
+                        throw new Exception($"Duplicate email '{email}' found in Excel file.");
+                    if (!seenAccounts.Add(accountNumber))
+                        throw new Exception($"Duplicate account number '{accountNumber}' found in Excel file.");
+
+                    // --- Check for duplicate in database for the same client ---
+                    bool duplicateInDb = existingEmployees.Any(e =>
+                        e.Email.Equals(email, StringComparison.OrdinalIgnoreCase) ||
+                        e.AccountNumber.Equals(accountNumber, StringComparison.OrdinalIgnoreCase));
+
+                    if (duplicateInDb)
+                        throw new Exception($"Employee with email '{email}' or account '{accountNumber}' already exists in your records.");
+
+                    // --- Create and save employee ---
                     var employee = new Employee
                     {
                         EmployeeName = name,
@@ -173,6 +195,7 @@ namespace APCapstoneProject.Service
                     };
 
                     await _repository.AddAsync(employee);
+                    existingEmployees.Add(employee); // add to in-memory list for next checks
                     result.SuccessCount++;
                 }
                 catch (Exception ex)
@@ -190,6 +213,7 @@ namespace APCapstoneProject.Service
 
             return result;
         }
+
 
     }
 }

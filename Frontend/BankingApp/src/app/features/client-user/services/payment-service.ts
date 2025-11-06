@@ -43,8 +43,8 @@ export class PaymentService {
   /**
    * (Bank User) Rejects a payment
    */
-  rejectPayment(paymentId: number): Observable<Payment> {
-    return this.api.put<Payment>(`${this.endpoint}/${paymentId}/reject`, {});
+  rejectPayment(paymentId: number, payload: { bankRemark: string }): Observable<Payment> {
+    return this.api.put<Payment>(`${this.endpoint}/${paymentId}/reject`, payload);
   }
 
 

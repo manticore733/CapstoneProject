@@ -1,26 +1,81 @@
 
 <div class="space-y-6">
+  <!-- Toast Notifications Container -->
+<div class="fixed top-4 right-4 z-[9999] space-y-3 pointer-events-none">
+  <div
+    *ngFor="let toast of toasts; let i = index"
+    [ngClass]="getToastClass(toast.type)"
+    class="flex items-start justify-between gap-3 px-4 py-3 rounded-lg shadow-lg animate-slide-in pointer-events-auto min-w-[320px] max-w-[400px]"
+  >
+    <div class="flex items-start gap-2">
+      <svg *ngIf="toast.type === 'success'" class="w-5 h-5 text-green-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>
+      <svg *ngIf="toast.type === 'error'" class="w-5 h-5 text-red-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+      <svg *ngIf="toast.type === 'warning'" class="w-5 h-5 text-yellow-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+      <svg *ngIf="toast.type === 'info'" class="w-5 h-5 text-blue-600 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M13 16h-1v-4h-1m1-4h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+      </svg>
+
+      <span class="text-sm font-medium break-words">{{ toast.message }}</span>
+    </div>
+
+    <!-- Close Button -->
+    <button
+      (click)="closeToast(i)"
+      class="ml-2 text-gray-500 hover:text-gray-700 transition pointer-events-auto"
+    >
+      ✕
+    </button>
+  </div>
+</div>
+
+
   <!-- Header Section -->
   <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
       <div>
         <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
           <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
           </svg>
           My Employees
         </h2>
-        <p class="text-sm text-gray-500 mt-1">Manage your employee records and payroll</p>
+        <p class="text-sm text-gray-500 mt-1">
+          Manage your employee records and payroll
+        </p>
       </div>
-      <button
-        (click)="openAddForm()"
-        class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
-      >
-        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-        </svg>
-        Add Employee
-      </button>
+
+      <!-- RIGHT: Button Group -->
+      <div class="flex gap-3">
+        <button
+          (click)="openAddForm()"
+          class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Employee
+        </button>
+
+        <label
+          class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium cursor-pointer"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M4 4v16h16V8l-6-4H4zm8 7v5m0 0l-2-2m2 2l2-2" />
+          </svg>
+          Upload Excel
+          <input type="file" hidden (change)="onExcelSelected($event)" accept=".xlsx, .xls" />
+        </label>
+      </div>
     </div>
   </div>
 

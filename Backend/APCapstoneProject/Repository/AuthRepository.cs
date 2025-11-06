@@ -16,9 +16,19 @@ namespace APCapstoneProject.Repository
         // fetch user by username only
         public async Task<User?> GetUserByUsernameAsync(string username)
         {
-            return await _context.Users
-                .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.UserName == username && u.IsActive);
+            var user = await _context.Users
+        .Include(u => u.Role)
+        .FirstOrDefaultAsync(u => u.UserName == username);
+
+            // If it's a client, load  VerificationStatus relationship
+            if (user is ClientUser clientUser)
+            {
+                await _context.Entry(clientUser)
+                    .Reference(c => c.VerificationStatus)
+                    .LoadAsync();
+            }
+
+            return user;
         }
     }
 }
