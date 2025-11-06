@@ -2,6 +2,7 @@
 using APCapstoneProject.Model;
 using APCapstoneProject.Repository;
 using AutoMapper;
+using ClosedXML.Excel;
 
 namespace APCapstoneProject.Service
 {
@@ -100,5 +101,95 @@ namespace APCapstoneProject.Service
 
             return await _repository.DeleteAsync(id);
         }
+
+
+        public async Task<EmployeeUploadResultDto> ProcessEmployeeExcelAsync(IFormFile file, int clientUserId)
+        {
+            var result = new EmployeeUploadResultDto();
+
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            using var workbook = new XLWorkbook(stream);
+            var worksheet = workbook.Worksheet(1);
+
+            var rows = worksheet.RowsUsed().Skip(1); // skip header row
+            int rowIndex = 2;
+
+            foreach (var row in rows)
+            {
+                try
+                {
+                    // 🔹 Extract fields safely
+                    string name = row.Cell(1).GetValue<string>().Trim();
+                    string email = row.Cell(2).GetValue<string>().Trim();
+                    string accountNumber = row.Cell(3).GetValue<string>().Trim();
+                    string bankName = row.Cell(4).GetValue<string>().Trim();
+                    string ifsc = row.Cell(5).GetValue<string>().Trim();
+                    string salaryStr = row.Cell(6).GetValue<string>().Trim();
+                    string dateOfJoiningStr = row.Cell(7).GetValue<string>().Trim();
+                    string dateOfLeavingStr = row.Cell(8).GetValue<string>().Trim();
+
+                    // 🔹 Basic field validation
+                    if (string.IsNullOrWhiteSpace(name))
+                        throw new Exception("Employee name is required.");
+                    if (string.IsNullOrWhiteSpace(email) || !email.Contains("@"))
+                        throw new Exception("Valid email is required.");
+                    if (string.IsNullOrWhiteSpace(accountNumber))
+                        throw new Exception("Account number is required.");
+                    if (string.IsNullOrWhiteSpace(bankName))
+                        throw new Exception("Bank name is required.");
+                    if (string.IsNullOrWhiteSpace(ifsc))
+                        throw new Exception("IFSC code is required.");
+
+                    if (!decimal.TryParse(salaryStr, out decimal salary) || salary <= 0)
+                        throw new Exception("Salary must be a positive decimal value.");
+
+                    if (!DateTime.TryParse(dateOfJoiningStr, out DateTime dateOfJoining))
+                        throw new Exception("Date of Joining is required and must be a valid date.");
+
+                    DateTime? dateOfLeaving = null;
+                    if (!string.IsNullOrEmpty(dateOfLeavingStr))
+                    {
+                        if (DateTime.TryParse(dateOfLeavingStr, out DateTime parsedLeaveDate))
+                            dateOfLeaving = parsedLeaveDate;
+                        else
+                            throw new Exception("Invalid Date of Leaving format.");
+                    }
+
+                    // 🔹 Create entity
+                    var employee = new Employee
+                    {
+                        EmployeeName = name,
+                        Email = email,
+                        AccountNumber = accountNumber,
+                        BankName = bankName,
+                        IFSC = ifsc,
+                        Salary = salary,
+                        DateOfJoining = dateOfJoining,
+                        DateOfLeaving = dateOfLeaving,
+                        IsActive = true,
+                        CreatedAt = DateTime.UtcNow,
+                        ClientUserId = clientUserId
+                    };
+
+                    await _repository.AddAsync(employee);
+                    result.SuccessCount++;
+                }
+                catch (Exception ex)
+                {
+                    result.FailedCount++;
+                    result.FailedRows.Add(new FailedRowInfo
+                    {
+                        RowNumber = rowIndex,
+                        ErrorMessage = ex.Message
+                    });
+                }
+
+                rowIndex++;
+            }
+
+            return result;
+        }
+
     }
 }

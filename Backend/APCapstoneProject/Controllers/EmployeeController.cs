@@ -66,5 +66,22 @@ namespace APCapstoneProject.Controllers
             if (!success) return NotFound("Employee not found or you do not have permission.");
             return NoContent();
         }
+
+
+        [HttpPost("uploadExcel")]
+        public async Task<IActionResult> UploadEmployeeExcel(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest("No file uploaded.");
+
+            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
+
+            var result = await _service.ProcessEmployeeExcelAsync(file, clientUserId);
+
+            return Ok(result);
+        }
+
+
+
     }
 }

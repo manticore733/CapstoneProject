@@ -9,5 +9,7 @@ namespace APCapstoneProject.Service
         Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId);
         Task<bool> UpdateEmployeeAsync(int id, UpdateEmployeeDto employeeDto, int clientUserId);
         Task<bool> DeleteEmployeeAsync(int id, int clientUserId);
+        Task<EmployeeUploadResultDto> ProcessEmployeeExcelAsync(IFormFile file, int clientUserId);
+
     }
 }
