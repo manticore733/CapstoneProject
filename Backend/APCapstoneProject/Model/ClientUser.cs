@@ -27,6 +27,8 @@ namespace APCapstoneProject.Model
         public int StatusId { get; set; }
         public virtual Status? VerificationStatus { get; set; }
 
+        public string? Remark { get; set; } //stores reason for rejection if any.
+
         //nav property
         public virtual ICollection<Document>? Documents { get; set; } = new List<Document>();
 

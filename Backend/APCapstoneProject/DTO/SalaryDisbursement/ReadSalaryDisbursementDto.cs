@@ -7,7 +7,9 @@
 
         public decimal TotalAmount { get; set; }
 
-        public string? Remarks { get; set; }
+        public string? Remarks { get; set; } // given while making payment
+        public string? BankRemark { get; set; } // reason for approving or denying paynment
+
         public string TransactionStatus { get; set; }
 
         public int TotalEmployees { get; set; }

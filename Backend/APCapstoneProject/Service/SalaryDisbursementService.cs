@@ -14,7 +14,11 @@ namespace APCapstoneProject.Service
         private readonly IClientUserRepository _clientRepo;
         private readonly IAccountRepository _accountRepo;
         private readonly IMapper _mapper;
+        // included only to start a transaction in the EF so we can rollback if either of these 2 actions fail:
+        // 1. Approving salary disbursement status change
+        // 2. deduction of money
         private readonly BankingAppDbContext _context;
+        private readonly IEmailService _emailService;
 
         public SalaryDisbursementService(
             ISalaryDisbursementRepository disbursementRepo,
@@ -22,7 +26,8 @@ namespace APCapstoneProject.Service
             IClientUserRepository clientRepo,
             IAccountRepository accountRepo,
             IMapper mapper,
-            BankingAppDbContext context)
+            BankingAppDbContext context,
+            IEmailService emailService)
         {
             _disbursementRepo = disbursementRepo;
             _employeeRepo = employeeRepo;
@@ -30,6 +35,7 @@ namespace APCapstoneProject.Service
             _accountRepo = accountRepo;
             _mapper = mapper;
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<ReadSalaryDisbursementDto> CreateSalaryDisbursementAsync(int clientUserId, CreateSalaryDisbursementDto dto)
@@ -131,6 +137,28 @@ namespace APCapstoneProject.Service
             await _disbursementRepo.AddDetailsAsync(details);
             disbursement.Details = details;
 
+
+            try
+            {
+                var tokens = new Dictionary<string, string?>
+                {
+                    ["FullName"] = client.UserFullName,
+                    ["TransactionId"] = disbursement.TransactionId.ToString(),
+                    ["TotalEmployees"] = disbursement.TotalEmployees.ToString(),
+                    ["TotalAmount"] = disbursement.TotalAmount.ToString("F2"),
+                    ["CreatedAt"] = disbursement.CreatedAt.ToString("dd MMM yyyy, HH:mm")
+                };
+                await _emailService.SendTemplateEmailAsync(client.UserEmail,
+                    $"Salary disbursement request received for ₹{disbursement.TotalAmount:F2}",
+                    "SalaryDisbursementRequest.html",
+                    tokens);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email send failed: {ex.Message}");
+            }
+
+
             return _mapper.Map<ReadSalaryDisbursementDto>(disbursement);
         }
 
@@ -197,6 +225,32 @@ namespace APCapstoneProject.Service
                 throw;
             }
 
+
+            try
+            {
+                var tokens = new Dictionary<string, string?>
+                {
+                    ["FullName"] = client.UserFullName,
+                    ["TransactionId"] = disbursement.TransactionId.ToString(),
+                    ["TotalEmployees"] = disbursement.TotalEmployees.ToString(),
+                    ["TotalAmount"] = disbursement.TotalAmount.ToString("F2"),
+                    ["SuccessfulCount"] = disbursement.SuccessfulCount.ToString(),
+                    ["FailedCount"] = disbursement.FailedCount.ToString(),
+                    ["DebitedAmount"] = (disbursement.TotalAmount - (disbursement.FailedCount * (disbursement.TotalAmount / disbursement.TotalEmployees))).ToString("F2"),
+                    ["ProcessedAt"] = disbursement.ProcessedAt.ToString("dd MMM yyyy, HH:mm"),
+                    ["BankRemark"] = disbursement.Remarks ?? "Processed successfully"
+                };
+                await _emailService.SendTemplateEmailAsync(client.UserEmail,
+                    "Salary disbursement processed successfully",
+                    "SalaryDisbursementApproved.html",
+                    tokens);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email failed: {ex.Message}");
+            }
+
+
             return _mapper.Map<ReadSalaryDisbursementDto>(disbursement);
         }
 
@@ -213,6 +267,27 @@ namespace APCapstoneProject.Service
             disb.ProcessedAt = DateTime.UtcNow;
             disb.Remarks = "Rejected by bank user";
             await _disbursementRepo.UpdateAsync(disb);
+
+
+            try
+            {
+                var tokens = new Dictionary<string, string?>
+                {
+                    ["FullName"] = client.UserFullName,
+                    ["TransactionId"] = disb.TransactionId.ToString(),
+                    ["BankRemark"] = disb.Remarks ?? "Rejected by bank user"
+                };
+                await _emailService.SendTemplateEmailAsync(client.UserEmail,
+                    "Salary disbursement request was rejected",
+                    "SalaryDisbursementRejected.html",
+                    tokens);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email failed: {ex.Message}");
+            }
+
+
 
             return _mapper.Map<ReadSalaryDisbursementDto>(disb);
         }

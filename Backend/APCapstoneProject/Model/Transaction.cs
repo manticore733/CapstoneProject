@@ -23,7 +23,9 @@ namespace APCapstoneProject.Model
         public virtual Status? TransactionStatus { get; set; }
 
         [MaxLength(200)]
-        public string? Remarks { get; set; }
+        public string? Remarks { get; set; } // this is a description of the transaction (electricity bill, etc)
+
+        public string? BankRemark { get; set; } //given as reasoning for accepting or rejecting a txn
 
         //nav property
         public int AccountId { get; set; }

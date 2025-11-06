@@ -17,9 +17,13 @@ namespace APCapstoneProject.Service
         private readonly IBankRepository _bankRepo;
         private readonly IAccountRepository _accountRepo;
         private readonly IMapper _mapper;
+        // included only to start a transaction in the EF so we can rollback if either of these 2 actions fail:
+        // 1. Approving clientUser
+        // 2. Creation of clientUser account.
         private readonly BankingAppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public BankUserService(IBankUserRepository bankUserRepo, BankingAppDbContext context, IClientUserRepository clientUserRepo, IBankRepository bankRepo, IAccountRepository accRepo, IMapper mapper)
+        public BankUserService(IBankUserRepository bankUserRepo, BankingAppDbContext context, IClientUserRepository clientUserRepo, IBankRepository bankRepo, IAccountRepository accRepo, IMapper mapper, IEmailService emailService)
         {
             _bankUserRepo = bankUserRepo;
             _clientUserRepo = clientUserRepo;
@@ -27,6 +31,7 @@ namespace APCapstoneProject.Service
             _accountRepo = accRepo;
             _mapper = mapper;
             _context = context;
+            _emailService = emailService;
         }
 
 
@@ -77,109 +82,6 @@ namespace APCapstoneProject.Service
             return await _bankUserRepo.DeleteBankUserAsync(id);
         }
 
-
-        //public async Task<ReadClientUserDto?> ApproveClientUserAsync(int clientUserId, int bankUserId, ClientApprovalDto dto)
-        //{
-        //    // --- Step 1: Verify the approving BankUser ---
-        //    var bankUser = await _bankUserRepo.GetBankUserByIdAsync(bankUserId);
-        //    if (bankUser == null || !(bankUser is BankUser) || bankUser.BankId == null)
-        //    {
-        //        throw new UnauthorizedAccessException("Approving user is not a valid Bank User or is missing Bank association.");
-        //    }
-
-        //    // --- Step 2: Fetch the client to approve, ensuring ownership ---
-        //    var client = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
-        //    if (client == null)
-        //    {
-        //        throw new KeyNotFoundException("Client not found or does not belong to this Bank User.");
-        //    }
-
-        //    // --- Step 3: Check if already processed ---
-        //    if (client.StatusId != 0) // Assuming 0 is PENDING
-        //    {
-        //        throw new InvalidOperationException($"Client is already in status '{client.VerificationStatus?.StatusEnum.ToString() ?? client.StatusId.ToString()}'. Cannot re-process.");
-        //    }
-
-        //    Account? createdAccount = null; // To hold account details if created
-
-        //    // --- Step 4: Apply Approval/Rejection ---
-        //    if (dto.IsApproved)
-        //    {
-        //        // Check if account already exists
-        //        var existingAccount = await _accountRepo.GetByClientIdAsync(clientUserId);
-        //        if (existingAccount != null)
-        //        {
-        //            throw new InvalidOperationException("This client unexpectedly already has an account.");
-        //        }
-
-        //        // Update client status
-        //        client.StatusId = 1; // Assuming 1 is APPROVED
-        //        client.IsActive = true;
-        //        client.UpdatedAt = DateTime.UtcNow;
-
-
-        //        // --- CHANGE 1: Call existing UpdateAsync which saves immediately ---
-        //        await _clientUserRepo.UpdateClientUserAsync(client);
-
-        //        // Create the account object
-        //        var newAccount = new Account
-        //        {
-        //            ClientUserId = clientUserId,
-        //            BankId = bankUser.BankId.Value,
-        //            Balance = dto.InitialBalance,
-        //            AccountNumber = GenerateAccountNumber(),
-        //            IsActive = true,
-        //            CreatedAt = DateTime.UtcNow
-        //        };
-
-
-
-
-        //        // --- CHANGE 2: Add and Save the account separately ---
-        //        await _accountRepo.AddAsync(newAccount);
-        //        bool accountSaved = await _accountRepo.SaveChangesAsync();
-        //        if (!accountSaved)
-        //        {
-        //            // CRITICAL: Account creation failed AFTER client was approved.
-        //            // Log this error. Manual intervention might be needed.
-        //            // Consider throwing an exception to signal the partial failure.
-        //            throw new DbUpdateException($"Client {clientUserId} was approved, but failed to create the associated account.");
-        //        }
-        //        createdAccount = newAccount; // Store for the return DTO
-        //    }
-        //    else // Client is Rejected
-        //    {
-        //        client.StatusId = 2; // Assuming 2 is REJECTED
-        //                             //  client.IsActive = false;
-        //        client.UpdatedAt = DateTime.UtcNow;
-
-        //        // --- CHANGE 3: Call existing UpdateAsync which saves immediately ---
-        //        await _clientUserRepo.UpdateClientUserAsync(client);
-        //    }
-
-        //    // --- Step 5: Fetch updated client data and return DTO ---
-        //    // Re-fetch AFTER saving to ensure Status is updated
-        //    var updatedClient = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
-        //    if (updatedClient == null)
-        //    {
-        //        throw new KeyNotFoundException("Failed to retrieve updated client information after processing.");
-        //    }
-
-        //    // Manually add AccountNumber to DTO if account was created in this call
-        //    var resultDto = _mapper.Map<ReadClientUserDto>(updatedClient);
-        //    if (createdAccount != null)
-        //    {
-        //        resultDto.AccountNumber = createdAccount.AccountNumber;
-        //    }
-        //    else if (updatedClient.Account != null)
-        //    {
-        //        // If account existed previously (shouldn't happen with PENDING check)
-        //        resultDto.AccountNumber = updatedClient.Account.AccountNumber;
-        //    }
-
-
-        //    return resultDto;
-        //}
 
 
         public async Task<ReadClientUserDto?> ApproveClientUserAsync(int clientUserId, int bankUserId, ClientApprovalDto dto)
@@ -254,6 +156,9 @@ namespace APCapstoneProject.Service
                 // --- Step 6: Commit transaction ---
                 await transaction.CommitAsync();
 
+
+
+
                 // --- Step 7: Fetch and return updated client info ---
                 var updatedClient = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
                 if (updatedClient == null)
@@ -270,6 +175,39 @@ namespace APCapstoneProject.Service
                 {
                     resultDto.AccountNumber = updatedClient.Account.AccountNumber;
                 }
+
+                try
+                {
+                    var tokens = new Dictionary<string, string?>
+                    {
+                        ["FullName"] = updatedClient.UserFullName,
+                        ["AccountNumber"] = resultDto.AccountNumber,
+                        ["BankName"] = bankUser.Bank?.BankName,
+                        ["ApprovedAt"] = DateTime.UtcNow.ToString("dd MMM yyyy, HH:mm"),
+                        ["Remark"] = dto.Remark
+                    };
+
+                    if (dto.IsApproved)
+                    {
+                        await _emailService.SendTemplateEmailAsync(updatedClient.UserEmail,
+                            "Your client account has been approved",
+                            "ClientApproved.html",
+                            tokens);
+                    }
+                    else
+                    {
+                        tokens["Remark"] = dto.Remark ?? "Not specified";
+                        await _emailService.SendTemplateEmailAsync(updatedClient.UserEmail,
+                            "Your client registration was not approved",
+                            "ClientRejected.html",
+                            tokens);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Email send failed: {ex.Message}");
+                }
+
 
                 return resultDto;
             }

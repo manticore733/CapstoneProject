@@ -14,15 +14,20 @@ namespace APCapstoneProject.Service
         private readonly IClientUserRepository _clientUserRepo;
         private readonly IAccountRepository _accountRepo;
         private readonly IMapper _mapper;
+        // included only to start a transaction in the EF so we can rollback if either of these 2 actions fail:
+        // 1. Status change
+        // 2. Deduct amount
         private readonly BankingAppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public PaymentService(IPaymentRepository paymentRepo, IClientUserRepository clientUserRepo, IAccountRepository accountRepo, IMapper mapper, BankingAppDbContext context)
+        public PaymentService(IPaymentRepository paymentRepo, IClientUserRepository clientUserRepo, IAccountRepository accountRepo, IMapper mapper, BankingAppDbContext context, IEmailService emailService)
         {
             _paymentRepo = paymentRepo;
             _clientUserRepo = clientUserRepo;
             _accountRepo = accountRepo;
             _mapper = mapper;
             _context = context;
+            _emailService = emailService;
         }
 
         public async Task<ReadPaymentDto> CreatePaymentAsync(int clientUserId, CreatePaymentDto dto)
@@ -54,7 +59,36 @@ namespace APCapstoneProject.Service
             };
 
             await _paymentRepo.AddPaymentAsync(payment);
+
+
             var paymentFromDb = await _paymentRepo.GetPaymentByPaymentIdAsync(payment.TransactionId);
+
+
+
+            try
+            {
+                var tokens = new Dictionary<string, string?>
+                {
+                    ["FullName"] = client.UserFullName,
+                    ["TransactionId"] = paymentFromDb.TransactionId.ToString(),
+                    ["Amount"] = paymentFromDb.Amount.ToString("F2"),
+                    ["BeneficiaryName"] = beneficiary.BeneficiaryName,
+                    ["ClientRemarks"] = paymentFromDb.Remarks ?? "-",
+                    ["CreatedAt"] = DateTime.UtcNow.ToString("dd MMM yyyy, HH:mm")
+                };
+                await _emailService.SendTemplateEmailAsync(client.UserEmail,
+                    $"Payment request received for ₹{paymentFromDb.Amount:F2}",
+                    "PaymentRequestReceived.html",
+                    tokens);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email send failed: {ex.Message}");
+            }
+
+
+
+
             return _mapper.Map<ReadPaymentDto>(paymentFromDb);
         }
 
@@ -111,6 +145,30 @@ namespace APCapstoneProject.Service
                 throw;
             }
 
+
+
+            try
+            {
+                var tokens = new Dictionary<string, string?>
+                {
+                    ["FullName"] = client.UserFullName,
+                    ["TransactionId"] = payment.TransactionId.ToString(),
+                    ["BeneficiaryName"] = payment.Beneficiary?.BeneficiaryName,
+                    ["Amount"] = payment.Amount.ToString("F2"),
+                    ["ProcessedAt"] = DateTime.UtcNow.ToString("dd MMM yyyy, HH:mm"),
+                    ["BankRemark"] = payment.BankRemark ?? "Processed successfully"
+                };
+                await _emailService.SendTemplateEmailAsync(client.UserEmail,
+                    $"Payment of ₹{payment.Amount:F2} has been approved",
+                    "PaymentApproved.html",
+                    tokens);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email failed: {ex.Message}");
+            }
+
+
             return _mapper.Map<ReadPaymentDto>(payment);
         }
 
@@ -128,6 +186,28 @@ namespace APCapstoneProject.Service
             payment.ApprovedAt = DateTime.UtcNow;
 
             await _paymentRepo.UpdatePaymentAsync(payment);
+
+
+            try
+            {
+                var tokens = new Dictionary<string, string?>
+                {
+                    ["FullName"] = client.UserFullName,
+                    ["TransactionId"] = payment.TransactionId.ToString(),
+                    ["BankRemark"] = payment.BankRemark ?? "Rejected by bank"
+                };
+                await _emailService.SendTemplateEmailAsync(client.UserEmail,
+                    "Payment request was rejected",
+                    "PaymentRejected.html",
+                    tokens);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email failed: {ex.Message}");
+            }
+
+
+
             var paymentFromDb = await _paymentRepo.GetPaymentByPaymentIdAsync(payment.TransactionId);
             return _mapper.Map<ReadPaymentDto>(paymentFromDb);
         }

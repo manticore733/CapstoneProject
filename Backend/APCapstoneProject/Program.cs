@@ -64,11 +64,8 @@ namespace APCapstoneProject
             builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
             builder.Services.AddScoped<IPaymentService, PaymentService>();
 
-
             builder.Services.AddScoped<IDocumentRepository, DocumentRepository>();
             builder.Services.AddScoped<IDocumentService, DocumentService>();
-
-
 
             builder.Services.AddScoped<ISalaryDisbursementRepository, SalaryDisbursementRepository>();
             builder.Services.AddScoped<ISalaryDisbursementService, SalaryDisbursementService>();
@@ -79,8 +76,15 @@ namespace APCapstoneProject
             builder.Services.AddScoped<IReportRecordRepository, ReportRecordRepository>();
             builder.Services.AddScoped<IReportService, ReportService>();
 
+            builder.Services.AddScoped<IEmailService, EmailService>();
 
+            // Bind EmailSettings
+            builder.Services.Configure<EmailSettings>(builder.Configuration.GetSection("EmailSettings"));
 
+            // Email template renderer: provide path to EmailTemplates folder
+            var templatesPath = Path.Combine(builder.Environment.ContentRootPath, "EmailTemplates");
+            builder.Services.AddSingleton(new EmailTemplateRenderer(templatesPath));
+            
 
             // Add Captcha Config
             builder.Services.Configure<CaptchaSettings>(builder.Configuration.GetSection("CaptchaSettings"));

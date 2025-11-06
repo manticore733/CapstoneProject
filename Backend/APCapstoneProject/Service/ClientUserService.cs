@@ -9,11 +9,13 @@ namespace APCapstoneProject.Service
     {
         private readonly IClientUserRepository _clientUserRepo;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
-        public ClientUserService(IClientUserRepository clientUserRepo, IMapper mapper)
+        public ClientUserService(IClientUserRepository clientUserRepo, IMapper mapper, IEmailService emailService)
         {
             _clientUserRepo = clientUserRepo;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         public async Task<ReadClientUserDto> CreateClientUserAsync(CreateClientUserDto dto, int creatorBankUserId)
@@ -26,6 +28,24 @@ namespace APCapstoneProject.Service
             clientUser.IsActive = true;
 
             await _clientUserRepo.AddClientUserAsync(clientUser);
+
+            try
+            {
+                var tokens = new Dictionary<string, string?>
+                {
+                    ["FullName"] = clientUser.UserFullName,
+                    ["SubmittedAt"] = clientUser.CreatedAt.ToString("dd MMM yyyy, HH:mm")
+                };
+                await _emailService.SendTemplateEmailAsync(clientUser.UserEmail,
+                    "Your application has been received",
+                    "ClientRegistrationReceived.html",
+                    tokens);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email failed: {ex.Message}");
+            }
+
 
             var created = await _clientUserRepo.GetClientUserByIdAsync(clientUser.UserId);
             return _mapper.Map<ReadClientUserDto>(created);
