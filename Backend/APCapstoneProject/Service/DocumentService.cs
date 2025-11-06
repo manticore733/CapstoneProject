@@ -96,11 +96,11 @@ namespace APCapstoneProject.Service
             await _documentRepository.AddAsync(document);
             await _documentRepository.SaveChangesAsync();
 
-            
+
             // change user verification status back to pending if he is reuploading.
-            if (clientUser.VerificationStatus.StatusEnum == StatusEnum.REJECTED)
+            if (clientUser.StatusId == (int)StatusEnum.REJECTED)
             {
-                clientUser.StatusId = (int)StatusEnum.PENDING;  // ✅ set FK manually
+                clientUser.StatusId = (int)StatusEnum.PENDING;
                 await _clientUserRepository.UpdateClientUserAsync(clientUser);
                 await _documentRepository.SaveChangesAsync();
             }

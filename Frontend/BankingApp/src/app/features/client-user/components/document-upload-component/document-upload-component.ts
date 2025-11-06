@@ -18,6 +18,9 @@ export class DocumentUploadComponent {
   
   loading = false;
   loadingList = false;
+
+  accountStatus: number | null = null;
+
   
   // Toast notifications
   showSuccessToast = false;
@@ -42,6 +45,22 @@ export class DocumentUploadComponent {
       proofTypeId: [null, [Validators.required]],
       file: [null, [Validators.required]],
     });
+
+    const token = localStorage.getItem('token');
+  if (token) {
+    try {
+      // if it's a normal object, not JWT
+      const parsed = JSON.parse(atob(token.split('.')[1] || '{}'));
+      this.accountStatus = parsed?.Status ?? null;
+    } catch {
+      try {
+        const parsed = JSON.parse(token);
+        this.accountStatus = parsed?.status ?? null;
+      } catch {
+        console.warn('Could not parse token');
+      }
+    }
+  }
 
     this.loadMyDocuments();
   }
