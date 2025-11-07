@@ -263,6 +263,13 @@ namespace APCapstoneProject.Service
             if (client == null || client.BankUserId != bankUserId)
                 throw new UnauthorizedAccessException("Disbursement does not belong to this bank user.");
 
+            foreach (var detail in disb.Details!)
+            {
+                detail.IsSuccessful = false;
+                detail.Remark = "Rejected";
+                detail.ProcessedAt = DateTime.UtcNow;
+            }
+
             disb.StatusId = 2;
             disb.ProcessedAt = DateTime.UtcNow;
             disb.Remarks = "Rejected by bank user";
