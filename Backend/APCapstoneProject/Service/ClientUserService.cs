@@ -82,5 +82,18 @@ namespace APCapstoneProject.Service
 
             return await _clientUserRepo.DeleteClientUserAsync(clientId);
         }
+
+
+        // ← NEW: Get client user profile by userId (for client's own profile)
+        public async Task<ReadClientUserDto?> GetClientUserByIdAsync(int userId)
+        {
+            var clientUser = await _clientUserRepo.GetClientUserByIdAsync(userId);
+            return clientUser == null ? null : _mapper.Map<ReadClientUserDto>(clientUser);
+        }
+
+
+
+
+
     }
 }

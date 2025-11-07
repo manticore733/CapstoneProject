@@ -11,4 +11,5 @@ export interface ClientUser {
   isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
+  remark?: string;
 }

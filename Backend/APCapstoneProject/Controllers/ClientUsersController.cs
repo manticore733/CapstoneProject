@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace APCapstoneProject.Controllers
 {
-    [Authorize(Roles = "BANK_USER")]
+    
     [Route("api/[controller]")]
     [ApiController]
     public class ClientUsersController : ControllerBase
@@ -21,6 +21,7 @@ namespace APCapstoneProject.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "BANK_USER")]
         public async Task<ActionResult<UserReadDto>> CreateClientUser([FromBody] CreateClientUserDto createDto)
         {
             var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -37,6 +38,7 @@ namespace APCapstoneProject.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "BANK_USER")]
         public async Task<IActionResult> UpdateClientUser(int id, [FromBody] UpdateClientUserDto updateDto)
         {
             var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -47,6 +49,7 @@ namespace APCapstoneProject.Controllers
 
 
         [HttpGet("myclients")]
+        [Authorize(Roles = "BANK_USER")]
         public async Task<ActionResult<IEnumerable<UserReadDto>>> GetMyClients()
         {
             var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -55,6 +58,7 @@ namespace APCapstoneProject.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "BANK_USER")]
         public async Task<ActionResult<UserReadDto>> GetMyClient(int id)
         {
             var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -64,6 +68,7 @@ namespace APCapstoneProject.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "BANK_USER")]
         public async Task<IActionResult> DeleteClientUser(int id)
         {
             var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -80,5 +85,25 @@ namespace APCapstoneProject.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
+
+        // ========== CLIENT USER ENDPOINTS ==========
+
+        // ← NEW: Client User gets their own profile
+        [Authorize(Roles = "CLIENT_USER , BANK_USER")]
+        [HttpGet("myprofile")]
+        public async Task<ActionResult<ReadClientUserDto>> GetMyProfile()
+        {
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
+            var clientUser = await _clientUserService.GetClientUserByIdAsync(userId);
+
+            if (clientUser == null)
+                return NotFound(new { message = "Client user profile not found." });
+
+            return Ok(clientUser);
+        }
+
+
+
+
     }
 }
