@@ -50,11 +50,14 @@ formError: string | null = null;
   }
 
   loadBanks() {
-    this.bankService.getAll().subscribe({
-      next: res => (this.banks = res),
-      error: err => console.error('Error fetching banks', err),
-    });
-  }
+  this.bankService.getAll().subscribe({
+    next: res => {
+      this.banks = res.filter((bank: any) => bank.isActive === true);
+    },
+    error: err => console.error('Error fetching banks', err),
+  });
+}
+
 
   addUser() {
     this.isEdit = false;

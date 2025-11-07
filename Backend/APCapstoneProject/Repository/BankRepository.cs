@@ -20,7 +20,6 @@ namespace APCapstoneProject.Repository
             return await _context.Banks
                 .Include(b => b.Users)
                 .Include(b => b.Accounts)
-                .Where(b => b.IsActive)
                 .ToListAsync();
         }
 
