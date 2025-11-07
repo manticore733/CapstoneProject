@@ -37,26 +37,39 @@ namespace APCapstoneProject.Service
 
         public async Task<EmployeeReadDto> CreateEmployeeAsync(CreateEmployeeDto employeeDto, int clientUserId)
         {
-            // --- 4. USE YOUR NEW REPOSITORY METHOD ---
+            // --- 1. Ensure valid client ---
             var isClientUser = await _clientUserRepository.IsActiveClientUserAsync(clientUserId);
             if (!isClientUser)
-            {
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
-            }
-            // --- END OF VALIDATION ---
 
-            // Business Rule: Check for duplicate email...
-            var existing = await _repository.GetByClientIdAsync(clientUserId);
-            
+            // --- 2. Fetch all existing employees for this client ---
+            var existingEmployees = (await _repository.GetByClientIdAsync(clientUserId)).ToList();
 
+            // --- 3. Check for duplicates (same email or account) ---
+            bool duplicateExists = existingEmployees.Any(e =>
+                e.Email.Equals(employeeDto.Email, StringComparison.OrdinalIgnoreCase) ||
+                e.AccountNumber.Equals(employeeDto.AccountNumber, StringComparison.OrdinalIgnoreCase));
+
+            if (duplicateExists)
+                throw new InvalidOperationException($"An employee with email '{employeeDto.Email}' or account '{employeeDto.AccountNumber}' already exists.");
+
+            // --- 4. Validate salary and date ---
+            if (employeeDto.Salary <= 0)
+                throw new ArgumentException("Salary must be greater than zero.");
+
+            if (employeeDto.DateOfJoining == default)
+                throw new ArgumentException("Date of Joining is required.");
+
+            // --- 5. Create new employee ---
             var employee = _mapper.Map<Employee>(employeeDto);
-
             employee.ClientUserId = clientUserId;
             employee.IsActive = true;
+            employee.CreatedAt = DateTime.UtcNow;
 
             await _repository.AddAsync(employee);
             return _mapper.Map<EmployeeReadDto>(employee);
         }
+
 
 
 

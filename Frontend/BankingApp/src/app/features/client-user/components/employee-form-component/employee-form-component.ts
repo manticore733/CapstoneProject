@@ -24,7 +24,7 @@ export class EmployeeFormComponent {
 
   constructor(
     private fb: FormBuilder,
-    private employeeService: EmployeeService
+    private employeeService: EmployeeService,
   ) {}
 
   ngOnInit(): void {
@@ -81,10 +81,28 @@ export class EmployeeFormComponent {
   }
 
   private handleError(err: any): void {
-    console.error('Error saving employee', err);
     this.loading = false;
-    alert('An error occurred. Please try again.');
+  console.error('Error saving employee', err);
+
+  // Try to extract backend message in multiple possible formats
+  const message =
+    err?.error?.message || // case when backend sends JSON { message: "..." }
+    err?.error || // case when backend sends plain string
+    'An unexpected error occurred. Please try again.';
+
+  // Show relevant toast based on content
+  if (message.includes('already exists')) {
+    alert(message);
+  } else if (message.includes('No active ClientUser')) {
+    alert('Your client user account is inactive.');
+  } else if (message.includes('required')) {
+    alert('Missing required field.');
+  } else {
+    alert(message);
   }
+
+  }
+
 
   cancel(): void {
     this.close.emit(); // Tell parent to close
