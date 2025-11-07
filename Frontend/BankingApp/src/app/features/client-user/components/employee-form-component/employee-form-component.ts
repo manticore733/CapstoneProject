@@ -1,3 +1,5 @@
+
+
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { Employee } from '../../../../core/models/Employee';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -13,10 +15,10 @@ import { CreateEmployeeDto } from '../../../../core/models/CreateEmployeeDto';
   styleUrl: './employee-form-component.css',
 })
 export class EmployeeFormComponent {
-
-  @Input() employee: Employee | null = null; // for edit mode
+  @Input() employee: Employee | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() saved = new EventEmitter<void>();
+  @Output() error = new EventEmitter<string>();  // ← NEW: Emit error to parent
 
   form!: FormGroup;
   loading = false;
@@ -30,7 +32,6 @@ export class EmployeeFormComponent {
   ngOnInit(): void {
     this.title = this.employee ? 'Edit Employee' : 'Add New Employee';
 
-    // Helper to format the date for the HTML date input
     const joiningDate = this.employee 
       ? formatDate(this.employee.dateOfJoining, 'yyyy-MM-dd', 'en-US') 
       : '';
@@ -48,7 +49,7 @@ export class EmployeeFormComponent {
 
   save(): void {
     if (this.form.invalid) {
-      this.form.markAllAsTouched(); // Show validation errors
+      this.form.markAllAsTouched();
       return;
     }
 
@@ -56,16 +57,15 @@ export class EmployeeFormComponent {
     const formValue = this.form.value;
 
     if (this.employee) {
-      // --- UPDATE (Edit) ---
+      // UPDATE
       const dto: UpdateEmployeeDto = { ...formValue };
       
       this.employeeService.updateEmployee(this.employee.employeeId, dto).subscribe({
         next: () => this.handleSuccess(),
         error: (err) => this.handleError(err),
       });
-
     } else {
-      // --- CREATE (Add) ---
+      // CREATE
       const dto: CreateEmployeeDto = { ...formValue };
 
       this.employeeService.createEmployee(dto).subscribe({
@@ -77,35 +77,24 @@ export class EmployeeFormComponent {
 
   private handleSuccess(): void {
     this.loading = false;
-    this.saved.emit(); // Tell parent to refresh
+    this.saved.emit();
   }
 
   private handleError(err: any): void {
     this.loading = false;
-  console.error('Error saving employee', err);
+    console.error('Error saving employee', err);
 
-  // Try to extract backend message in multiple possible formats
-  const message =
-    err?.error?.message || // case when backend sends JSON { message: "..." }
-    err?.error || // case when backend sends plain string
-    'An unexpected error occurred. Please try again.';
+    // Extract error message from backend
+    const errorMessage = 
+      err?.error?.message ||           // { message: "..." }
+      err?.error ||                     // Plain string
+      'An unexpected error occurred.';
 
-  // Show relevant toast based on content
-  if (message.includes('already exists')) {
-    alert(message);
-  } else if (message.includes('No active ClientUser')) {
-    alert('Your client user account is inactive.');
-  } else if (message.includes('required')) {
-    alert('Missing required field.');
-  } else {
-    alert(message);
+    // Emit error to parent component
+    this.error.emit(errorMessage);
   }
-
-  }
-
 
   cancel(): void {
-    this.close.emit(); // Tell parent to close
+    this.close.emit();
   }
-
 }
