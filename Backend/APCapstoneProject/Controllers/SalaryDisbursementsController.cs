@@ -19,14 +19,44 @@ namespace APCapstoneProject.Controllers
         }
 
         // 🔹 POST: ClientUser initiates a salary disbursement to one employee
+        //[Authorize(Roles = "CLIENT_USER")]
+        //[HttpPost]
+        //public async Task<ActionResult<ReadSalaryDisbursementDto>> CreateDisbursement([FromForm] CreateSalaryDisbursementDto dto)
+        //{
+        //    var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
+        //    var result = await _disbursementService.CreateSalaryDisbursementAsync(clientUserId, dto);
+        //    return CreatedAtAction(nameof(GetById), new { id = result.TransactionId }, result);
+        //}
+
+
+
         [Authorize(Roles = "CLIENT_USER")]
         [HttpPost]
         public async Task<ActionResult<ReadSalaryDisbursementDto>> CreateDisbursement([FromForm] CreateSalaryDisbursementDto dto)
         {
-            var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
-            var result = await _disbursementService.CreateSalaryDisbursementAsync(clientUserId, dto);
-            return CreatedAtAction(nameof(GetById), new { id = result.TransactionId }, result);
+            try
+            {
+                var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
+                var result = await _disbursementService.CreateSalaryDisbursementAsync(clientUserId, dto);
+                return CreatedAtAction(nameof(GetById), new { id = result.TransactionId }, result);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = ex.Message });
+            }
         }
+
+
+
+
+
+
+
+
 
         // 🔹 GET: All disbursements for a specific client user
         [Authorize(Roles = "CLIENT_USER")]

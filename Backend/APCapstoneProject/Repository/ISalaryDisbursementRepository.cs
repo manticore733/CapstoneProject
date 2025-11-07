@@ -13,6 +13,11 @@ namespace APCapstoneProject.Repository
         Task<SalaryDisbursement?> GetByIdAsync(int id);
         Task<IEnumerable<SalaryDisbursement>> GetByClientUserIdAsync(int clientUserId);
         Task<IEnumerable<SalaryDisbursement>> GetPendingByBankUserIdAsync(int bankUserId);
+
+
+        // ← NEW: Check if disbursement exists for this month
+        Task<SalaryDisbursement?> GetExistingMonthDisbursementAsync(int clientUserId, int month, int year);
+
     }
 }
         

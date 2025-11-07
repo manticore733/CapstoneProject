@@ -84,5 +84,22 @@ namespace APCapstoneProject.Repository
                 .Where(s => s.ClientUser.BankUserId == bankUserId && s.StatusId == 0)
                 .ToListAsync();
         }
+
+
+
+
+        // ← NEW: Check if disbursement exists for specific month
+        public async Task<SalaryDisbursement?> GetExistingMonthDisbursementAsync(int clientUserId, int month, int year)
+        {
+            return await _context.SalaryDisbursements
+                .Where(s => s.ClientUserId == clientUserId &&
+                            s.CreatedAt.Month == month &&
+                            s.CreatedAt.Year == year &&
+                            (s.StatusId == 0 || s.StatusId == 1))  // PENDING or APPROVED
+                .FirstOrDefaultAsync();
+        }
+
+
+
     }
 }
