@@ -16,7 +16,9 @@ namespace APCapstoneProject.Repository
 
 
         // ← NEW: Check if disbursement exists for this month
-        Task<SalaryDisbursement?> GetExistingMonthDisbursementAsync(int clientUserId, int month, int year);
+        //Task<SalaryDisbursement?> GetExistingMonthDisbursementAsync(int clientUserId, int month, int year);
+
+        Task<List<int>> GetEmployeeDisbursementsInMonthAsync(int clientUserId, List<int> employeeIds, int month, int year);
 
     }
 }
