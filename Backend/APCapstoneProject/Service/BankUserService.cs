@@ -150,6 +150,7 @@ namespace APCapstoneProject.Service
                     client.StatusId = 2; // REJECTED
                     client.BankId = bankUser.BankId.Value;
                     client.UpdatedAt = DateTime.UtcNow;
+                    client.Remark = dto.Remark;
                     await _clientUserRepo.UpdateClientUserAsync(client);
                 }
 
