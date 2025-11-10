@@ -17,6 +17,8 @@
         public int FailedCount { get; set; }
         public bool? IsPartialSuccess { get; set; }
 
+        public List<string>? SkippedEmployees { get; set; }
+
 
         public DateTime CreatedAt { get; set; }
         public DateTime? ProcessedAt { get; set; }

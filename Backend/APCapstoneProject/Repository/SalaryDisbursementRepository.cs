@@ -100,6 +100,22 @@ namespace APCapstoneProject.Repository
         }
 
 
+        public async Task<List<int>> GetEmployeeDisbursementsInMonthAsync(int clientUserId, List<int> employeeIds, int month, int year)
+        {
+            return await _context.SalaryDisbursementDetails
+                .Where(d =>
+                    d.SalaryDisbursement.ClientUserId == clientUserId &&
+                    d.SalaryDisbursement.CreatedAt.Month == month &&
+                    d.SalaryDisbursement.CreatedAt.Year == year &&
+                    employeeIds.Contains(d.EmployeeId) &&
+                    d.SalaryDisbursement.StatusId != 2 // skip REJECTED ones
+                )
+                .Select(d => d.EmployeeId)
+                .Distinct()
+                .ToListAsync();
+        }
+
+
 
     }
 }

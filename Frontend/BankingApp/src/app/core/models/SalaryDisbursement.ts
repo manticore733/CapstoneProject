@@ -14,4 +14,5 @@ export interface SalaryDisbursement {
   processedAt?: string | null;
   disbursementDate: string;
   details?: SalaryDisbursementDetail[] | null;
+  skippedEmployees?: string[] | null;
 }
