@@ -6,7 +6,7 @@ export const tokenInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const token = auth.getToken();
 
- // Skip adding the token for auth endpoints (avoid recursion on login)
+
   if (req.url.includes('/api/Auth/login')) {
     return next(req);
   }

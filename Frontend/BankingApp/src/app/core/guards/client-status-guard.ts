@@ -28,7 +28,7 @@ export const clientStatusGuard: CanActivateFn = (route, state) => {
   console.log('URL:', state.url);
   console.log('============================');
 
-  // ✅ If rejected client, only allow upload page
+  //  If rejected client, only allow upload page
   if (role === 'CLIENT_USER' && status === 'REJECTED') {
     if (!state.url.includes('/client/dashboard/upload-documents')) {
       console.warn('🚫 REJECTED CLIENT - Redirecting to upload-documents');
