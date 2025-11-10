@@ -99,25 +99,41 @@ namespace APCapstoneProject.Service
             if (!employees.Any())
                 throw new InvalidOperationException("No valid employees found.");
 
-            // ✅ STEP 2.5: Check if any selected employee has already been paid this month
+            // ✅ STEP 2.5: Handle already paid employees gracefully (partial skip)
             var currentMonth = DateTime.UtcNow.Month;
             var currentYear = DateTime.UtcNow.Year;
 
             var existingPaidEmployeeIds = await _disbursementRepo
                 .GetEmployeeDisbursementsInMonthAsync(clientUserId, employees.Select(e => e.EmployeeId).ToList(), currentMonth, currentYear);
 
+            List<string> skippedEmployeeNames = new();
+
             if (existingPaidEmployeeIds.Any())
             {
-                var duplicateNames = employees
+                skippedEmployeeNames = employees
                     .Where(e => existingPaidEmployeeIds.Contains(e.EmployeeId))
                     .Select(e => e.EmployeeName)
                     .ToList();
 
-                throw new InvalidOperationException(
-                    $"Salary has already been disbursed this month for the following employees: {string.Join(", ", duplicateNames)}. " +
-                    "Please remove them from the list before creating a new disbursement."
-                );
+                // Keep only employees who haven’t been paid
+                employees = employees
+                    .Where(e => !existingPaidEmployeeIds.Contains(e.EmployeeId))
+                    .ToList();
             }
+
+            // Stop if nothing left to pay
+            if (!employees.Any())
+            {
+                return new ReadSalaryDisbursementDto
+                {
+                    TotalEmployees = 0,
+                    TotalAmount = 0,
+                    Remarks = "SKIPPED",
+                    SkippedEmployees = skippedEmployeeNames
+                };
+            }
+
+
 
 
             // ✅ STEP 3: Validate account and balance
@@ -179,157 +195,28 @@ namespace APCapstoneProject.Service
                 Console.WriteLine($"Email send failed: {ex.Message}");
             }
 
+            if (skippedEmployeeNames.Any())
+            {
+                disbursement.IsPartialSuccess = true;
+                disbursement.Remarks = $"PARTIAL: Skipped employees - {string.Join(", ", skippedEmployeeNames)}";
+            }
 
-            return _mapper.Map<ReadSalaryDisbursementDto>(disbursement);
+            // Map the saved entity to DTO and include skip info explicitly
+            var dtoResponse = _mapper.Map<ReadSalaryDisbursementDto>(disbursement);
+
+            if (skippedEmployeeNames.Any())
+            {
+                dtoResponse.Remarks = "PARTIAL";
+                dtoResponse.SkippedEmployees = skippedEmployeeNames;
+            }
+            else
+            {
+                dtoResponse.Remarks = "SUCCESS";
+            }
+
+            return dtoResponse;
+
         }
-
-        // not working
-        //public async Task<ReadSalaryDisbursementDto> CreateSalaryDisbursementAsync(int clientUserId, CreateSalaryDisbursementDto dto)
-        //{
-        //    var client = await _clientRepo.GetClientUserByIdAsync(clientUserId);
-        //    if (client == null || client.StatusId != 1)
-        //        throw new InvalidOperationException("Client not approved or not found.");
-
-        //    // ← NEW: Check for existing disbursement in current month
-        //    var currentMonth = DateTime.UtcNow.Month;
-        //    var currentYear = DateTime.UtcNow.Year;
-        //    var existingDisbursement = await _disbursementRepo.GetExistingMonthDisbursementAsync(
-        //        clientUserId,
-        //        currentMonth,
-        //        currentYear
-        //    );
-
-        //    Console.WriteLine(existingDisbursement);
-
-        //    if (existingDisbursement != null)
-        //    {
-        //        var statusName = existingDisbursement.StatusId == 0 ? "PENDING" : "APPROVED";
-        //        throw new InvalidOperationException(
-        //            $"Salary has already been disbursed for {DateTime.UtcNow:MMMM yyyy} with status {statusName}. " +
-        //            $"You cannot create another disbursement until this one is processed."
-        //        );
-        //    }
-
-        //    var employees = new List<Employee>();
-
-        //    // ✅ STEP 1: Parse CSV if provided
-        //    if (dto.CsvFile != null)
-        //    {
-        //        using var reader = new StreamReader(dto.CsvFile.OpenReadStream());
-        //        var employeeIds = new List<int>();
-
-        //        Console.WriteLine($"📄 Received CSV file: {dto.CsvFile.FileName}, Length: {dto.CsvFile.Length} bytes");
-
-        //        while (!reader.EndOfStream)
-        //        {
-        //            var line = await reader.ReadLineAsync();
-        //            Console.WriteLine($"➡️ Raw line read from CSV: '{line}'");
-
-        //            if (string.IsNullOrWhiteSpace(line)) continue;
-        //            line = line.Trim().Trim('\uFEFF');
-
-        //            foreach (var part in line.Split(new[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries))
-        //            {
-        //                if (int.TryParse(part.Trim(), out int id))
-        //                    employeeIds.Add(id);
-        //            }
-        //        }
-
-        //        Console.WriteLine($"✅ Parsed employee IDs: {string.Join(", ", employeeIds)}");
-        //        dto.EmployeeIds = employeeIds;
-        //    }
-
-        //    // ✅ STEP 2: Normal employee selection logic (always executes)
-        //    if (dto.AllEmployees)
-        //    {
-        //        employees = (await _employeeRepo.GetByClientIdAsync(clientUserId)).ToList();
-        //    }
-        //    else if (dto.EmployeeIds != null && dto.EmployeeIds.Any())
-        //    {
-        //        foreach (var id in dto.EmployeeIds)
-        //        {
-        //            var emp = await _employeeRepo.GetByIdAndClientIdAsync(id, clientUserId);
-        //            if (emp != null) employees.Add(emp);
-        //        }
-        //    }
-        //    else if (dto.EmployeeId.HasValue)
-        //    {
-        //        var emp = await _employeeRepo.GetByIdAndClientIdAsync(dto.EmployeeId.Value, clientUserId);
-        //        if (emp != null) employees.Add(emp);
-        //    }
-        //    else
-        //    {
-        //        throw new InvalidOperationException("No valid employees specified.");
-        //    }
-
-        //    if (!employees.Any())
-        //        throw new InvalidOperationException("No valid employees found.");
-
-        //    // ✅ STEP 3: Validate account and balance
-        //    var totalAmount = employees.Sum(e => e.Salary);
-        //    var account = await _accountRepo.GetByClientIdAsync(clientUserId);
-        //    if (account == null || account.Balance < totalAmount)
-        //        throw new InvalidOperationException("Insufficient balance for salary disbursement.");
-
-        //    // ✅ STEP 4: Create salary disbursement record
-        //    var disbursement = new SalaryDisbursement
-        //    {
-        //        ClientUserId = clientUserId,
-        //        TotalAmount = totalAmount,
-        //        AllEmployees = dto.AllEmployees,
-        //        TransactionTypeId = 1,
-        //        StatusId = 0,
-        //        AccountId = account.AccountId,
-        //        Remarks = dto.Remarks,
-        //        TotalEmployees = employees.Count,
-        //        CreatedAt = DateTime.UtcNow
-        //    };
-
-        //    await _disbursementRepo.AddAsync(disbursement);
-
-        //    // ✅ STEP 5: Create detail entries
-        //    var details = employees.Select(e => new SalaryDisbursementDetail
-        //    {
-        //        SalaryDisbursementId = disbursement.TransactionId,
-        //        EmployeeId = e.EmployeeId,
-        //        BankName = e.BankName,
-        //        IFSC = e.IFSC,
-        //        DestinationAccountNumber = e.AccountNumber,
-        //        Amount = e.Salary,
-        //        Remark = "Awaiting approval by BankUser",
-        //        IsSuccessful = null
-        //    }).ToList();
-
-        //    await _disbursementRepo.AddDetailsAsync(details);
-        //    disbursement.Details = details;
-
-        //    try
-        //    {
-        //        var tokens = new Dictionary<string, string?>
-        //        {
-        //            ["FullName"] = client.UserFullName,
-        //            ["TransactionId"] = disbursement.TransactionId.ToString(),
-        //            ["TotalEmployees"] = disbursement.TotalEmployees.ToString(),
-        //            ["TotalAmount"] = disbursement.TotalAmount.ToString("F2"),
-        //            ["CreatedAt"] = disbursement.CreatedAt.ToString("dd MMM yyyy, HH:mm")
-        //        };
-        //        await _emailService.SendTemplateEmailAsync(client.UserEmail,
-        //            $"Salary disbursement request received for ₹{disbursement.TotalAmount:F2}",
-        //            "SalaryDisbursementRequest.html",
-        //            tokens);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        Console.WriteLine($"Email send failed: {ex.Message}");
-        //    }
-
-        //    return _mapper.Map<ReadSalaryDisbursementDto>(disbursement);
-        //}
-
-
-
-
-
 
 
         public async Task<IEnumerable<ReadSalaryDisbursementDto>> GetSalaryDisbursementsByClientUserIdAsync(int clientUserId)

@@ -216,7 +216,32 @@ export class DisburseSalaryComponent {
     this.salaryService.createDisbursement(formData).subscribe({
       next: (response) => {
         this.loading = false;
-        this.successMessage = `Salary disbursement for ${response.totalEmployees} employees (Total: ₹${response.totalAmount.toLocaleString('en-IN')}) has been submitted for approval.`;
+
+        // Case 1️⃣ — All employees were skipped
+        if (response.totalEmployees === 0 && response.remarks === 'SKIPPED') {
+          const skipped = response.skippedEmployees?.length
+            ? response.skippedEmployees.join('\n• ')
+            : 'No employees listed';
+
+          this.warningToast(`⚠ All selected employees have already been paid this month:\n• ${skipped}`);
+          this.resetForm();
+          return;
+        }
+
+        // Case 2️⃣ — Some skipped, some paid
+        if (response.remarks === 'PARTIAL') {
+          const skipped = response.skippedEmployees?.length
+            ? response.skippedEmployees.join('\n• ')
+            : 'None';
+
+          this.successMessage = `✅ Salary disbursement for ${response.totalEmployees} employees (₹${response.totalAmount.toLocaleString('en-IN')}) submitted for approval.\n\n⚠ Skipped these employees:\n• ${skipped}`;
+          this.showSuccessToast = true;
+          this.resetForm();
+          return;
+        }
+
+        // Case 3️⃣ — Normal full success
+        this.successMessage = `✅ Salary disbursement for ${response.totalEmployees} employees (Total: ₹${response.totalAmount.toLocaleString('en-IN')}) has been submitted for approval.`;
         this.showSuccessToast = true;
         this.resetForm();
       },
