@@ -19,9 +19,15 @@ namespace APCapstoneProject.Model
 
 
 
-        public bool? Success { get; set; } = null;
+        public bool? IsSuccessful { get; set; } = null;
 
-        public string Remark { get; set; }
+        public string? Remark { get; set; }
+
+
+        public string BankName { get; set; } = string.Empty;
+        public string IFSC { get; set; } = string.Empty;
+        public string DestinationAccountNumber { get; set; }
+
 
         [DataType(DataType.Currency)]
         [Precision(18, 2)]

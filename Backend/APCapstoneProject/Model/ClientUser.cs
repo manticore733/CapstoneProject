@@ -18,9 +18,6 @@ namespace APCapstoneProject.Model
         public DateTime EstablishmentDate { get; set; }
 
 
-
-
-
         [Required(ErrorMessage = "Address is Required!")]
         public string Address { get; set; }
 
@@ -30,12 +27,15 @@ namespace APCapstoneProject.Model
         public int StatusId { get; set; }
         public virtual Status? VerificationStatus { get; set; }
 
+        public string? Remark { get; set; } //stores reason for rejection if any.
+
         //nav property
         public virtual ICollection<Document>? Documents { get; set; } = new List<Document>();
 
 
         //nav property
-        public virtual ICollection<Account>? Accounts { get; set; } = new List<Account>();
+        //Add account ID if possible
+        public virtual Account? Account { get; set; }
 
 
         //nav property

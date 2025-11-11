@@ -1,0 +1,10 @@
+<div class="min-h-screen flex flex-col items-center justify-center bg-gray-50">
+  <div class="bg-white shadow-md p-8 rounded-2xl text-center w-96">
+    <h1 class="text-xl font-bold mb-4">Welcome to the Dashboard!</h1>
+    <p class="mb-2">User ID: {{ username }}</p>
+    <p class="mb-6">Role: {{ role }}</p>
+    <button (click)="logout()" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">
+      Logout
+    </button>
+  </div>
+</div>
