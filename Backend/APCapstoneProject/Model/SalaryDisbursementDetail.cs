@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace APCapstoneProject.Model
 {
-    //list of how much money sent to each employeee
+    //list of how much money sent to each employeee 
     public class SalaryDisbursementDetail
     {
         public int SalaryDisbursementDetailId { get; set; }
