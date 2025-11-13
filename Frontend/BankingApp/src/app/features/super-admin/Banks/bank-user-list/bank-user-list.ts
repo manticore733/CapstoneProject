@@ -11,7 +11,7 @@ import { CreateBankUser } from '../../../../core/models/CreateBankUser';
 
 @Component({
   selector: 'app-bank-user-list',
-  standalone: true, // <-- YOU WERE MISSING THIS
+  standalone: true, 
   imports: [CommonModule, FormsModule],
   templateUrl: './bank-user-list.html',
   styleUrl: './bank-user-list.css',
@@ -148,8 +148,7 @@ cancelForm() {
   }
 
 
-  // --- FIX 2: Added the helper function ---
-  // This function is for your HTML to safely find the bank name.
+  
   public getBankName(bankId: number | null | undefined): string {
     if (!bankId) {
       return '—';

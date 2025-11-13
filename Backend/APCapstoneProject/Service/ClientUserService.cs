@@ -37,8 +37,8 @@ namespace APCapstoneProject.Service
                     ["SubmittedAt"] = clientUser.CreatedAt.ToString("dd MMM yyyy, HH:mm")
                 };
                 await _emailService.SendTemplateEmailAsync(clientUser.UserEmail,
-                    "Your application has been received",
-                    "ClientRegistrationReceived.html",
+                    "Your application has been received", //subject
+                    "ClientRegistrationReceived.html", //filename
                     tokens);
             }
             catch (Exception ex)
@@ -84,7 +84,7 @@ namespace APCapstoneProject.Service
         }
 
 
-        // ← NEW: Get client user profile by userId (for client's own profile)
+        // Get client user profile by userId (for client's own profile)
         public async Task<ReadClientUserDto?> GetClientUserByIdAsync(int userId)
         {
             var clientUser = await _clientUserRepo.GetClientUserByIdAsync(userId);

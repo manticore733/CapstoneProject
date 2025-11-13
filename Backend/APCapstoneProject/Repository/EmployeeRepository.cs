@@ -59,6 +59,7 @@ namespace APCapstoneProject.Repository
 
             employee.IsActive = false;
             employee.UpdatedAt = DateTime.UtcNow;
+            employee.DateOfLeaving = DateTime.UtcNow;
             await _context.SaveChangesAsync(); // SoftDelete is a complete operation
             return true;
         }

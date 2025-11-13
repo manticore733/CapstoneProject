@@ -19,6 +19,8 @@ namespace APCapstoneProject.Model
 
         public DateTime GeneratedAt { get; set; } = DateTime.UtcNow;
 
+
+        //filename is the name by which it is stored in cloudinary storage
         [Required]
         public string FileName { get; set; } = string.Empty;
 

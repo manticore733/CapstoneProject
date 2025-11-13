@@ -86,35 +86,35 @@ namespace APCapstoneProject.Service
 
         public async Task<ReadClientUserDto?> ApproveClientUserAsync(int clientUserId, int bankUserId, ClientApprovalDto dto)
         {
-            // --- Step 1: Verify the approving BankUser ---
+            //  Verify the approving BankUser 
             var bankUser = await _bankUserRepo.GetBankUserByIdAsync(bankUserId);
             if (bankUser == null || bankUser.BankId == null)
             {
                 throw new UnauthorizedAccessException("Approving user is not a valid Bank User or missing bank association.");
             }
 
-            // --- Step 2: Fetch the client to approve, ensuring ownership ---
+            // Fetch the client to approve, ensuring ownership
             var client = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
             if (client == null)
             {
                 throw new KeyNotFoundException("Client not found or does not belong to this Bank User.");
             }
 
-            // --- Step 3: Check if already processed ---
-            if (client.StatusId != 0) // 0 → PENDING
+            //  Check if already processed 
+            if (client.StatusId != 0) // 0 is PENDING
             {
                 throw new InvalidOperationException(
                     $"Client is already in status '{client.VerificationStatus?.StatusEnum.ToString() ?? client.StatusId.ToString()}'. Cannot re-process.");
             }
 
-            // --- Step 4: Begin DB Transaction ---
+            //  Begin DB Transaction 
             using var transaction = await _context.Database.BeginTransactionAsync();
 
             try
             {
                 Account? createdAccount = null;
 
-                // --- Step 5: Process Approval / Rejection ---
+                // Process Approval / Rejection 
                 if (dto.IsApproved)
                 {
                     // Ensure no account already exists
@@ -154,13 +154,13 @@ namespace APCapstoneProject.Service
                     await _clientUserRepo.UpdateClientUserAsync(client);
                 }
 
-                // --- Step 6: Commit transaction ---
+                //  Commit transaction
                 await transaction.CommitAsync();
 
 
 
 
-                // --- Step 7: Fetch and return updated client info ---
+                // Fetch and return updated client info 
                 var updatedClient = await _clientUserRepo.GetClientByBankUserIdAsync(clientUserId, bankUserId);
                 if (updatedClient == null)
                 {
@@ -214,9 +214,9 @@ namespace APCapstoneProject.Service
             }
             catch
             {
-                // --- Step 8: Rollback on any failure ---
+                //  Rollback on any failure 
                 await transaction.RollbackAsync();
-                throw; // rethrow to controller for proper error response
+                throw; 
             }
         }
 
@@ -224,10 +224,9 @@ namespace APCapstoneProject.Service
 
         private string GenerateAccountNumber()
         {
-            // Your existing logic - ensures format matches ^BPA\d{8}[A-Z0-9]{6}$
+          
             var random = new Random();
             var randomDigits = random.Next(10000000, 99999999).ToString();
-            // Using Guid for better randomness than Substring
             var randomChars = Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper();
             return $"BPA{randomDigits}{randomChars}";
         }

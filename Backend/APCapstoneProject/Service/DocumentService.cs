@@ -20,20 +20,20 @@ namespace APCapstoneProject.Service
             IDocumentRepository documentRepository,
             IClientUserRepository clientUserRepository,
             IMapper mapper,
-            IOptions<CloudinarySettings> config) // Inject settings via IOptions
+            IOptions<CloudinarySettings> config) 
         {
             _documentRepository = documentRepository;
             _clientUserRepository = clientUserRepository;
             _mapper = mapper;
 
-            // --- Configure Cloudinary Client ---
+            // Configure Cloudinary Client 
             CloudinaryDotNet.Account account = new CloudinaryDotNet.Account(
                 config.Value.CloudName,
                 config.Value.ApiKey,
                 config.Value.ApiSecret);
 
             _cloudinary = new Cloudinary(account);
-            // --- End Cloudinary Config ---
+     
         }
 
         public async Task<DocumentReadDto> UploadDocumentAsync(int clientUserId, int proofTypeId, IFormFile file)
@@ -45,7 +45,7 @@ namespace APCapstoneProject.Service
                 throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
             }
 
-            // Optional: Validate ProofTypeId exists (you'd need a ProofTypeRepository)
+    
 
             // 2. Validate File
             if (file == null || file.Length == 0)
@@ -54,15 +54,15 @@ namespace APCapstoneProject.Service
             }
 
             // 3. Upload to Cloudinary
-            // Note: Cloudinary calls it ImageUploadParams, but it works for any file type (PDFs too)
-            var uploadParams = new RawUploadParams() // Use RawUploadParams for non-image files like PDF
+           
+            var uploadParams = new RawUploadParams() //  RawUploadParams for non-image files like PDF
             {
                 File = new FileDescription(file.FileName, file.OpenReadStream()),
-                // Optional: Define a folder structure in Cloudinary
+           
                 Folder = $"corporate_banking/{clientUserId}/documents",
-                // Optional: Use original filename, or generate a unique one
+           
                 PublicId = Path.GetFileNameWithoutExtension(file.FileName) + "_" + Guid.NewGuid().ToString(),
-                Overwrite = true // Or false if you want to prevent overwriting
+                Overwrite = true // false if you want to prevent overwriting
 
             };
 
@@ -108,13 +108,9 @@ namespace APCapstoneProject.Service
 
 
             // 6. Return DTO (Need to get ProofType name)
-            // Re-fetch or manually construct DTO if AddAsync doesn't return relations
-            // For simplicity, let's assume AddAsync updates the ID and we map manually for now
+       
             var documentDto = _mapper.Map<DocumentReadDto>(document);
 
-            // We need the ProofType Name, but the 'document' object doesn't have it loaded.
-            // A better way would be to fetch the ProofType separately or load it.
-            // For now, let's skip the name, or you can add logic to fetch it.
             documentDto.ProofTypeName = "Type_" + proofTypeId; // Placeholder
 
             return documentDto;
@@ -139,7 +135,7 @@ namespace APCapstoneProject.Service
 
         public async Task<IEnumerable<DocumentReadDto>> GetMyDocumentsAsync(int clientUserId)
         {
-            // 1. Validate Client User (optional, but good practice)
+            // 1. Validate Client User 
             var clientUser = await _clientUserRepository.GetClientUserByIdAsync(clientUserId);
             if (clientUser == null || !(clientUser is ClientUser))
             {

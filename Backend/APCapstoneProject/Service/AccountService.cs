@@ -50,16 +50,11 @@ namespace APCapstoneProject.Service
         }
 
 
-
-
-
-        // --- ADD THIS ENTIRE METHOD ---
         public async Task<ReadAccountDto?> GetAccountByClientUserIdAsync(int clientUserId)
         {
             var account = await _accountRepo.GetByClientIdAsync(clientUserId);
             if (account == null) return null;
 
-            // Map it to the DTO to return to the frontend
             return _mapper.Map<ReadAccountDto>(account);
         }
 

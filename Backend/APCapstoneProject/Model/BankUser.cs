@@ -14,7 +14,6 @@ namespace APCapstoneProject.Model
 
 
 
-        //confustion btw i colelction nd ienumerable
         public virtual ICollection<ClientUser> Clients { get; set; } = new List<ClientUser>();
 
     }

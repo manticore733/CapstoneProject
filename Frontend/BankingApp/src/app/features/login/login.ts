@@ -1,8 +1,8 @@
-import { Component, ViewChild } from '@angular/core'; // ✅ Added ViewChild
+import { Component, ViewChild } from '@angular/core'; // Added ViewChild
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha'; // ✅ Added RecaptchaComponent
+import { RecaptchaModule, RecaptchaComponent } from 'ng-recaptcha'; //Added RecaptchaComponent
 import { AuthService } from '../../core/services/auth-service';
 
 @Component({
@@ -18,7 +18,7 @@ export class Login {
   captchaToken: string | null = null;
   errorMessage = '';
 
-  // ✅ Add a reference to the reCAPTCHA component
+  // Add a reference to the reCAPTCHA component
   @ViewChild(RecaptchaComponent) captchaRef!: RecaptchaComponent;
 
   constructor(private auth: AuthService, private router: Router) {}
@@ -49,7 +49,7 @@ export class Login {
       error: err => {
         this.errorMessage = err.error?.message || 'Invalid login';
 
-        // ✅ Reset CAPTCHA if login fails
+        // Reset CAPTCHA if login fails
         if (this.captchaRef) {
           this.captchaRef.reset();
         }

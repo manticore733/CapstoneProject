@@ -37,12 +37,7 @@ namespace APCapstoneProject.Service
             _cloudinary = new Cloudinary(acc);
         }
 
-        // -------------------
-        // Helper functions
-        // -------------------
-        private static string FormatDate(DateTime? dt) =>
-            dt.HasValue ? dt.Value.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss") : "-";
-
+   
         private async Task<string> UploadToCloudinaryAsync(byte[] fileBytes, string fileName, string role, int userId)
         {
             var uploadParams = new RawUploadParams
@@ -79,9 +74,7 @@ namespace APCapstoneProject.Service
             return record.ReportRecordId;
         }
 
-        // -------------------
-        // Data-only methods
-        // -------------------
+
         public async Task<SystemSummaryReportDto> GetSystemSummaryAsync(DateTime? startDate = null, DateTime? endDate = null)
         {
             var banks = await _bankRepo.GetAllAsync();

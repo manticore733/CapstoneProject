@@ -28,7 +28,7 @@ namespace APCapstoneProject.Service
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto dto)
         {
-            // 🔹 STEP 1: Verify CAPTCHA first
+            //  Verify CAPTCHA first
             var captchaValid = await _captchaService.VerifyCaptchaAsync(dto.CaptchaToken);
             if (!captchaValid)
             {
@@ -60,7 +60,7 @@ namespace APCapstoneProject.Service
                 };
             }
 
-            // 🔹 STEP 3: Generate JWT token
+            //  Generate JWT token
             string token = GenerateToken(user);
 
             return new LoginResponseDto

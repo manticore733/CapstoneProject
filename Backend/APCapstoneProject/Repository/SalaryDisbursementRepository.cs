@@ -40,7 +40,7 @@ namespace APCapstoneProject.Repository
                     .ThenInclude(d => d.Employee)
                 .FirstOrDefaultAsync(s => s.TransactionId == id);
         }
-        // SalaryDisbursementRepository.cs
+       
         public async Task<IEnumerable<SalaryDisbursement>> GetAllAsync()
         {
             return await _context.SalaryDisbursements
@@ -88,7 +88,7 @@ namespace APCapstoneProject.Repository
 
 
 
-        // ← NEW: Check if disbursement exists for specific month
+        //  Check if disbursement exists for specific month
         public async Task<SalaryDisbursement?> GetExistingMonthDisbursementAsync(int clientUserId, int month, int year)
         {
             return await _context.SalaryDisbursements

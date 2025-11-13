@@ -82,7 +82,7 @@ namespace APCapstoneProject.Service
                 throw new KeyNotFoundException($"No active ClientUser found with ID '{clientUserId}'.");
             }
 
-            // Get the employee *and* check ownership
+            // Get the employee  check ownership
             var existing = await _repository.GetByIdAndClientIdAsync(id, clientUserId);
             if (existing == null)
             {
@@ -129,10 +129,10 @@ namespace APCapstoneProject.Service
             var rows = worksheet.RowsUsed().Skip(1); // Skip header
             int rowIndex = 2;
 
-            // 🔹 Fetch existing employees once (performance optimization)
+            // 🔹 Fetch existing employees once 
             var existingEmployees = (await _repository.GetByClientIdAsync(clientUserId)).ToList();
 
-            // 🔹 Keep track of duplicates within the uploaded Excel itself
+            //  Keep track of duplicates within the uploaded Excel itself
             var seenEmails = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             var seenAccounts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 

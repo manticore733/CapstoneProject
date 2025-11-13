@@ -18,7 +18,7 @@ namespace APCapstoneProject.Model
         [DataType(DataType.Date)]
         public DateTime EstablishmentDate { get; set; }
 
-
+        //basically bank users
         public virtual ICollection<User> Users { get; set; } = new List<User>();
 
         //nav property

@@ -10,7 +10,7 @@ namespace APCapstoneProject.Service
 {
     public class EmailService : IEmailService
     {
-        private readonly EmailSettings _settings;
+        private readonly EmailSettings _settings; //our custom settings class like for cloudinary we had
         private readonly EmailTemplateRenderer _renderer;
 
         public EmailService(IOptions<EmailSettings> options, EmailTemplateRenderer renderer)
@@ -43,11 +43,11 @@ namespace APCapstoneProject.Service
                 await smtp.ConnectAsync(_settings.SmtpServer, _settings.Port, SecureSocketOptions.StartTls);
                 await smtp.AuthenticateAsync(_settings.Username, _settings.Password);
                 await smtp.SendAsync(message);
-                Console.WriteLine($"✅ Email sent to {_settings.OverrideToEmail ?? _settings.FromEmail} [original: {toEmail}]");
+                Console.WriteLine($" Email sent to {_settings.OverrideToEmail ?? _settings.FromEmail} [original: {toEmail}]");
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"❌ Email send failed: {ex.Message}");
+                Console.WriteLine($" Email send failed: {ex.Message}");
                 throw;
             }
             finally
