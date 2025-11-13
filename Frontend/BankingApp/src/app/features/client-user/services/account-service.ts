@@ -11,9 +11,6 @@ export class AccountService {
 
   constructor(private api: ApiService) {}
 
-  /**
-   * (Client) Gets their own account details (number, balance)
-   */
   getMyAccount(): Observable<Account> {
     return this.api.get<Account>(`${this.endpoint}/myaccount`);
   }

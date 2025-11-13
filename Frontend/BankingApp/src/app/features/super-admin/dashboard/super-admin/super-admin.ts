@@ -23,32 +23,21 @@ export class SuperAdmin {
       .subscribe((event: any) => {
         this.currentRoute = event.url;
       });
+    }
+
+    toggleSidebar() {
+      this.sidebarOpen = !this.sidebarOpen;
+    }
+
+    logout() {
+      this.auth.logout();
+    }
+
+    navigateTo(path: string) {
+      this.router.navigate([path]);
+    }
+
+    isActive(route: string): boolean {
+    return this.currentRoute.includes(route);
   }
-
-  toggleSidebar() {
-    this.sidebarOpen = !this.sidebarOpen;
-  }
-
-  logout() {
-    this.auth.logout();
-  }
-
-  navigateTo(path: string) {
-    this.router.navigate([path]);
-  }
-
-  // isActive(route: string): boolean {
-  //   return this.currentRoute.includes(route);
-  // }
-
-  isActive(route: string): boolean {
-  return this.currentRoute.includes(route);
-
-  
-
-
-}
-
-
-
 }

@@ -52,7 +52,7 @@ export class AllDocuments implements OnInit {
     this.loading = true;
     this.error = null;
 
-    // Step 1: Get all clients
+    // Get all clients
     this.clientService.getMyClients()
       .pipe(
         switchMap(clients => {
@@ -60,7 +60,7 @@ export class AllDocuments implements OnInit {
             return [];
           }
 
-          // Step 2: For each client, fetch their documents
+          // For each client, fetch their documents
           const documentRequests = clients.map(client =>
             this.documentService.getDocumentsForClient(client.userId).pipe(
               map(documents =>
@@ -77,11 +77,11 @@ export class AllDocuments implements OnInit {
             )
           );
 
-          // Step 3: Wait for all document requests to complete
+          // Wait for all document requests to complete
           return forkJoin(documentRequests);
         }),
         map(documentsArrays => {
-          // Step 4: Flatten the array of arrays into a single array
+          // Flatten the array of arrays into a single array
           return documentsArrays.flat();
         })
       )

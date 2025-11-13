@@ -13,30 +13,22 @@ export class BeneficiaryService {
 
   constructor(private api: ApiService) {}
 
-  /**
-   * Gets all beneficiaries for the currently logged-in Client User
-   */
+
   getMyBeneficiaries(): Observable<Beneficiary[]> {
     return this.api.get<Beneficiary[]>(`${this.endpoint}/mybeneficiaries`);
   }
 
-  /**
-   * Creates a new beneficiary for the logged-in Client User
-   */
+
   createBeneficiary(dto: CreateBeneficiaryDto): Observable<Beneficiary> {
     return this.api.post<Beneficiary>(this.endpoint, dto);
   }
 
-  /**
-   * Updates an existing beneficiary
-   */
+
   updateBeneficiary(id: number, dto: UpdateBeneficiaryDto): Observable<Beneficiary> {
     return this.api.put<Beneficiary>(`${this.endpoint}/${id}`, dto);
   }
 
-  /**
-   * Soft-deletes a beneficiary
-   */
+
   deleteBeneficiary(id: number): Observable<void> {
     return this.api.delete<void>(`${this.endpoint}/${id}`);
   }

@@ -14,32 +14,32 @@ export class ClientService {
 
   constructor(private api: ApiService) {}
 
-  // ✅ Get all clients for the logged-in Bank User
+  // Get all clients for the logged-in Bank User
   getMyClients(): Observable<ClientUser[]> {
     return this.api.get<ClientUser[]>(`${this.endpoint}/myclients`);
   }
 
-  // ✅ Get a single client (details view)
+  // Get a single client
    getClientById(clientId: number): Observable<ClientUser> {
     return this.api.get<ClientUser>(`${this.endpoint}/${clientId}`);
   }
 
-  // ✅ Update client details (Bank User can only update limited info)
+  // Update client details (Bank User can only update limited info)
   updateClient(id: number, data: Partial<ClientUser>): Observable<ClientUser> {
     return this.api.put<ClientUser>(`${this.endpoint}/${id}`, data);
   }
 
-  // ✅ Delete a client (soft delete)
+  // Delete a client
   deleteClient(id: number): Observable<void> {
     return this.api.delete<void>(`${this.endpoint}/${id}`);
   }
 
-  // ✅ Approve or Reject a client
+  // Approve or Reject a client
   approveClient(clientId: number, data: ClientApproval): Observable<ClientUser> {
     return this.api.put<ClientUser>(`${this.approveEndpoint}/${clientId}/approve`, data);
   }
 
-  // ✅ new method
+  // new method
   createClient(data: any): Observable<ClientUser> {
     return this.api.post<ClientUser>(`${this.endpoint}`, data);
   }

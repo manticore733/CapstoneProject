@@ -13,34 +13,24 @@ export class EmployeeService {
 
   constructor(private api: ApiService) {}
 
-  /**
-   * Gets all employees for the currently logged-in Client User
-   */
+
   getMyEmployees(): Observable<Employee[]> {
     return this.api.get<Employee[]>(`${this.endpoint}/myemployees`);
   }
 
-  /**
-   * Creates a new employee for the logged-in Client User
-   */
   createEmployee(dto: CreateEmployeeDto): Observable<Employee> {
-    // The backend Create returns the new EmployeeReadDto
+
     return this.api.post<Employee>(this.endpoint, dto);
   }
 
-  /**
-   * Updates an existing employee
-   */
+
   updateEmployee(id: number, dto: UpdateEmployeeDto): Observable<void> {
-    // The backend Update returns NoContent (void)
+
     return this.api.put<void>(`${this.endpoint}/${id}`, dto);
   }
 
-  /**
-   * Soft-deletes an employee
-   */
   deleteEmployee(id: number): Observable<void> {
-    // The backend Delete returns NoContent (void)
+
     return this.api.delete<void>(`${this.endpoint}/${id}`);
   }
 

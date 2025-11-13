@@ -12,37 +12,24 @@ export class PaymentService {
 
   constructor(private api: ApiService) {}
 
-  /**
-   * (Client) Creates a new payment request
-   */
   createPayment(dto: CreatePaymentDto): Observable<Payment> {
     return this.api.post<Payment>(this.endpoint, dto);
   }
 
-  /**
-   * (Client) Gets their own payment history
-   */
+
   getMyPayments(): Observable<Payment[]> {
     return this.api.get<Payment[]>(this.endpoint);
   }
 
-  /**
-   * (Bank User) Gets all pending payments for their clients
-   */
   getPendingPayments(): Observable<Payment[]> {
     return this.api.get<Payment[]>(`${this.endpoint}/pending`);
   }
 
-  /**
-   * (Bank User) Approves a payment
-   */
+
   approvePayment(paymentId: number): Observable<Payment> {
     return this.api.put<Payment>(`${this.endpoint}/${paymentId}/approve`, {});
   }
 
-  /**
-   * (Bank User) Rejects a payment
-   */
   rejectPayment(paymentId: number, payload: { bankRemark: string }): Observable<Payment> {
     return this.api.put<Payment>(`${this.endpoint}/${paymentId}/reject`, payload);
   }

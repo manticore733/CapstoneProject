@@ -11,9 +11,7 @@ export class ClientUserService {
 
   constructor(private api: ApiService) {}
 
-  /**
-   * Gets the logged-in client user's profile
-   */
+
   getMyProfile(): Observable<ClientUser> {
     return this.api.get<ClientUser>(`${this.endpoint}/myprofile`);
   }

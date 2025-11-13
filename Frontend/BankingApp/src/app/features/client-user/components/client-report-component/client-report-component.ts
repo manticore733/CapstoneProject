@@ -61,7 +61,6 @@ export class ClientReportComponent implements OnInit {
     
     console.log('Filters being sent to API:', { startDate, endDate });
 
-    // Convert to ISO format if dates exist
     const formattedStartDate = startDate ? new Date(startDate).toISOString() : undefined;
     const formattedEndDate = endDate ? new Date(endDate).toISOString() : undefined;
 

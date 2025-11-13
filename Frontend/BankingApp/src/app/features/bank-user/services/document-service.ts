@@ -11,7 +11,7 @@ export class DocumentService {
 
   constructor(private api: ApiService) {}
 
-  // ✅ Get all documents for a given client user
+  // Get all documents for a given client user
   getDocumentsForClient(clientUserId: number): Observable<Document[]> {
     return this.api.get<Document[]>(`${this.endpoint}?clientUserId=${clientUserId}`);
   }

@@ -1,6 +1,3 @@
-
-
-
 import { Component, OnInit } from '@angular/core';
 import { BankService } from '../bank-service';
 import { Bank } from '../../../../core/models/Bank';
@@ -264,7 +261,6 @@ export class BankList implements OnInit {
   }
 
   private showSuccessMessage(message: string) {
-    // You can implement a toast notification here
     alert(message);
   }
 }
