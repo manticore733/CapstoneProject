@@ -19,7 +19,7 @@ namespace APCapstoneProject.Controllers
 
         [Authorize(Roles = "CLIENT_USER")]
         [HttpPost]
-        // We use [FromForm] because the request includes a file
+        
         public async Task<ActionResult<DocumentReadDto>> UploadDocument([FromForm] int proofTypeId, IFormFile file)
         {
             var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
@@ -69,7 +69,6 @@ namespace APCapstoneProject.Controllers
             }
         }
 
-        // --- ADD THIS ENTIRE METHOD ---
         [Authorize(Roles = "CLIENT_USER")]
         [HttpGet("mydocuments")]
         public async Task<ActionResult<IEnumerable<DocumentReadDto>>> GetMyDocuments()

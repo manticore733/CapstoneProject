@@ -11,7 +11,7 @@ namespace APCapstoneProject.Data
         public DbSet<User> Users { get; set; }
         public DbSet<ClientUser> ClientUsers { get; set; }
         public DbSet<BankUser> BankUsers { get; set; }
-        // --- ADD THIS LINE ---
+ 
         public DbSet<SuperAdmin> SuperAdmins { get; set; }
         public DbSet<UserRole> UserRoles { get; set; }
 
@@ -48,7 +48,7 @@ namespace APCapstoneProject.Data
                 property.SetScale(2);
             }
 
-            // --- Global: Restrict cascade delete behavior ---
+            //  Restrict cascade delete behavior 
             foreach (var relationship in modelBuilder.Model.GetEntityTypes()
                          .SelectMany(e => e.GetForeignKeys()))
             {

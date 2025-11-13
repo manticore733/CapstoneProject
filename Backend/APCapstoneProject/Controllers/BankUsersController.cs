@@ -109,7 +109,7 @@ namespace APCapstoneProject.Controllers
             catch (UnauthorizedAccessException ex)
             {
                 // Approving user is not a valid Bank User
-                // Return 401 Unauthorized or 403 Forbidden depending on auth setup
+
                 return Unauthorized(new { message = ex.Message });
             }
             catch (InvalidOperationException ex)

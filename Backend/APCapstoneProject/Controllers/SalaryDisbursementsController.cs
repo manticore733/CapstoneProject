@@ -18,15 +18,6 @@ namespace APCapstoneProject.Controllers
             _disbursementService = disbursementService;
         }
 
-        // 🔹 POST: ClientUser initiates a salary disbursement to one employee
-        //[Authorize(Roles = "CLIENT_USER")]
-        //[HttpPost]
-        //public async Task<ActionResult<ReadSalaryDisbursementDto>> CreateDisbursement([FromForm] CreateSalaryDisbursementDto dto)
-        //{
-        //    var clientUserId = int.Parse(User.FindFirst("UserId")!.Value);
-        //    var result = await _disbursementService.CreateSalaryDisbursementAsync(clientUserId, dto);
-        //    return CreatedAtAction(nameof(GetById), new { id = result.TransactionId }, result);
-        //}
 
 
 
@@ -58,7 +49,7 @@ namespace APCapstoneProject.Controllers
 
 
 
-        // 🔹 GET: All disbursements for a specific client user
+        //  GET: All disbursements for a specific client user
         [Authorize(Roles = "CLIENT_USER")]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<ReadSalaryDisbursementDto>>> GetByClientUserId()
@@ -68,7 +59,7 @@ namespace APCapstoneProject.Controllers
             return Ok(disbursements);
         }
 
-        // 🔹 GET: Pending disbursements for a specific bank user
+        //  GET: Pending disbursements for a specific bank user
         [Authorize(Roles = "BANK_USER")]
         [HttpGet("pending")]
         public async Task<ActionResult<IEnumerable<ReadSalaryDisbursementDto>>> GetPendingByBankUser()
@@ -78,7 +69,7 @@ namespace APCapstoneProject.Controllers
             return Ok(disbursements);
         }
 
-        // 🔹 PUT: Approve a disbursement by bank user
+        //  PUT: Approve a disbursement by bank user
         [Authorize(Roles = "BANK_USER")]
         [HttpPut("{disbursementId}/approve")]
         public async Task<ActionResult<ReadSalaryDisbursementDto>> Approve(int disbursementId)
@@ -91,13 +82,13 @@ namespace APCapstoneProject.Controllers
             return Ok(result);
         }
 
-        // 🔹 PUT: Reject a disbursement by bank user
+        // PUT: Reject a disbursement by bank user
         [Authorize(Roles = "BANK_USER")]
         [HttpPut("{disbursementId}/reject")]
         public async Task<ActionResult<ReadSalaryDisbursementDto>> Reject(int disbursementId)
 
         {
-            // Get the Bank User's ID from their login token
+            
             var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var result = await _disbursementService.RejectSalaryDisbursementAsync(disbursementId, bankUserId);
             if (result == null)
@@ -106,7 +97,7 @@ namespace APCapstoneProject.Controllers
             return Ok(result);
         }
 
-        // 🔹 GET: Specific disbursement by ID
+        //  GET: Specific disbursement by ID
         [Authorize(Roles = "SUPER_ADMIN")]
         [HttpGet("{id}")]
         public async Task<ActionResult<ReadSalaryDisbursementDto>> GetById(int id)

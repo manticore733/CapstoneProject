@@ -46,18 +46,18 @@ namespace APCapstoneProject.Service
 
             var employees = new List<Employee>();
 
-            // ✅ STEP 1: Parse CSV if provided
+            //  Parse CSV if provided
             if (dto.CsvFile != null)
             {
                 using var reader = new StreamReader(dto.CsvFile.OpenReadStream());
                 var employeeIds = new List<int>();
 
-                Console.WriteLine($"📄 Received CSV file: {dto.CsvFile.FileName}, Length: {dto.CsvFile.Length} bytes");
+                Console.WriteLine($" Received CSV file: {dto.CsvFile.FileName}, Length: {dto.CsvFile.Length} bytes");
 
                 while (!reader.EndOfStream)
                 {
                     var line = await reader.ReadLineAsync();
-                    Console.WriteLine($"➡️ Raw line read from CSV: '{line}'");
+                    Console.WriteLine($" Raw line read from CSV: '{line}'");
 
                     if (string.IsNullOrWhiteSpace(line)) continue;
                     line = line.Trim().Trim('\uFEFF');
@@ -69,11 +69,11 @@ namespace APCapstoneProject.Service
                     }
                 }
 
-                Console.WriteLine($"✅ Parsed employee IDs: {string.Join(", ", employeeIds)}");
+                Console.WriteLine($" Parsed employee IDs: {string.Join(", ", employeeIds)}");
                 dto.EmployeeIds = employeeIds;
             }
 
-            // ✅ STEP 2: Normal employee selection logic (always executes)
+            //Normal employee selection logic (always executes)
             if (dto.AllEmployees)
             {
                 employees = (await _employeeRepo.GetByClientIdAsync(clientUserId)).ToList();
@@ -99,7 +99,7 @@ namespace APCapstoneProject.Service
             if (!employees.Any())
                 throw new InvalidOperationException("No valid employees found.");
 
-            // ✅ STEP 2.5: Handle already paid employees gracefully (partial skip)
+            //  Handle already paid employees gracefully (partial skip)
             var currentMonth = DateTime.UtcNow.Month;
             var currentYear = DateTime.UtcNow.Year;
 
@@ -136,13 +136,13 @@ namespace APCapstoneProject.Service
 
 
 
-            // ✅ STEP 3: Validate account and balance
+            // Validate account and balance
             var totalAmount = employees.Sum(e => e.Salary);
             var account = await _accountRepo.GetByClientIdAsync(clientUserId);
             if (account == null || account.Balance < totalAmount)
                 throw new InvalidOperationException("Insufficient balance for salary disbursement.");
 
-            // ✅ STEP 4: Create salary disbursement record
+            // Create salary disbursement record
             var disbursement = new SalaryDisbursement
             {
                 ClientUserId = clientUserId,
@@ -158,7 +158,7 @@ namespace APCapstoneProject.Service
 
             await _disbursementRepo.AddAsync(disbursement);
 
-            // ✅ STEP 5: Create detail entries
+            //  Create detail entries
             var details = employees.Select(e => new SalaryDisbursementDetail
             {
                 SalaryDisbursementId = disbursement.TransactionId,

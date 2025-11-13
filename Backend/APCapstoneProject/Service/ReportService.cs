@@ -234,9 +234,9 @@ namespace APCapstoneProject.Service
         }
 
 
-        // -------------------
+ 
         // Excel generation + upload + save (returns ReportResultDto)
-        // -------------------
+      
         public async Task<ReportResultDto> GenerateSystemSummaryExcelAsync(int requestedByUserId, string role, DateTime? startDate = null, DateTime? endDate = null)
         {
             var dto = await GetSystemSummaryAsync(startDate, endDate);
@@ -332,7 +332,7 @@ namespace APCapstoneProject.Service
 
             using var workbook = new XLWorkbook();
 
-            // --- Sheet 1: Payments ---
+            //  Sheet 1: Payments 
             var paymentsSheet = workbook.Worksheets.Add("Payments");
             paymentsSheet.Cell(1, 1).Value = $"Client User Report - Payments ({report.ClientName})";
             paymentsSheet.Range("A1:F1").Merge();
@@ -361,7 +361,7 @@ namespace APCapstoneProject.Service
             }
             paymentsSheet.Columns().AdjustToContents();
 
-            // --- Sheet 2: Salary Disbursements ---
+            //  Sheet 2: Salary Disbursements 
             var salarySheet = workbook.Worksheets.Add("Salary Disbursements");
             salarySheet.Cell(1, 1).Value = $"Client User Report - Salary Disbursements ({report.ClientName})";
             salarySheet.Range("A1:G1").Merge();

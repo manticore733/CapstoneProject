@@ -27,7 +27,7 @@ namespace APCapstoneProject.Controllers
             var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
             try
             {
-                // When we add auth, get 'bankUserId' from the token instead.
+             
                 var newUser = await _clientUserService.CreateClientUserAsync(createDto, bankUserId);
                 return CreatedAtAction(nameof(UserController.GetUserById), "User", new { id = newUser.UserId }, newUser);
             }
@@ -88,7 +88,7 @@ namespace APCapstoneProject.Controllers
 
         // ========== CLIENT USER ENDPOINTS ==========
 
-        // ← NEW: Client User gets their own profile
+        // Client User gets their own profile
         [Authorize(Roles = "CLIENT_USER , BANK_USER")]
         [HttpGet("myprofile")]
         public async Task<ActionResult<ReadClientUserDto>> GetMyProfile()

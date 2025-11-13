@@ -28,7 +28,7 @@ namespace APCapstoneProject.Controllers
             return User.FindFirst(ClaimTypes.Role)?.Value ?? "UNKNOWN";
         }
 
-        // 🔹 SYSTEM SUMMARY REPORT (SUPER ADMIN)
+        // SYSTEM SUMMARY REPORT (SUPER ADMIN)
         [HttpGet("system-summary")]
         [Authorize(Roles = "SUPER_ADMIN")]
         public async Task<IActionResult> GetSystemSummary(
@@ -54,7 +54,7 @@ namespace APCapstoneProject.Controllers
             return Ok(data);
         }
 
-        // 🔹 BANK USER REPORT (TRANSACTIONS / PAYMENTS / SALARIES)
+        // BANK USER REPORT (TRANSACTIONS / PAYMENTS / SALARIES)
         [HttpGet("bank/transactions")]
         [Authorize(Roles = "BANK_USER")]
         public async Task<IActionResult> GetBankUserReport(
@@ -81,7 +81,7 @@ namespace APCapstoneProject.Controllers
             return Ok(data);
         }
 
-        // 🔹 CLIENT USER REPORT (PAYMENTS + SALARIES)
+        //  CLIENT USER REPORT (PAYMENTS + SALARIES)
         [HttpGet("client")]
         [Authorize(Roles = "CLIENT_USER")]
         public async Task<IActionResult> GetClientUserReport(
@@ -110,7 +110,7 @@ namespace APCapstoneProject.Controllers
 
 
 
-        // 🔹 4️⃣ REPORT HISTORY (COMMON TO ALL ROLES)
+        // REPORT HISTORY (COMMON TO ALL ROLES)
         [HttpGet("history")]
         [Authorize] // All authenticated roles
         public async Task<IActionResult> GetReportHistory()

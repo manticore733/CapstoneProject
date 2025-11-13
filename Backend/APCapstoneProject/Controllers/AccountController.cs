@@ -50,7 +50,7 @@ namespace APCapstoneProject.Controllers
         }
 
 
-        // --- ADD THIS ENTIRE METHOD ---
+       
         [Authorize(Roles = "CLIENT_USER")]
         [HttpGet("myaccount")]
         public async Task<ActionResult<ReadAccountDto>> GetMyAccount()
