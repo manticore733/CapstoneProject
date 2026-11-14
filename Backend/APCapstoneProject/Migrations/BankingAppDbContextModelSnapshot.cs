@@ -262,6 +262,48 @@ namespace APCapstoneProject.Migrations
                         });
                 });
 
+            modelBuilder.Entity("APCapstoneProject.Model.ReportRecord", b =>
+                {
+                    b.Property<int>("ReportRecordId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReportRecordId"));
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("FileSizeBytes")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("FileUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Filters")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("GeneratedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ReportName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("RequestedByRole")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RequestedByUserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ReportRecordId");
+
+                    b.ToTable("ReportRecords");
+                });
+
             modelBuilder.Entity("APCapstoneProject.Model.SalaryDisbursementDetail", b =>
                 {
                     b.Property<int>("SalaryDisbursementDetailId")
@@ -274,21 +316,32 @@ namespace APCapstoneProject.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<string>("BankName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("DestinationAccountNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
+
+                    b.Property<string>("IFSC")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool?>("IsSuccessful")
+                        .HasColumnType("bit");
 
                     b.Property<DateTime>("ProcessedAt")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Remark")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SalaryDisbursementId")
                         .HasColumnType("int");
-
-                    b.Property<bool?>("Success")
-                        .HasColumnType("bit");
 
                     b.HasKey("SalaryDisbursementDetailId");
 
@@ -344,25 +397,16 @@ namespace APCapstoneProject.Migrations
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("BankName")
-                        .IsRequired()
+                    b.Property<string>("BankRemark")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("DestinationAccountNumber")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Discriminator")
                         .IsRequired()
                         .HasMaxLength(21)
                         .HasColumnType("nvarchar(21)");
-
-                    b.Property<string>("IFSC")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ProcessedAt")
                         .HasColumnType("datetime2");
@@ -515,8 +559,17 @@ namespace APCapstoneProject.Migrations
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("BankName")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("BeneficiaryId")
                         .HasColumnType("int");
+
+                    b.Property<string>("DestinationAccountNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IFSC")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SenderClientId")
                         .HasColumnType("int");
@@ -541,9 +594,21 @@ namespace APCapstoneProject.Migrations
                     b.Property<DateTime>("DisbursementDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("FailedCount")
+                        .HasColumnType("int");
+
+                    b.Property<bool?>("IsPartialSuccess")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("SuccessfulCount")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(18, 2)
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("TotalEmployees")
+                        .HasColumnType("int");
 
                     b.HasIndex("ClientUserId");
 
@@ -575,6 +640,9 @@ namespace APCapstoneProject.Migrations
                     b.Property<DateTime>("EstablishmentDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Remark")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("StatusId")
                         .HasColumnType("int");
 
@@ -583,6 +651,13 @@ namespace APCapstoneProject.Migrations
                     b.HasIndex("StatusId");
 
                     b.HasDiscriminator().HasValue("ClientUser");
+                });
+
+            modelBuilder.Entity("APCapstoneProject.Model.SuperAdmin", b =>
+                {
+                    b.HasBaseType("APCapstoneProject.Model.User");
+
+                    b.HasDiscriminator().HasValue("SuperAdmin");
                 });
 
             modelBuilder.Entity("APCapstoneProject.Model.Account", b =>

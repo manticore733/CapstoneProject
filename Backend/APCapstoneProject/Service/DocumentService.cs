@@ -12,18 +12,18 @@ namespace APCapstoneProject.Service
     public class DocumentService : IDocumentService
     {
         private readonly IDocumentRepository _documentRepository;
-        private readonly IUserRepository _userRepository; // To verify ClientUser exists
+        private readonly IClientUserRepository _clientUserRepository; // To verify ClientUser exists
         private readonly IMapper _mapper;
         private readonly Cloudinary _cloudinary; // Cloudinary client
 
         public DocumentService(
             IDocumentRepository documentRepository,
-            IUserRepository userRepository,
+            IClientUserRepository clientUserRepository,
             IMapper mapper,
             IOptions<CloudinarySettings> config) // Inject settings via IOptions
         {
             _documentRepository = documentRepository;
-            _userRepository = userRepository;
+            _clientUserRepository = clientUserRepository;
             _mapper = mapper;
 
             // --- Configure Cloudinary Client ---
@@ -39,7 +39,7 @@ namespace APCapstoneProject.Service
         public async Task<DocumentReadDto> UploadDocumentAsync(int clientUserId, int proofTypeId, IFormFile file)
         {
             // 1. Validate Client User
-            var clientUser = await _userRepository.GetByIdAsync(clientUserId);
+            var clientUser = await _clientUserRepository.GetClientUserByIdAsync(clientUserId);
             if (clientUser == null || !(clientUser is ClientUser))
             {
                 throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
@@ -63,6 +63,7 @@ namespace APCapstoneProject.Service
                 // Optional: Use original filename, or generate a unique one
                 PublicId = Path.GetFileNameWithoutExtension(file.FileName) + "_" + Guid.NewGuid().ToString(),
                 Overwrite = true // Or false if you want to prevent overwriting
+
             };
 
             RawUploadResult uploadResult; // Use RawUploadResult
@@ -95,6 +96,17 @@ namespace APCapstoneProject.Service
             await _documentRepository.AddAsync(document);
             await _documentRepository.SaveChangesAsync();
 
+
+            // change user verification status back to pending if he is reuploading.
+            if (clientUser.StatusId == (int)StatusEnum.REJECTED)
+            {
+                clientUser.StatusId = (int)StatusEnum.PENDING;
+                await _clientUserRepository.UpdateClientUserAsync(clientUser);
+                await _documentRepository.SaveChangesAsync();
+            }
+
+
+
             // 6. Return DTO (Need to get ProofType name)
             // Re-fetch or manually construct DTO if AddAsync doesn't return relations
             // For simplicity, let's assume AddAsync updates the ID and we map manually for now
@@ -108,18 +120,36 @@ namespace APCapstoneProject.Service
             return documentDto;
         }
 
-        public async Task<IEnumerable<DocumentReadDto>> GetDocumentsForClientAsync(int clientUserId)
+        public async Task<IEnumerable<DocumentReadDto>> GetDocumentsForClientAsync(int bankUserId, int clientUserId)
         {
-            // Validate Client User
-            var clientUser = await _userRepository.GetByIdAsync(clientUserId);
-            if (clientUser == null || !(clientUser is ClientUser))
-            {
-                // Return empty list or throw error, depending on desired behavior
-                return new List<DocumentReadDto>();
-            }
+            // check if client with given Id exists
+            var clientUser = await _clientUserRepository.GetClientUserByIdAsync(clientUserId);
+            if (clientUser == null || clientUser is not ClientUser)
+                throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
+
+            // Checking if clientUser belonmgs to BankUser
+            var client = clientUser as ClientUser;
+            if (client.BankUserId != bankUserId)
+                throw new UnauthorizedAccessException("This client does not belong to you");
 
             var documents = await _documentRepository.GetDocumentsByClientIdAsync(clientUserId);
 
+            return _mapper.Map<IEnumerable<DocumentReadDto>>(documents);
+        }
+
+        public async Task<IEnumerable<DocumentReadDto>> GetMyDocumentsAsync(int clientUserId)
+        {
+            // 1. Validate Client User (optional, but good practice)
+            var clientUser = await _clientUserRepository.GetClientUserByIdAsync(clientUserId);
+            if (clientUser == null || !(clientUser is ClientUser))
+            {
+                throw new KeyNotFoundException($"Client user with ID {clientUserId} not found.");
+            }
+
+            // 2. Get documents
+            var documents = await _documentRepository.GetDocumentsByClientIdAsync(clientUserId);
+
+            // 3. Map and return
             return _mapper.Map<IEnumerable<DocumentReadDto>>(documents);
         }
     }

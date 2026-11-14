@@ -1,0 +1,21 @@
+﻿<!doctype html>
+<html>
+<body style="font-family: Arial, sans-serif; color: #222; line-height: 1.5;">
+    <p>Dear {{FullName}},</p>
+
+    <p>Your payment request has been received and is pending approval.</p>
+
+    <p><strong>Payment Details:</strong></p>
+    <table style="border-collapse: collapse;">
+        <tr><td>Transaction ID:</td><td>{{TransactionId}}</td></tr>
+        <tr><td>Amount:</td><td>₹{{Amount}}</td></tr>
+        <tr><td>Beneficiary:</td><td>{{BeneficiaryName}}</td></tr>
+        <tr><td>Your Remarks:</td><td>{{ClientRemarks}}</td></tr>
+        <tr><td>Request Date:</td><td>{{CreatedAt}}</td></tr>
+    </table>
+
+    <p>We will notify you once the payment is approved or rejected.</p>
+
+    <p>Regards,<br />Banking App Team</p>
+</body>
+</html>

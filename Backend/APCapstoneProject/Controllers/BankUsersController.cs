@@ -2,12 +2,14 @@
 using APCapstoneProject.DTO.User.BankUser;
 using APCapstoneProject.DTO.User.ClientUser;
 using APCapstoneProject.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace APCapstoneProject.Controllers
 {
+    [Authorize(Roles = "SUPER_ADMIN")]
     [Route("api/[controller]")]
     [ApiController]
     public class BankUsersController : ControllerBase
@@ -73,37 +75,16 @@ namespace APCapstoneProject.Controllers
         }
 
 
-
-
-        //Authorize for bankuser access only
-        //[HttpPut("{clientUserId}/approve/ownedby/{bankUserId}")]
-        //public async Task<IActionResult> ApproveClientUser(int clientUserId, int bankUserId, [FromBody] ClientApprovalDto dto)
-        //{
-        //    if (!ModelState.IsValid) return BadRequest(ModelState);
-
-        //    try
-        //    {
-        //        var result = await _userService.ApproveClientUserAsync(clientUserId, bankUserId, dto);
-        //        if (result == null) return NotFound("Client not found or unauthorized.");
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(new { message = ex.Message });
-        //    }
-        //}
-
-
-
-
         // bu approves cu based on valid doc
-        // --- ADD THIS NEW ENDPOINT ---
-        // PUT /api/clientusers/{clientId}/approvedby/{bankUserId}
-        // [Authorize(Roles = "BANK_USER")] // <-- Add later
-        [HttpPut("{clientId}/approveby/{bankUserId}")]
-        public async Task<ActionResult<ReadClientUserDto>> ApproveClient(int clientId, int bankUserId, [FromBody] ClientApprovalDto approvalDto)
+        [AllowAnonymous]
+        [Authorize(Roles = "BANK_USER")]
+        [HttpPut("{clientId}/approve")]
+        public async Task<ActionResult<ReadClientUserDto>> ApproveClient(int clientId, [FromBody] ClientApprovalDto approvalDto)
         {
-            // LATER: bankUserId will come from JWT token
+
+            var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
+
+
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);

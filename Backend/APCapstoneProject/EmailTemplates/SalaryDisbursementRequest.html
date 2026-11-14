@@ -1,0 +1,20 @@
+﻿<!doctype html>
+<html>
+<body style="font-family: Arial, sans-serif; color: #222; line-height: 1.5;">
+    <p>Dear {{FullName}},</p>
+
+    <p>Your salary disbursement request has been received and is pending approval.</p>
+
+    <p><strong>Request Details:</strong></p>
+    <table style="border-collapse: collapse;">
+        <tr><td>Transaction ID:</td><td>{{TransactionId}}</td></tr>
+        <tr><td>Total Employees:</td><td>{{TotalEmployees}}</td></tr>
+        <tr><td>Total Amount:</td><td>₹{{TotalAmount}}</td></tr>
+        <tr><td>Request Date:</td><td>{{CreatedAt}}</td></tr>
+    </table>
+
+    <p>We will notify you once the disbursement is processed.</p>
+
+    <p>Regards,<br />Banking App Team</p>
+</body>
+</html>

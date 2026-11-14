@@ -16,6 +16,12 @@ namespace APCapstoneProject.Model
         public int BeneficiaryId { get; set; }
         public virtual Beneficiary? Beneficiary { get; set; }
 
+
+        //change later to required
+        public string? BankName { get; set; } = string.Empty;
+        public string? IFSC { get; set; } = string.Empty;
+        public string? DestinationAccountNumber { get; set; }
+
         //parent class already has a processedAt field but still time of approval and processing can differ.
         public DateTime? ApprovedAt { get; set; }
     }

@@ -1,0 +1,13 @@
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  text-align: left;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

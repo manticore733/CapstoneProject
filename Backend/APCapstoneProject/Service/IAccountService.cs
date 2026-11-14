@@ -9,5 +9,8 @@ namespace APCapstoneProject.Service
 
         Task<bool> CreditAsync(int accountId, decimal amount);
         Task<bool> DebitAsync(int accountId, decimal amount);
+
+        // --- ADD THIS LINE ---
+        Task<ReadAccountDto?> GetAccountByClientUserIdAsync(int clientUserId);
     }
 }

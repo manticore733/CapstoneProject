@@ -11,6 +11,9 @@ namespace APCapstoneProject.DTO.User
         [DataType(DataType.Currency)]
         [Range(0, double.MaxValue, ErrorMessage = "Initial balance must be a positive value.")]
         public decimal InitialBalance { get; set; } = 0;
+
+
+        public string? Remark { get; set; }
     }
 }
 

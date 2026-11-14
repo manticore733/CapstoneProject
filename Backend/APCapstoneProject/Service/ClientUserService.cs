@@ -9,11 +9,13 @@ namespace APCapstoneProject.Service
     {
         private readonly IClientUserRepository _clientUserRepo;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
-        public ClientUserService(IClientUserRepository clientUserRepo, IMapper mapper)
+        public ClientUserService(IClientUserRepository clientUserRepo, IMapper mapper, IEmailService emailService)
         {
             _clientUserRepo = clientUserRepo;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         public async Task<ReadClientUserDto> CreateClientUserAsync(CreateClientUserDto dto, int creatorBankUserId)
@@ -26,6 +28,24 @@ namespace APCapstoneProject.Service
             clientUser.IsActive = true;
 
             await _clientUserRepo.AddClientUserAsync(clientUser);
+
+            try
+            {
+                var tokens = new Dictionary<string, string?>
+                {
+                    ["FullName"] = clientUser.UserFullName,
+                    ["SubmittedAt"] = clientUser.CreatedAt.ToString("dd MMM yyyy, HH:mm")
+                };
+                await _emailService.SendTemplateEmailAsync(clientUser.UserEmail,
+                    "Your application has been received",
+                    "ClientRegistrationReceived.html",
+                    tokens);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Email failed: {ex.Message}");
+            }
+
 
             var created = await _clientUserRepo.GetClientUserByIdAsync(clientUser.UserId);
             return _mapper.Map<ReadClientUserDto>(created);
@@ -62,5 +82,18 @@ namespace APCapstoneProject.Service
 
             return await _clientUserRepo.DeleteClientUserAsync(clientId);
         }
+
+
+        // ← NEW: Get client user profile by userId (for client's own profile)
+        public async Task<ReadClientUserDto?> GetClientUserByIdAsync(int userId)
+        {
+            var clientUser = await _clientUserRepo.GetClientUserByIdAsync(userId);
+            return clientUser == null ? null : _mapper.Map<ReadClientUserDto>(clientUser);
+        }
+
+
+
+
+
     }
 }

@@ -1,0 +1,513 @@
+<div class="space-y-6">
+  <!-- Header Section -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+          <svg class="w-7 h-7 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+          </svg>
+          Bank Management
+        </h2>
+        <p class="text-sm text-gray-500 mt-1">Manage all registered banks and their information</p>
+      </div>
+      <button
+        (click)="addBank()"
+        class="flex items-center gap-2 bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg font-medium"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Add Bank
+      </button>
+    </div>
+  </div>
+
+  <!-- Search and Filter Section -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <!-- Search Bar -->
+      <div class="md:col-span-2">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Search Banks</label>
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input
+            type="text"
+            [(ngModel)]="searchTerm"
+            (input)="applyFilters()"
+            placeholder="Search by bank name or IFSC code..."
+            class="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+          />
+          <button
+            *ngIf="searchTerm"
+            (click)="clearSearch()"
+            class="absolute inset-y-0 right-0 pr-3 flex items-center"
+          >
+            <svg class="h-5 w-5 text-gray-400 hover:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Status Filter -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Filter by Status</label>
+        <select
+          [(ngModel)]="statusFilter"
+          (change)="applyFilters()"
+          class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none appearance-none bg-white"
+        >
+          <option value="all">All Status</option>
+          <option value="active">Active Only</option>
+          <option value="inactive">Inactive Only</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Active Filters Display -->
+    <div *ngIf="searchTerm || statusFilter !== 'all'" class="mt-4 flex items-center gap-2 flex-wrap">
+      <span class="text-sm text-gray-600">Active filters:</span>
+      <span *ngIf="searchTerm" class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-700 rounded-full text-sm">
+        Search: "{{ searchTerm }}"
+        <button (click)="clearSearch()" class="hover:bg-blue-200 rounded-full p-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </span>
+      <span *ngIf="statusFilter !== 'all'" class="inline-flex items-center gap-1 px-3 py-1 bg-green-100 text-green-700 rounded-full text-sm">
+        Status: {{ statusFilter === 'active' ? 'Active' : 'Inactive' }}
+        <button (click)="clearStatusFilter()" class="hover:bg-green-200 rounded-full p-0.5">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </span>
+      <button (click)="clearAllFilters()" class="text-sm text-red-600 hover:text-red-700 font-medium">
+        Clear all
+      </button>
+    </div>
+  </div>
+
+  <!-- Results Summary -->
+  <div class="flex items-center justify-between">
+    <p class="text-sm text-gray-600">
+      Showing <span class="font-semibold">{{ getStartIndex() + 1 }}</span> to 
+      <span class="font-semibold">{{ getEndIndex() }}</span> of 
+      <span class="font-semibold">{{ filteredBanks.length }}</span> results
+      <span *ngIf="filteredBanks.length !== banks.length" class="text-gray-500">
+        (filtered from {{ banks.length }} total)
+      </span>
+    </p>
+    
+    <!-- Items per page -->
+    <div class="flex items-center gap-2">
+      <label class="text-sm text-gray-600">Show:</label>
+      <select
+        [(ngModel)]="itemsPerPage"
+        (change)="onItemsPerPageChange()"
+        class="px-3 py-1.5 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none"
+      >
+        <option [value]="5">5</option>
+        <option [value]="10">10</option>
+        <option [value]="25">25</option>
+        <option [value]="50">50</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Table Section -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-16">#</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <button (click)="sortBy('bankName')" class="flex items-center gap-1 hover:text-blue-600">
+                Bank Details
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                </svg>
+              </button>
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <button (click)="sortBy('ifsc')" class="flex items-center gap-1 hover:text-blue-600">
+                IFSC Code
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                </svg>
+              </button>
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+              <button (click)="sortBy('establishmentDate')" class="flex items-center gap-1 hover:text-blue-600">
+                Established
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4"></path>
+                </svg>
+              </button>
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Users</th>
+            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Clients</th>
+            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          <tr *ngFor="let bank of getPaginatedBanks(); let i = index" class="hover:bg-gray-50 transition-colors duration-150">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
+              {{ getStartIndex() + i + 1 }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="flex-shrink-0 h-10 w-10 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                  </svg>
+                </div>
+                <div class="ml-4">
+                  <div class="text-sm font-semibold text-gray-900">{{ bank.bankName }}</div>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span class="text-sm text-gray-700 font-mono bg-gray-100 px-2 py-1 rounded">{{ bank.ifsc }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              {{ bank.establishmentDate | date:'mediumDate' }}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap">
+              <span
+                class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                [class.bg-green-100]="bank.isActive"
+                [class.text-green-800]="bank.isActive"
+                [class.bg-red-100]="!bank.isActive"
+                [class.text-red-800]="!bank.isActive"
+              >
+                <span class="w-2 h-2 mr-1.5 rounded-full" [class.bg-green-500]="bank.isActive" [class.bg-red-500]="!bank.isActive"></span>
+                {{ bank.isActive ? 'Active' : 'Inactive' }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-100 text-blue-800 text-sm font-semibold">
+                {{ bank.totalBankUsers || 0 }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <span class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-100 text-purple-800 text-sm font-semibold">
+                {{ bank.totalClientUserAccountsHandled || 0 }}
+              </span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <div class="flex items-center justify-center gap-2">
+                <button
+                  (click)="editBank(bank)"
+                  class="p-2 text-yellow-600 hover:bg-yellow-50 rounded-lg transition-colors duration-200"
+                  title="Edit Bank"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                  </svg>
+                </button>
+                <button
+                  (click)="deleteBank(bank.bankId)"
+                  class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors duration-200"
+                  title="Delete Bank"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredBanks.length === 0" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">
+        {{ banks.length === 0 ? 'No banks found' : 'No matching results' }}
+      </h3>
+      <p class="mt-1 text-sm text-gray-500">
+        {{ banks.length === 0 ? 'Get started by adding a new bank.' : 'Try adjusting your search or filters.' }}
+      </p>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div *ngIf="filteredBanks.length > 0" class="bg-white rounded-xl shadow-sm border border-gray-200 px-6 py-4">
+    <div class="flex items-center justify-between">
+      <button
+        (click)="previousPage()"
+        [disabled]="currentPage === 1"
+        class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors duration-200"
+        [class.text-gray-400]="currentPage === 1"
+        [class.cursor-not-allowed]="currentPage === 1"
+        [class.text-gray-700]="currentPage !== 1"
+        [class.hover:bg-gray-50]="currentPage !== 1"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Previous
+      </button>
+
+      <div class="flex items-center gap-2">
+        <button
+          *ngFor="let page of getPageNumbers()"
+          (click)="goToPage(page)"
+          class="w-10 h-10 flex items-center justify-center rounded-lg text-sm font-medium transition-colors duration-200"
+          [class.bg-blue-600]="page === currentPage"
+          [class.text-white]="page === currentPage"
+          [class.text-gray-700]="page !== currentPage"
+          [class.hover:bg-gray-100]="page !== currentPage"
+        >
+          {{ page }}
+        </button>
+      </div>
+
+      <button
+        (click)="nextPage()"
+        [disabled]="currentPage === totalPages"
+        class="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium transition-colors duration-200"
+        [class.text-gray-400]="currentPage === totalPages"
+        [class.cursor-not-allowed]="currentPage === totalPages"
+        [class.text-gray-700]="currentPage !== totalPages"
+        [class.hover:bg-gray-50]="currentPage !== totalPages"
+      >
+        Next
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Add/Edit Bank Modal -->
+  <div
+  *ngIf="showForm"
+  class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+  (click)="cancelForm()"
+>
+  <div
+    class="bg-white rounded-2xl shadow-2xl w-full max-w-md transform transition-all"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Modal Header -->
+    <div class="flex items-center justify-between p-6 border-b border-gray-200">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900">
+          {{ isEdit ? 'Edit Bank' : 'Add New Bank' }}
+        </h3>
+      </div>
+      <button
+        (click)="cancelForm()"
+        class="text-gray-400 hover:text-gray-600 transition-colors"
+      >
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <form #bankForm="ngForm" (ngSubmit)="saveBank()" class="p-6 space-y-5">
+      <!-- Bank Name Field -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Bank Name <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="text"
+          [(ngModel)]="newBank.bankName"
+          name="bankName"
+          #bankName="ngModel"
+          placeholder="Enter bank name (e.g., State Bank of India)"
+          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+          [class.border-gray-300]="!bankName.invalid || !bankName.touched"
+          [class.border-red-500]="bankName.invalid && bankName.touched"
+          required
+          minlength="3"
+          maxlength="100"
+          pattern="^[a-zA-Z0-9\s&.-]+$"
+        />
+        <!-- Validation Messages -->
+        <div *ngIf="bankName.invalid && bankName.touched" class="mt-1 text-sm text-red-600">
+          <p *ngIf="bankName.errors?.['required']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Bank name is required
+          </p>
+          <p *ngIf="bankName.errors?.['minlength']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Bank name must be at least 3 characters
+          </p>
+          <p *ngIf="bankName.errors?.['maxlength']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Bank name cannot exceed 100 characters
+          </p>
+          <p *ngIf="bankName.errors?.['pattern']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Bank name can only contain letters, numbers, spaces, and & . -
+          </p>
+        </div>
+        <p *ngIf="!bankName.invalid || !bankName.touched" class="mt-1 text-xs text-gray-500">
+          Enter the full official bank name
+        </p>
+      </div>
+
+      <!-- IFSC Code Field -->
+     <!-- IFSC Code Field -->
+<div>
+  <label class="block text-sm font-medium text-gray-700 mb-2">
+    IFSC Code <span class="text-red-500">*</span>
+  </label>
+  <input
+    type="text"
+    [(ngModel)]="newBank.ifsc"
+    name="ifsc"
+    #ifsc="ngModel"
+    placeholder="Enter IFSC code (e.g., SBIN0001234)"
+    class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none font-mono uppercase"
+    [class.border-gray-300]="!ifsc.invalid || !ifsc.touched"
+    [class.border-red-500]="ifsc.invalid && ifsc.touched"
+    required
+    minlength="11"
+    maxlength="11"
+    pattern="^[A-Za-z0-9]+$"
+    (input)="newBank.ifsc = $any($event.target).value.toUpperCase()"
+  />
+  <!-- Validation Messages -->
+  <div *ngIf="ifsc.invalid && ifsc.touched" class="mt-1 text-sm text-red-600">
+    <p *ngIf="ifsc.errors?.['required']" class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+      </svg>
+      IFSC code is required
+    </p>
+    <p *ngIf="ifsc.errors?.['minlength'] || ifsc.errors?.['maxlength']" class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+      </svg>
+      IFSC code must be exactly 11 characters
+    </p>
+    <p *ngIf="ifsc.errors?.['pattern'] && !ifsc.errors?.['minlength'] && !ifsc.errors?.['maxlength']" class="flex items-center gap-1">
+      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+      </svg>
+      IFSC code can only contain letters and numbers (no special characters)
+    </p>
+  </div>
+  <p *ngIf="!ifsc.invalid || !ifsc.touched" class="mt-1 text-xs text-gray-500">
+    11-character alphanumeric code without special characters
+  </p>
+</div>
+
+      <!-- Establishment Date Field (Only for Add) -->
+      <div *ngIf="!isEdit">
+        <label class="block text-sm font-medium text-gray-700 mb-2">
+          Establishment Date <span class="text-red-500">*</span>
+        </label>
+        <input
+          type="date"
+          [(ngModel)]="newBank.establishmentDate"
+          name="establishmentDate"
+          #establishmentDate="ngModel"
+          class="w-full px-4 py-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200 outline-none"
+          [class.border-gray-300]="!establishmentDate.invalid || !establishmentDate.touched"
+          [class.border-red-500]="establishmentDate.invalid && establishmentDate.touched"
+          [max]="maxDate"
+          required
+        />
+        <!-- Validation Messages -->
+        <div *ngIf="establishmentDate.invalid && establishmentDate.touched" class="mt-1 text-sm text-red-600">
+          <p *ngIf="establishmentDate.errors?.['required']" class="flex items-center gap-1">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+            </svg>
+            Establishment date is required
+          </p>
+        </div>
+        <p *ngIf="newBank.establishmentDate && !establishmentDate.invalid" class="mt-1 text-xs text-green-600 flex items-center gap-1">
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+          </svg>
+          Date cannot be in the future
+        </p>
+        <p *ngIf="!establishmentDate.invalid || !establishmentDate.touched" class="mt-1 text-xs text-gray-500">
+          Select the bank's establishment date
+        </p>
+      </div>
+
+      <!-- Error Display (API Errors) -->
+      <div *ngIf="formError" class="p-4 bg-red-50 border border-red-200 rounded-lg">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+          </svg>
+          <div>
+            <p class="font-semibold text-red-900">Validation Error</p>
+            <p class="text-sm text-red-700 mt-1">{{ formError }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="flex gap-3 pt-4">
+        <button
+          type="submit"
+          [disabled]="bankForm.invalid || submitting"
+          class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition duration-200 shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        >
+          <svg *ngIf="submitting" class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ submitting ? 'Processing...' : (isEdit ? 'Update Bank' : 'Create Bank') }}
+        </button>
+        <button
+          type="button"
+          (click)="cancelForm()"
+          [disabled]="submitting"
+          class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-200 transition duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Cancel
+        </button>
+      </div>
+
+      <!-- Form Hint -->
+      <p class="text-xs text-gray-500 text-center">
+        <span class="text-red-500">*</span> Required fields
+      </p>
+    </form>
+  </div>
+</div>
+
+
+
+
+
+  
+</div>

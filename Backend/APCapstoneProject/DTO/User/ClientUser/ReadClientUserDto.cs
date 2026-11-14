@@ -28,5 +28,8 @@ namespace APCapstoneProject.DTO.User.ClientUser
         // --- ADD THIS LINE ---
         public string? AccountNumber { get; set; }
 
+
+        public string? Remark { get; set; }  // ← Make sure this exists!
+
     }
 }

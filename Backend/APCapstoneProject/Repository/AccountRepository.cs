@@ -36,6 +36,8 @@ namespace APCapstoneProject.Repository
         public async Task<Account?> GetByClientIdAsync(int clientUserId)
         {
             return await _context.Accounts
+                .Include(a => a.ClientUser) // <-- ADD THIS LINE
+                .Include(a => a.Bank)       // <-- ADD THIS LINE
                 .FirstOrDefaultAsync(a => a.ClientUserId == clientUserId && a.IsActive);
         }
 

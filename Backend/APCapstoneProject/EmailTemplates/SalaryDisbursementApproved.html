@@ -1,0 +1,24 @@
+﻿<!doctype html>
+<html>
+<body style="font-family: Arial, sans-serif; color: #222; line-height: 1.5;">
+    <p>Dear {{FullName}},</p>
+
+    <p>Your salary disbursement request has been approved and processed successfully.</p>
+
+    <p><strong>Transaction Details:</strong></p>
+    <table style="border-collapse: collapse;">
+        <tr><td>Transaction ID:</td><td>{{TransactionId}}</td></tr>
+        <tr><td>Total Employees:</td><td>{{TotalEmployees}}</td></tr>
+        <tr><td>Total Amount:</td><td>₹{{TotalAmount}}</td></tr>
+        <tr><td>Successful Transfers:</td><td>{{SuccessfulCount}}</td></tr>
+        <tr><td>Failed Transfers:</td><td>{{FailedCount}}</td></tr>
+        <tr><td>Amount Debited:</td><td>₹{{DebitedAmount}}</td></tr>
+        <tr><td>Processed On:</td><td>{{ProcessedAt}}</td></tr>
+        <tr><td>Bank Remark:</td><td>{{BankRemark}}</td></tr>
+    </table>
+
+    <p>Thank you for using our services.</p>
+
+    <p>Regards,<br />Banking App Team</p>
+</body>
+</html>

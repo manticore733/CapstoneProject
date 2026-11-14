@@ -1,12 +1,14 @@
 ﻿using APCapstoneProject.DTO.User;
 using APCapstoneProject.DTO.User.ClientUser;
 using APCapstoneProject.Service;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace APCapstoneProject.Controllers
 {
+    
     [Route("api/[controller]")]
     [ApiController]
     public class ClientUsersController : ControllerBase
@@ -18,12 +20,11 @@ namespace APCapstoneProject.Controllers
             _clientUserService = clientUserService;
         }
 
-        // --- FOR TESTING ---
-        // We'll pass the creator's ID in the route.
-        // The real endpoint will be just [HttpPost]
-        [HttpPost("createdby/{bankUserId}")]
-        public async Task<ActionResult<UserReadDto>> CreateClientUser(int bankUserId, CreateClientUserDto createDto)
+        [HttpPost]
+        [Authorize(Roles = "BANK_USER")]
+        public async Task<ActionResult<UserReadDto>> CreateClientUser([FromBody] CreateClientUserDto createDto)
         {
+            var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
             try
             {
                 // When we add auth, get 'bankUserId' from the token instead.
@@ -36,39 +37,41 @@ namespace APCapstoneProject.Controllers
             }
         }
 
-        // --- FOR TESTING ---
-        // We need the BankUser's ID to check if they own this client.
-        [HttpPut("{id}/ownedby/{bankUserId}")]
-        public async Task<IActionResult> UpdateClientUser(int id, int bankUserId, UpdateClientUserDto updateDto)
+        [HttpPut("{id}")]
+        [Authorize(Roles = "BANK_USER")]
+        public async Task<IActionResult> UpdateClientUser(int id, [FromBody] UpdateClientUserDto updateDto)
         {
+            var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var updatedUser = await _clientUserService.UpdateClientUserAsync(id, updateDto, bankUserId);
             if (updatedUser==null) return NotFound("Client not found or does not belong to this Bank User.");
             return Ok(updatedUser);
         }
 
-        // --- FOR TESTING ---
-        // We need the BankUser's ID to get their clients.
-        [HttpGet("myclients/{bankUserId}")]
-        public async Task<ActionResult<IEnumerable<UserReadDto>>> GetMyClients(int bankUserId)
+
+        [HttpGet("myclients")]
+        [Authorize(Roles = "BANK_USER")]
+        public async Task<ActionResult<IEnumerable<UserReadDto>>> GetMyClients()
         {
+            var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var clients = await _clientUserService.GetClientsForBankUserAsync(bankUserId);
             return Ok(clients);
         }
 
-        // --- FOR TESTING ---
-        [HttpGet("{id}/ownedby/{bankUserId}")]
-        public async Task<ActionResult<UserReadDto>> GetMyClient(int id, int bankUserId)
+        [HttpGet("{id}")]
+        [Authorize(Roles = "BANK_USER")]
+        public async Task<ActionResult<UserReadDto>> GetMyClient(int id)
         {
+            var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
             var client = await _clientUserService.GetClientForBankUserAsync(id, bankUserId);
             if (client == null) return NotFound();
             return Ok(client);
         }
 
-        // --- FOR TESTING ---
-        // Ensure that a BankUser can delete only their own clients
-        [HttpDelete("{id}/ownedby/{bankUserId}")]
-        public async Task<IActionResult> DeleteClientUser(int id, int bankUserId)
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "BANK_USER")]
+        public async Task<IActionResult> DeleteClientUser(int id)
         {
+            var bankUserId = int.Parse(User.FindFirst("UserId")!.Value);
             try
             {
                 var success = await _clientUserService.DeleteClientUserAsync(id, bankUserId);
@@ -83,7 +86,24 @@ namespace APCapstoneProject.Controllers
             }
         }
 
-        // Additional methods for business logic
+        // ========== CLIENT USER ENDPOINTS ==========
+
+        // ← NEW: Client User gets their own profile
+        [Authorize(Roles = "CLIENT_USER , BANK_USER")]
+        [HttpGet("myprofile")]
+        public async Task<ActionResult<ReadClientUserDto>> GetMyProfile()
+        {
+            var userId = int.Parse(User.FindFirst("UserId")!.Value);
+            var clientUser = await _clientUserService.GetClientUserByIdAsync(userId);
+
+            if (clientUser == null)
+                return NotFound(new { message = "Client user profile not found." });
+
+            return Ok(clientUser);
+        }
+
+
+
 
     }
 }
