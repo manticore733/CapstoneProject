@@ -17,12 +17,16 @@ namespace APCapstoneProject
     {
         public static void Main(string[] args)
         {
+            // Npgsql only accepts UTC DateTimes for timestamptz; the app sends Unspecified/Local
+            // dates from the client (EstablishmentDate, DateOfJoining...), so keep SQL Server-like behavior.
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             builder.Services.AddDbContext<BankingAppDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("myconn"));
+                options.UseNpgsql(builder.Configuration.GetConnectionString("myconn"));
             });
 
             builder.Services.AddControllers();
